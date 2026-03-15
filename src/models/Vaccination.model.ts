@@ -32,4 +32,4 @@ export class Vaccination extends Model<InferAttributes<Vaccination>, InferCreati
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
-}
+} 

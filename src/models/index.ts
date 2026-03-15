@@ -7,6 +7,8 @@ import { sequelize } from "../config/db.config.js";
 import { Animal } from "./Animal.model.js";
 import { Owner } from "./Owner.model.js";
 import { User } from "./User.model.js";
+import { Alimentation } from "./Alimentation.model.js";
+import { Food } from "./Food.model.js";
 
 sequelize.addModels([
     ReproductionData,
@@ -36,6 +38,28 @@ MedicalHistory.belongsTo(Animal, {
     foreignKey: 'animalId',
     as: 'animal'
 });
+
+
+Animal.hasMany(Alimentation,{
+    foreignKey:"animalId",
+    as:'alimentations'
+});
+
+Alimentation.belongsTo(Animal,{
+    foreignKey:'animalId',
+    as:'animal'
+});
+
+
+Alimentation.hasOne(Food,{
+    foreignKey:'food_id',
+    as:'food'
+});
+
+Food.belongsTo(Alimentation,{
+    foreignKey:'food_id',
+    as:'alimentations'
+})
 
 
 User.hasMany(MedicalHistory, { foreignKey: 'createdBy', as: 'writtenHistories' });
