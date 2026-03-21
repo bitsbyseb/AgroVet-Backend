@@ -9,30 +9,22 @@ import { RegisterUserUseCase } from './application/use-cases/RegisterUserUseCase
 import { LoginUserUseCase } from './application/use-cases/LoginUserUseCase.js';
 import { AuthController } from './infrastructure/http/hono/controllers/AuthController.js';
 import { createAuthRouter } from './infrastructure/http/hono/routers/AuthRouter.js';
-
 await sequelize.authenticate();
 await sequelize.sync();
-
 const PORT = parseInt(process.env.PORT || '3000');
-
 // Dependency Injection
 const userRepository = new SequelizeUserRepository();
 const passwordHasher = new BcryptHasher();
 const tokenService = new HonoTokenService();
-
 const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher);
 const loginUserUseCase = new LoginUserUseCase(userRepository, passwordHasher, tokenService);
-
 const authController = new AuthController(registerUserUseCase, loginUserUseCase);
 const authRouter = createAuthRouter(authController);
-
 const app = new Hono();
-
 app.route('/api/auth', authRouter);
-
 serve({
-  fetch: app.fetch,
-  port: PORT,
+    fetch: app.fetch,
+    port: PORT,
 }, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`);
+    console.log(`Server is running on http://localhost:${info.port}`);
 });

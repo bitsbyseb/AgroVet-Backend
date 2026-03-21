@@ -5,7 +5,7 @@ export class Food extends Model<InferAttributes<Food>,InferCreationAttributes<Fo
 {
     @Attribute(DataTypes.UUID)
     @PrimaryKey
-    declare food_id:string;
+    declare foodId:string;
 
     @Attribute(DataTypes.STRING)
     @NotNull

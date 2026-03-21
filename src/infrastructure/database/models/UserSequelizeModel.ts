@@ -1,13 +1,13 @@
 import { type CreationOptional, DataTypes, type InferAttributes, type InferCreationAttributes, Model } from '@sequelize/core';
 import { Attribute, NotNull, PrimaryKey, Unique } from '@sequelize/core/decorators-legacy';
 
-enum UserRole {
+export enum UserRole {
     ADMIN = 'administrator',
     VETERINARIAN = 'veterinarian',
-    ZOOTECNISTA = "zootechnician"
+    ZOOTECHNICIAN = "zootechnician"
 }
 
-export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+export class UserSequelizeModel extends Model<InferAttributes<UserSequelizeModel>, InferCreationAttributes<UserSequelizeModel>> {
     @Attribute(DataTypes.UUID)
     @NotNull
     @Unique

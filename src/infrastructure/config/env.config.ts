@@ -6,7 +6,8 @@ const envVars = z.object({
     DATABASE_NAME: z.string({error:"no database name found"}),
     PORT:z.string({
         error:"no port number found"
-    }).min(1).max(4)
+    }).min(1).max(4),
+    JWT_SECRET:z.string({error:"no jwt defined"})
 });
 
 envVars.parse(process.env);

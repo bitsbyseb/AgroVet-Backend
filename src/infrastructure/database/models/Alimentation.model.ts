@@ -2,8 +2,6 @@ import { DataTypes, Model } from "@sequelize/core";
 import {
     Table,
     PrimaryKey,
-    AutoIncrement,
-    BelongsTo,
     Attribute,
     NotNull
 } from "@sequelize/core/decorators-legacy";
@@ -35,7 +33,7 @@ export class Alimentation extends Model {
 
     @Attribute(DataTypes.UUID)
     @NotNull
-    declare foodId: number;
+    declare foodId: string;
 
     @Attribute(DataTypes.INTEGER)
     declare count: number;
