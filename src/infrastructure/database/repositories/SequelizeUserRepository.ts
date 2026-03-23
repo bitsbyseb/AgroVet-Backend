@@ -1,5 +1,5 @@
-import type { UserRepository } from '../../../domain/repositories/UserRepository.js';
-import { User, UserRole } from '../../../domain/entities/User.js';
+import type { UserRepository } from '@domain/repositories/UserRepository.js';
+import { User, UserRole } from '@domain/entities/User.js';
 import { UserSequelizeModel } from '../models/UserSequelizeModel.js';
 
 export class SequelizeUserRepository implements UserRepository {

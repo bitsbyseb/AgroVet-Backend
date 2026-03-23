@@ -1,5 +1,5 @@
 import { sign, verify } from 'hono/jwt';
-import type { TokenService } from '../../domain/services/TokenService.js';
+import type { TokenService } from '@domain/services/TokenService.js';
 
 export class HonoTokenService implements TokenService {
     private readonly secret: string;

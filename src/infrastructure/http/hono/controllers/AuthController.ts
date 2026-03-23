@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
-import { RegisterUserUseCase } from '../../../../application/use-cases/RegisterUserUseCase.js';
-import { LoginUserUseCase } from '../../../../application/use-cases/LoginUserUseCase.js';
+import { RegisterUserUseCase } from '@application/use-cases/Auth/RegisterUserUseCase.js';
+import { LoginUserUseCase } from '@application/use-cases/Auth/LoginUserUseCase.js';
 
 export class AuthController {
     constructor(

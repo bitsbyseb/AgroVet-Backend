@@ -1,6 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
-import { email, z } from "zod";
-import { UserRole } from "../../../../domain/entities/User.js";
+import { z } from "zod";
+import { UserRole } from "@domain/entities/User.js";
 
 export const signupSchema = z.object({
     username:z.string()

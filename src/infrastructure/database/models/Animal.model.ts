@@ -1,5 +1,5 @@
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes } from "@sequelize/core";
-import {Attribute, PrimaryKey, NotNull, Unique, Table} from '@sequelize/core/decorators-legacy'
+import {Attribute, PrimaryKey, NotNull, Unique, Table, Default} from '@sequelize/core/decorators-legacy'
 
 enum animalType {
     URBAN = "urban",
@@ -19,6 +19,11 @@ enum speciesType {
 enum Gender {
     MALE = "male",
     FEMALE = "female" 
+}
+
+enum Status {
+    ACTIVE="active",
+    INACTIVE="inactive"
 }
 
 @Table({
@@ -58,6 +63,11 @@ export class Animal extends Model<InferAttributes<Animal>,InferCreationAttribute
     @Attribute(DataTypes.STRING)
     @NotNull
     declare color:string;
+
+    @Attribute(DataTypes.ENUM(...Object.values(Status)))
+    @NotNull
+    @Default(Status.ACTIVE)
+    declare status:Status;
 
     @Attribute(DataTypes.UUID)
     @NotNull
