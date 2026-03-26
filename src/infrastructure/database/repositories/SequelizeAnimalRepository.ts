@@ -1,4 +1,4 @@
-import { Animal, AnimalType, SpeciesType, Gender } from "@domain/entities/Animal.js";
+import { Animal, animalType, speciesType, Gender } from "@domain/entities/Animal.js";
 import type { AnimalRepository } from "@domain/repositories/AnimalRepository.js";
 import { Animal as AnimalModel } from "../models/Animal.model.js";
 
@@ -7,10 +7,10 @@ export class SequelizeAnimalRepository implements AnimalRepository {
         await AnimalModel.create({
             id: animal.id,
             name: animal.name,
-            species: animal.species as any,
-            animalType: animal.animalType as any,
+            species: animal.species,
+            animalType: animal.animalType,
             breed: animal.breed,
-            gender: animal.gender as any,
+            gender: animal.gender,
             birthDate: animal.birthDate,
             status:animal.status,
             color: animal.color,
@@ -37,10 +37,10 @@ export class SequelizeAnimalRepository implements AnimalRepository {
     async update(animal: Animal): Promise<void> {
         await AnimalModel.update({
             name: animal.name,
-            species: animal.species as any,
-            animalType: animal.animalType as any,
+            species: animal.species,
+            animalType: animal.animalType,
             breed: animal.breed,
-            gender: animal.gender as any,
+            gender: animal.gender,
             birthDate: animal.birthDate,
             color: animal.color,
             ownerId: animal.ownerId
@@ -57,10 +57,10 @@ export class SequelizeAnimalRepository implements AnimalRepository {
         return new Animal(
             model.id,
             model.name,
-            model.species as unknown as SpeciesType,
-            model.animalType as unknown as AnimalType,
+            model.species,
+            model.animalType,
             model.breed,
-            model.gender as unknown as Gender,
+            model.gender,
             model.birthDate,
             model.status,
             model.color,

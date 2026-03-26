@@ -1,9 +1,9 @@
-export enum AnimalType {
+export enum animalType {
     URBAN = "urban",
     RURAL = "rural"
 }
 
-export enum SpeciesType {
+export enum speciesType {
     CANINE = "canine",
     FELINE = "feline",
     BOVINE = "bovine",
@@ -27,8 +27,8 @@ export class Animal {
     constructor(
         public readonly id: string,
         public name: string,
-        public species: SpeciesType,
-        public animalType: AnimalType,
+        public species: speciesType,
+        public animalType: animalType,
         public breed: string,
         public gender: Gender,
         public birthDate: Date,

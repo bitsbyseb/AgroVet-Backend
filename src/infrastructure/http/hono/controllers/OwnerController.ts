@@ -5,6 +5,7 @@ import { GetOwnerByIdUseCase } from '@application/use-cases/Owner/GetOwnerByIdUs
 import { ListAllOwnersUseCase } from '@application/use-cases/Owner/ListAllOwnersUseCase.js';
 import { DeleteOwnerUseCase } from '@application/use-cases/Owner/DeleteOwnerUseCase.js';
 import { GetOwnerAnimalsUseCase } from '@application/use-cases/Animal/GetOwnerAnimalsUseCase.js';
+import type { ownerCreationType, ownerUpdateType } from '../validators/OwnerValidator.js';
 
 export class OwnerController {
     constructor(
@@ -17,7 +18,7 @@ export class OwnerController {
     ) { }
 
     async register(c: Context) {
-        const data = await c.req.json();
+        const data:ownerCreationType = await c.req.json();
         try {
             await this.registerOwnerUseCase.execute(data);
             return c.json({ message: 'Owner registered successfully' }, 201);
@@ -28,7 +29,7 @@ export class OwnerController {
 
     async update(c: Context) {
         const id = c.req.param('id');
-        const data = await c.req.json();
+        const data:ownerUpdateType = await c.req.json();
 
         if (!id) {
             throw new Error("no id provided");

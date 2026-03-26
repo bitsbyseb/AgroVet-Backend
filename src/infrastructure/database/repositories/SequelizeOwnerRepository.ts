@@ -11,7 +11,7 @@ export class SequelizeOwnerRepository implements OwnerRepository {
             phone: owner.phone,
             email: owner.email,
             address: owner.address,
-            ownerType: owner.ownerType as any
+            ownerType: owner.ownerType
         });
     }
 
@@ -38,7 +38,7 @@ export class SequelizeOwnerRepository implements OwnerRepository {
             phone: owner.phone,
             email: owner.email,
             address: owner.address,
-            ownerType: owner.ownerType as any
+            ownerType: owner.ownerType
         }, {
             where: { id: owner.id }
         });

@@ -1,24 +1,30 @@
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { AnimalType, SpeciesType, Gender } from "@domain/entities/Animal.js";
+import { animalType, speciesType, Gender } from "@domain/entities/Animal.js";
 
 export const animalSchema = z.object({
-    id: z.uuid(),
     name: z.string().min(2, "Name is too short"),
-    species: z.enum(SpeciesType),
-    animalType: z.enum(AnimalType),
+    species: z.enum(speciesType),
+    animalType: z.enum(animalType),
     breed: z.string().min(2, "Breed is required"),
     gender: z.enum(Gender),
     birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)").transform((str) => new Date(str)),
     color: z.string().min(3),
     ownerId: z.uuid()
 });
+export const updateAnimalSchema = animalSchema.optional();
 
 export const transferAnimalSchema = z.object({
     newOwnerId: z.uuid()
 });
 
 export const animalValidator = zValidator('json', animalSchema, (result, c) => {
+    if (!result.success) {
+        return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
+    }
+});
+
+export const updateAnimalValidator = zValidator('json',updateAnimalSchema,(result,c) => {
     if (!result.success) {
         return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
     }

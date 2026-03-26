@@ -2,8 +2,11 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { OwnerType } from "@domain/entities/Owner.js";
 
+export type ownerCreationType = z.infer<typeof ownerSchema>;
+
+export type ownerUpdateType = Partial<ownerCreationType>;
+
 export const ownerSchema = z.object({
-    id: z.uuid(),
     name: z.string().min(3, "Name must be at least 3 characters"),
     document: z.string().min(5, "Document is too short"),
     phone: z.string().min(7, "Invalid phone number"),
