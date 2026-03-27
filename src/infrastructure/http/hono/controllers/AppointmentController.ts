@@ -1,0 +1,46 @@
+import type { Context } from 'hono';
+import { RegisterAppointmentUseCase } from '@application/use-cases/Appointment/RegisterAppointmentUseCase.js';
+import { ListAppointmentsUseCase } from '@application/use-cases/Appointment/ListAppointmentsUseCase.js';
+import { UpdateAppointmentUseCase } from '@application/use-cases/Appointment/UpdateAppointmentUseCase.js';
+
+export class AppointmentController {
+    constructor(
+        private registerAppointmentUseCase: RegisterAppointmentUseCase,
+        private listAppointmentsUseCase: ListAppointmentsUseCase,
+        private updateAppointmentUseCase: UpdateAppointmentUseCase
+    ) { }
+
+    async list(c: Context) {
+        try {
+            const appointments = await this.listAppointmentsUseCase.execute();
+            return c.json(appointments);
+        } catch (error: any) {
+            return c.json({ error: error.message }, 500);
+        }
+    }
+
+    async register(c: Context) {
+        const data = await c.req.json();
+        try {
+            await this.registerAppointmentUseCase.execute(data);
+            return c.json({ message: 'Appointment scheduled successfully' }, 201);
+        } catch (error: any) {
+            return c.json({ error: error.message }, 400);
+        }
+    }
+
+    async updateStatus(c: Context) {
+        const id = c.req.param('id');
+        const data = await c.req.json();
+        try {
+            if (!id) {
+                throw new Error("undefined id");
+            }
+
+            await this.updateAppointmentUseCase.execute(id, { status: data.status });
+            return c.json({ message: 'Appointment status updated successfully' });
+        } catch (error: any) {
+            return c.json({ error: error.message }, 400);
+        }
+    }
+}

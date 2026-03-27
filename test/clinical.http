@@ -1,0 +1,68 @@
+@baseUrl = http://localhost:3000/api/v1
+@animalId = 00000000-0000-0000-0000-000000000000
+@appointmentId = 00000000-0000-0000-0000-000000000000
+@userId = 00000000-0000-0000-0000-000000000000
+
+### --- CITAS (APPOINTMENTS) ---
+
+### Ver calendario de citas
+GET {{baseUrl}}/appointments
+Content-Type: application/json
+
+### Agendar nueva cita médica
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+
+{
+    "animalId": "{{animalId}}",
+    "date": "2026-04-10T10:00:00.000Z",
+    "reason": "Revisión general y desparasitación",
+    "status": "scheduled",
+    "createdBy": "{{userId}}"
+}
+
+### Cambiar estado de cita (Completada)
+PATCH {{baseUrl}}/appointments/{{appointmentId}}
+Content-Type: application/json
+
+{
+    "status": "completed"
+}
+
+
+### --- HISTORIAL MÉDICO ---
+
+### Ver historial médico completo de un animal
+GET {{baseUrl}}/animals/{{animalId}}/history
+Content-Type: application/json
+
+### Agregar nueva entrada al historial clínico
+POST {{baseUrl}}/animals/{{animalId}}/history
+Content-Type: application/json
+
+{
+    "reason": "Consulta por pérdida de apetito",
+    "diagnosis": "Gastritis leve por cambio de alimento",
+    "treatment": "Dieta blanda por 3 días y protector gástrico",
+    "observations": "El animal se encuentra estable, peso normal.",
+    "createdBy": "{{userId}}"
+}
+
+
+### --- VACUNACIÓN ---
+
+### Ver carnet de vacunación de un animal
+GET {{baseUrl}}/animals/{{animalId}}/vaccines
+Content-Type: application/json
+
+### Registrar aplicación de una vacuna
+POST {{baseUrl}}/animals/{{animalId}}/vaccines
+Content-Type: application/json
+
+{
+    "vaccineName": "Antirrábica",
+    "applicationDate": "2026-03-26T00:00:00.000Z",
+    "nextDoseDate": "2027-03-26T00:00:00.000Z",
+    "batchNumber": "VAC-12345-XZ",
+    "administeredBy": "{{userId}}"
+}
