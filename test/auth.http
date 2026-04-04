@@ -2,10 +2,12 @@ http://localhost:3000
 
 ###
 
-POST http://localhost:3000/api/auth/signup
+POST http://localhost:3000/api/v1/auth/login
 Content-Type: application/json
 
 {
-    "email":"test@test.com",
-    "password":"password124"
+    "email":"tes2t@test.com",
+    "password":"password124",
+    "role":"veterinarian",
+    "username":"Johan Puentes"
 }
