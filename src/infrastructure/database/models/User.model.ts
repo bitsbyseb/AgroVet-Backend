@@ -7,7 +7,7 @@ export enum UserRole {
     ZOOTECHNICIAN = "zootechnician"
 }
 
-export class UserSequelizeModel extends Model<InferAttributes<UserSequelizeModel>, InferCreationAttributes<UserSequelizeModel>> {
+export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     @Attribute(DataTypes.UUID)
     @NotNull
     @Unique

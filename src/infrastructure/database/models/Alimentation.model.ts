@@ -6,17 +6,7 @@ import {
     NotNull
 } from "@sequelize/core/decorators-legacy";
 
-enum weightUnits {
-    g = "g",
-    mg = "mg",
-    kg = "kg"
-}
-
-enum frequency {
-    daily = "daily",
-    weekly = "weekly"
-}
-
+import { weightUnits, frequency } from "@domain/entities/Alimentation.js";
 
 @Table({
     tableName: "alimentation",

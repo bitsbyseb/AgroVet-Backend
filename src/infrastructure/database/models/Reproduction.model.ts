@@ -1,17 +1,6 @@
 import { DataTypes, Model, type CreationOptional, type InferAttributes, type InferCreationAttributes } from "@sequelize/core";
 import { Attribute, Default, NotNull, PrimaryKey, Table, Unique } from "@sequelize/core/decorators-legacy";
-
-export enum ReproductiveStatus {
-  EMPTY = 'empty', 
-  PREGNANT = 'pregnant',
-  LACTATING = 'lactating',
-  ANESTRUS = 'anestrus' // anestro ---> Es la ausencia de celo o inactividad ovárica.
-}
-
-export enum BreedingType {
-  NATURAL = 'natural',
-  INSEMINATION = 'insemination'
-}
+import { ReproductiveStatus, BreedingType } from "@domain/entities/Reproduction.js";
 
 @Table({ tableName: 'reproduction', underscored: true })
 export class ReproductionData extends Model<InferAttributes<ReproductionData>, InferCreationAttributes<ReproductionData>> {

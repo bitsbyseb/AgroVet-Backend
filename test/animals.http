@@ -1,0 +1,50 @@
+@baseUrl = http://localhost:3000/api/v1
+@ownerId = 00000000-0000-0000-0000-000000000000
+@animalId = 00000000-0000-0000-0000-000000000000
+@newOwnerId = 00000000-0000-0000-0000-000000000000
+
+### --- ANIMALES (ANIMALS) ---
+
+### Listar todos los animales
+GET {{baseUrl}}/animals
+Content-Type: application/json
+
+### Registrar nuevo animal
+POST {{baseUrl}}/animals
+Content-Type: application/json
+
+{
+    "name": "Firulais",
+    "species": "canine",
+    "animalType": "urban",
+    "breed": "Labrador",
+    "gender": "male",
+    "birthDate": "2020-05-15",
+    "color": "Dorado",
+    "ownerId": "{{ownerId}}"
+}
+
+### Obtener animal por ID
+GET {{baseUrl}}/animals/{{animalId}}
+Content-Type: application/json
+
+### Actualizar datos de animal
+PUT {{baseUrl}}/animals/{{animalId}}
+Content-Type: application/json
+
+{
+    "name": "Firulais Editado",
+    "color": "Blanco con Dorado"
+}
+
+### Transferir propiedad del animal
+PATCH {{baseUrl}}/animals/{{animalId}}/transfer
+Content-Type: application/json
+
+{
+    "newOwnerId": "{{newOwnerId}}"
+}
+
+### Eliminar animal
+DELETE {{baseUrl}}/animals/{{animalId}}
+Content-Type: application/json

@@ -10,6 +10,10 @@ import { SequelizeAnimalRepository } from '@infrastructure/database/repositories
 import { SequelizeAppointmentRepository } from '@infrastructure/database/repositories/SequelizeAppointmentRepository.js';
 import { SequelizeMedicalHistoryRepository } from '@infrastructure/database/repositories/SequelizeMedicalHistoryRepository.js';
 import { SequelizeVaccinationRepository } from '@infrastructure/database/repositories/SequelizeVaccinationRepository.js';
+import { SequelizeFoodRepository } from '@infrastructure/database/repositories/SequelizeFoodRepository.js';
+import { SequelizeAlimentationRepository } from '@infrastructure/database/repositories/SequelizeAlimentationRepository.js';
+import { SequelizeProductionDataRepository } from '@infrastructure/database/repositories/SequelizeProductionDataRepository.js';
+import { SequelizeReproductionRepository } from '@infrastructure/database/repositories/SequelizeReproductionRepository.js';
 
 // Security
 import { BcryptHasher } from '@infrastructure/security/BcryptHasher.js';
@@ -44,6 +48,18 @@ import { ListMedicalHistoriesUseCase } from '@application/use-cases/MedicalHisto
 import { RegisterVaccinationUseCase } from '@application/use-cases/Vaccination/RegisterVaccinationUseCase.js';
 import { ListVaccinationsUseCase } from '@application/use-cases/Vaccination/ListVaccinationsUseCase.js';
 
+// Use Cases - Food & Diet
+import { RegisterFoodUseCase } from '@application/use-cases/Food/RegisterFoodUseCase.js';
+import { ListFoodsUseCase } from '@application/use-cases/Food/ListFoodsUseCase.js';
+import { RegisterAlimentationUseCase } from '@application/use-cases/Alimentation/RegisterAlimentationUseCase.js';
+import { GetAnimalDietUseCase } from '@application/use-cases/Alimentation/GetAnimalDietUseCase.js';
+
+// Use Cases - Production & Reproduction
+import { RegisterProductionUseCase } from '@application/use-cases/Production/RegisterProductionUseCase.js';
+import { GetAnimalProductionUseCase } from '@application/use-cases/Production/GetAnimalProductionUseCase.js';
+import { RegisterReproductionUseCase } from '@application/use-cases/Reproduction/RegisterReproductionUseCase.js';
+import { GetAnimalReproductionUseCase } from '@application/use-cases/Reproduction/GetAnimalReproductionUseCase.js';
+
 // Controllers
 import { AuthController } from '@infrastructure/http/hono/controllers/AuthController.js';
 import { OwnerController } from '@infrastructure/http/hono/controllers/OwnerController.js';
@@ -51,12 +67,17 @@ import { AnimalController } from '@infrastructure/http/hono/controllers/AnimalCo
 import { AppointmentController } from '@infrastructure/http/hono/controllers/AppointmentController.js';
 import { MedicalHistoryController } from '@infrastructure/http/hono/controllers/MedicalHistoryController.js';
 import { VaccinationController } from '@infrastructure/http/hono/controllers/VaccinationController.js';
+import { FoodController } from '@infrastructure/http/hono/controllers/FoodController.js';
+import { AlimentationController } from '@infrastructure/http/hono/controllers/AlimentationController.js';
+import { ProductionController } from '@infrastructure/http/hono/controllers/ProductionController.js';
+import { ReproductionController } from '@infrastructure/http/hono/controllers/ReproductionController.js';
 
 // Routers
 import { createAuthRouter } from '@infrastructure/http/hono/routers/AuthRouter.js';
 import { createOwnerRouter } from '@infrastructure/http/hono/routers/OwnerRouter.js';
 import { createAnimalRouter } from '@infrastructure/http/hono/routers/AnimalRouter.js';
 import { createAppointmentRouter } from '@infrastructure/http/hono/routers/AppointmentRouter.js';
+import { createFoodRouter } from '@infrastructure/http/hono/routers/FoodRouter.js';
 
 await sequelize.authenticate();
 await sequelize.sync();
@@ -70,6 +91,10 @@ const animalRepository = new SequelizeAnimalRepository();
 const appointmentRepository = new SequelizeAppointmentRepository();
 const medicalHistoryRepository = new SequelizeMedicalHistoryRepository();
 const vaccinationRepository = new SequelizeVaccinationRepository();
+const foodRepository = new SequelizeFoodRepository();
+const alimentationRepository = new SequelizeAlimentationRepository();
+const productionRepository = new SequelizeProductionDataRepository();
+const reproductionRepository = new SequelizeReproductionRepository();
 const passwordHasher = new BcryptHasher();
 const tokenService = new HonoTokenService();
 
@@ -102,6 +127,18 @@ const listMedicalHistoriesUseCase = new ListMedicalHistoriesUseCase(medicalHisto
 const registerVaccinationUseCase = new RegisterVaccinationUseCase(vaccinationRepository, animalRepository);
 const listVaccinationsUseCase = new ListVaccinationsUseCase(vaccinationRepository);
 
+// Use Cases (Food & Diet)
+const registerFoodUseCase = new RegisterFoodUseCase(foodRepository);
+const listFoodsUseCase = new ListFoodsUseCase(foodRepository);
+const registerAlimentationUseCase = new RegisterAlimentationUseCase(alimentationRepository, animalRepository, foodRepository);
+const getAnimalDietUseCase = new GetAnimalDietUseCase(alimentationRepository, animalRepository);
+
+// Use Cases (Production & Reproduction)
+const registerProductionUseCase = new RegisterProductionUseCase(productionRepository, animalRepository);
+const getAnimalProductionUseCase = new GetAnimalProductionUseCase(productionRepository, animalRepository);
+const registerReproductionUseCase = new RegisterReproductionUseCase(reproductionRepository, animalRepository);
+const getAnimalReproductionUseCase = new GetAnimalReproductionUseCase(reproductionRepository, animalRepository);
+
 // Controllers
 const authController = new AuthController(registerUserUseCase, loginUserUseCase);
 const ownerController = new OwnerController(
@@ -114,6 +151,11 @@ const ownerController = new OwnerController(
 );
 const medicalHistoryController = new MedicalHistoryController(registerMedicalHistoryUseCase, listMedicalHistoriesUseCase);
 const vaccinationController = new VaccinationController(registerVaccinationUseCase, listVaccinationsUseCase);
+const foodController = new FoodController(registerFoodUseCase, listFoodsUseCase);
+const alimentationController = new AlimentationController(registerAlimentationUseCase, getAnimalDietUseCase);
+const productionController = new ProductionController(registerProductionUseCase, getAnimalProductionUseCase);
+const reproductionController = new ReproductionController(registerReproductionUseCase, getAnimalReproductionUseCase);
+
 const animalController = new AnimalController(
     registerAnimalUseCase,
     getAnimalByIdUseCase,
@@ -127,8 +169,16 @@ const appointmentController = new AppointmentController(registerAppointmentUseCa
 // Routers setup
 const authRouter = createAuthRouter(authController);
 const ownerRouter = createOwnerRouter(ownerController);
-const animalRouter = createAnimalRouter(animalController, medicalHistoryController, vaccinationController);
+const animalRouter = createAnimalRouter(
+    animalController,
+    medicalHistoryController,
+    vaccinationController,
+    alimentationController,
+    productionController,
+    reproductionController
+);
 const appointmentRouter = createAppointmentRouter(appointmentController);
+const foodRouter = createFoodRouter(foodController);
 
 const app = new Hono();
 
@@ -138,6 +188,7 @@ v1.route('/auth', authRouter);
 v1.route('/owners', ownerRouter);
 v1.route('/animals', animalRouter);
 v1.route('/appointments', appointmentRouter);
+v1.route('/foods', foodRouter);
 
 app.route('/api/v1', v1);
 

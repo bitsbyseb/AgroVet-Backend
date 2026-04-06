@@ -6,7 +6,7 @@ import { Vaccination } from "./Vaccination.model.js";
 import { sequelize } from "../config/db.config.js";
 import { Animal } from "./Animal.model.js";
 import { Owner } from "./Owner.model.js";
-import { UserSequelizeModel } from "./UserSequelizeModel.js";
+import { User } from "./User.model.js";
 import { Alimentation } from "./Alimentation.model.js";
 import { Food } from "./Food.model.js";
 
@@ -19,7 +19,7 @@ sequelize.addModels([
     Alimentation,
     Animal,
     Owner,
-    UserSequelizeModel,
+    User,
     Food])
 
 Owner.hasMany(Animal, {
@@ -53,25 +53,25 @@ Alimentation.belongsTo(Animal, {
 });
 
 
-Alimentation.hasOne(Food, {
+Alimentation.belongsTo(Food, {
     foreignKey:'foodId',
     as: 'food'
 });
 
-Food.belongsTo(Alimentation, {
+Food.hasMany(Alimentation, {
     foreignKey: 'foodId',
     as: 'alimentations'
 })
 
 
-UserSequelizeModel.hasMany(MedicalHistory, { foreignKey: 'createdBy', as: 'writtenHistories' });
-MedicalHistory.belongsTo(UserSequelizeModel, { foreignKey: 'createdBy', as: 'veterinarian' });
+User.hasMany(MedicalHistory, { foreignKey: 'createdBy', as: 'writtenHistories' });
+MedicalHistory.belongsTo(User, { foreignKey: 'createdBy', as: 'veterinarian' });
 
-UserSequelizeModel.hasMany(Vaccination, { foreignKey: 'administeredBy', as: 'appliedVaccines' });
-Vaccination.belongsTo(UserSequelizeModel, { foreignKey: 'administeredBy', as: 'provider' });
+User.hasMany(Vaccination, { foreignKey: 'administeredBy', as: 'appliedVaccines' });
+Vaccination.belongsTo(User, { foreignKey: 'administeredBy', as: 'provider' });
 
-UserSequelizeModel.hasMany(Appointment, { foreignKey: 'createdBy', as: 'managedAppointments' });
-Appointment.belongsTo(UserSequelizeModel, { foreignKey: 'createdBy', as: 'registrar' });
+User.hasMany(Appointment, { foreignKey: 'createdBy', as: 'managedAppointments' });
+Appointment.belongsTo(User, { foreignKey: 'createdBy', as: 'registrar' });
 
 
 Animal.hasMany(ProductionData, { foreignKey: 'animalId', as: 'productions' });

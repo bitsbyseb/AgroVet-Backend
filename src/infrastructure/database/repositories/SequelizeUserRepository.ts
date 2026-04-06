@@ -1,32 +1,32 @@
 import type { UserRepository } from '@domain/repositories/UserRepository.js';
 import { User, UserRole } from '@domain/entities/User.js';
-import { UserSequelizeModel } from '../models/UserSequelizeModel.js';
+import { User as UserModel } from '../models/User.model.js';
 
 export class SequelizeUserRepository implements UserRepository {
     async findByEmail(email: string): Promise<User | null> {
-        const userModel = await UserSequelizeModel.findOne({ where: { email } });
+        const userModel = await UserModel.findOne({ where: { email } });
         if (!userModel) return null;
         return this.toDomain(userModel);
     }
 
     async save(user: User): Promise<void> {
         const primitives = user.toPrimitives();
-        await UserSequelizeModel.upsert({
+        await UserModel.upsert({
             id: primitives.id,
             username: primitives.username,
             email: primitives.email,
             password: primitives.password,
-            role: primitives.role as any, // Cast to any to handle Sequelize enum mapping if needed
+            role: primitives.role, // Cast to any to handle Sequelize enum mapping if needed
         });
     }
 
     async findById(id: string): Promise<User | null> {
-        const userModel = await UserSequelizeModel.findByPk(id);
+        const userModel = await UserModel.findByPk(id);
         if (!userModel) return null;
         return this.toDomain(userModel);
     }
 
-    private toDomain(userModel: UserSequelizeModel): User {
+    private toDomain(userModel: UserModel): User {
         return new User({
             id: userModel.id,
             username: userModel.username,

@@ -1,6 +1,10 @@
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { UserRole } from "@domain/entities/User.js";
+
+export enum AllowedUserRole {
+    VETERINARIAN = 'veterinarian',
+    ZOOTECHNICIAN = "zootechnician"
+}
 
 export const signupSchema = z.object({
     username:z.string()
@@ -8,7 +12,7 @@ export const signupSchema = z.object({
     .max(20,{
         error:"username cannot be larger than 20 characters"
     }),
-    role:z.enum(UserRole),
+    role:z.enum(AllowedUserRole),
     email:z.email(),
     password:z.string().min(10,{error:"password must be at least 10 characters long"})
 });

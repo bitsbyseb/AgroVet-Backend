@@ -1,12 +1,6 @@
 import { Model,DataTypes, type InferAttributes, type InferCreationAttributes, type CreationOptional } from "@sequelize/core";
 import { Table, Attribute,PrimaryKey,Default,NotNull, Unique } from "@sequelize/core/decorators-legacy";
-
-export enum ProductionPurpose {
-  MEAT = 'meat',
-  MILK = 'milk',
-  BREEDING = 'breeding',
-  WORK = 'work'
-}
+import { ProductionPurpose } from "@domain/entities/ProductionData.js";
 
 @Table({ tableName: 'production_data', underscored: true })
 export class ProductionData extends Model<InferAttributes<ProductionData>, InferCreationAttributes<ProductionData>> {

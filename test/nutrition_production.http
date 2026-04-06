@@ -1,0 +1,92 @@
+@baseUrl = http://localhost:3000/api/v1
+@animalId = 00000000-0000-0000-0000-000000000000
+@foodId = 00000000-0000-0000-0000-000000000000
+
+### --- NUTRICIÓN E INVENTARIO (FOOD & ALIMENTATION) ---
+
+### Listar todos los alimentos
+GET {{baseUrl}}/foods
+Content-Type: application/json
+
+### Registrar nuevo alimento
+POST {{baseUrl}}/foods
+Content-Type: application/json
+
+{
+    "name": "Concentrado Premium",
+    "type": "Seco",
+    "description": "Alimento balanceado para perros adultos"
+}
+
+### Ver registro de alimentación de un animal
+GET {{baseUrl}}/animals/{{animalId}}/diet
+Content-Type: application/json
+
+### Registrar consumo de alimento
+POST {{baseUrl}}/animals/{{animalId}}/diet
+Content-Type: application/json
+
+{
+    "foodId": "{{foodId}}",
+    "count": 500,
+    "unit": "g",
+    "frequency": "daily",
+    "startDate": "2026-04-03",
+    "endDate": "2026-05-03",
+    "observations": "Dieta estándar para mantenimiento"
+}
+
+
+### --- PRODUCCIÓN (PRODUCTION) ---
+
+### Ver datos de producción de un animal
+GET {{baseUrl}}/animals/{{animalId}}/production
+Content-Type: application/json
+
+### Registrar nueva métrica de producción (Leche)
+POST {{baseUrl}}/animals/{{animalId}}/production
+Content-Type: application/json
+
+{
+    "milkProduction": 25.5,
+    "purpose": "milk",
+    "recordDate": "2026-04-03"
+}
+
+### Registrar nueva métrica de producción (Peso/Carne)
+POST {{baseUrl}}/animals/{{animalId}}/production
+Content-Type: application/json
+
+{
+    "weight": 450.2,
+    "purpose": "meat",
+    "recordDate": "2026-04-03"
+}
+
+
+### --- REPRODUCCIÓN (REPRODUCTION) ---
+
+### Ver historial reproductivo de un animal
+GET {{baseUrl}}/animals/{{animalId}}/reproduction
+Content-Type: application/json
+
+### Registrar evento reproductivo (Celo/Preñez)
+POST {{baseUrl}}/animals/{{animalId}}/reproduction
+Content-Type: application/json
+
+{
+    "reproductiveStatus": "pregnant",
+    "breedingType": "insemination",
+    "offspringCount": 0
+}
+
+### Registrar evento reproductivo (Parto)
+POST {{baseUrl}}/animals/{{animalId}}/reproduction
+Content-Type: application/json
+
+{
+    "reproductiveStatus": "lactating",
+    "lastCalvingDate": "2026-04-03",
+    "offspringCount": 2,
+    "breedingType": "natural"
+}
