@@ -1,4 +1,3 @@
-import type { Context } from 'hono';
 import { RegisterAppointmentUseCase } from '@application/use-cases/Appointment/RegisterAppointmentUseCase.js';
 import { ListAppointmentsUseCase } from '@application/use-cases/Appointment/ListAppointmentsUseCase.js';
 import { UpdateAppointmentUseCase } from '@application/use-cases/Appointment/UpdateAppointmentUseCase.js';
@@ -10,7 +9,7 @@ export class AppointmentController {
         private updateAppointmentUseCase: UpdateAppointmentUseCase
     ) { }
 
-    async list(c: Context) {
+    async list(c: any) {
         try {
             const appointments = await this.listAppointmentsUseCase.execute();
             return c.json(appointments);
@@ -19,8 +18,8 @@ export class AppointmentController {
         }
     }
 
-    async register(c: Context) {
-        const data = await c.req.json();
+    async register(c: any) {
+        const data = c.req.valid('json');
         try {
             await this.registerAppointmentUseCase.execute(data);
             return c.json({ message: 'Appointment scheduled successfully' }, 201);
@@ -29,14 +28,10 @@ export class AppointmentController {
         }
     }
 
-    async updateStatus(c: Context) {
-        const id = c.req.param('id');
-        const data = await c.req.json();
+    async updateStatus(c: any) {
+        const { id } = c.req.valid('param');
+        const data = c.req.valid('json');
         try {
-            if (!id) {
-                throw new Error("undefined id");
-            }
-
             await this.updateAppointmentUseCase.execute(id, { status: data.status });
             return c.json({ message: 'Appointment status updated successfully' });
         } catch (error: any) {

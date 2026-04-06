@@ -1,25 +1,18 @@
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
-import { AppointmentStatus } from "@domain/entities/Appointment.js";
+import { z } from "@hono/zod-openapi";
 
 export const appointmentSchema = z.object({
-    animalId: z.uuid(),
-    date: z.iso.datetime().transform((str) => new Date(str)),
-    reason: z.string().min(5, "Reason is too short"),
-    status: z.enum(AppointmentStatus).optional().default(AppointmentStatus.SCHEDULED),
-    createdBy: z.uuid()
-});
+    date: z.string().openapi({ example: '2023-12-01T10:00:00Z', description: 'Fecha y hora de la consulta (ISO 8601)' }),
+    reason: z.string().openapi({ example: 'Revisión general', description: 'Motivo de la consulta' }),
+    animalId: z.string().openapi({ example: 'uuid-animal-123', description: 'ID del animal' }),
+    status: z.string().optional().openapi({ example: 'Scheduled', description: 'Estado de la consulta (Scheduled, Completed, Cancelled)' })
+}).openapi('AppointmentRequest');
 
-export const updateAppointmentSchema = appointmentSchema.partial();
+export const updateAppointmentSchema = z.object({
+    status: z.string().openapi({ example: 'Completed', description: 'Nuevo estado de la consulta' })
+}).openapi('UpdateAppointmentRequest');
 
-export const appointmentValidator = zValidator('json', appointmentSchema, (result, c) => {
-    if (!result.success) {
-        return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
-    }
-});
+export const appointmentResponseSchema = appointmentSchema.extend({
+    id: z.string().openapi({ example: 'uuid-appt-123' })
+}).openapi('AppointmentResponse');
 
-export const updateAppointmentValidator = zValidator('json', updateAppointmentSchema, (result, c) => {
-    if (!result.success) {
-        return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
-    }
-});
+export const appointmentListResponseSchema = z.array(appointmentResponseSchema).openapi('AppointmentListResponse');

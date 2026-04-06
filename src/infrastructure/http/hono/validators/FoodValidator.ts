@@ -1,14 +1,14 @@
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
+import { z } from "@hono/zod-openapi";
 
 export const foodSchema = z.object({
-    name: z.string().min(2),
-    type: z.string().min(2),
-    description: z.string().min(5)
-});
+    name: z.string().openapi({ example: 'Concentrado Lechero 16%', description: 'Nombre del alimento' }),
+    type: z.string().openapi({ example: 'Concentrado', description: 'Tipo de alimento (Forraje, Concentrado, Suplemento)' }),
+    brand: z.string().optional().openapi({ example: 'Purina', description: 'Marca comercial' }),
+    nutritionalValue: z.string().openapi({ example: 'Proteína 16%, Energía 2.5 Mcal', description: 'Información nutricional' })
+}).openapi('FoodRequest');
 
-export const foodValidator = zValidator('json', foodSchema, (result, c) => {
-    if (!result.success) {
-        return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
-    }
-});
+export const foodResponseSchema = foodSchema.extend({
+    id: z.string().openapi({ example: 'uuid-food-123' })
+}).openapi('FoodResponse');
+
+export const foodListResponseSchema = z.array(foodResponseSchema).openapi('FoodListResponse');

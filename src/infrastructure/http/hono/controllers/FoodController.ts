@@ -1,4 +1,3 @@
-import type { Context } from 'hono';
 import { RegisterFoodUseCase } from '@application/use-cases/Food/RegisterFoodUseCase.js';
 import { ListFoodsUseCase } from '@application/use-cases/Food/ListFoodsUseCase.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,9 +8,9 @@ export class FoodController {
         private listFoodsUseCase: ListFoodsUseCase
     ) {}
 
-    async register(c: Context) {
+    async register(c: any) {
+        const data = c.req.valid('json');
         try {
-            const data = await c.req.json();
             const foodData = {
                 id: uuidv4(),
                 ...data
@@ -23,7 +22,7 @@ export class FoodController {
         }
     }
 
-    async list(c: Context) {
+    async list(c: any) {
         try {
             const foods = await this.listFoodsUseCase.execute();
             return c.json(foods);

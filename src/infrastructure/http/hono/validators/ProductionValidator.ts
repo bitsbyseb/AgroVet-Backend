@@ -1,16 +1,13 @@
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
-import { ProductionPurpose } from "@domain/entities/ProductionData.js";
+import { z } from "@hono/zod-openapi";
 
 export const productionSchema = z.object({
-    weight: z.number().nullable().optional(),
-    milkProduction: z.number().nullable().optional(),
-    purpose: z.enum(ProductionPurpose),
-    recordDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)").optional()
-});
+    type: z.string().openapi({ example: 'Leche', description: 'Tipo de producto (Leche, Carne, etc)' }),
+    quantity: z.number().openapi({ example: 15.5, description: 'Cantidad producida' }),
+    unit: z.string().openapi({ example: 'Litros', description: 'Unidad de medida' }),
+    date: z.string().openapi({ example: '2023-10-12', description: 'Fecha de registro' })
+}).openapi('ProductionRequest');
 
-export const productionValidator = zValidator('json', productionSchema, (result, c) => {
-    if (!result.success) {
-        return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
-    }
-});
+export const productionResponseSchema = productionSchema.extend({
+    id: z.string().openapi({ example: 'uuid-prod-123' }),
+    animalId: z.string().openapi({ example: 'uuid-animal-456' })
+}).openapi('ProductionResponse');

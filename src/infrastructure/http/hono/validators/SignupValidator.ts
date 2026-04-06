@@ -1,27 +1,27 @@
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
-
-export enum AllowedUserRole {
-    VETERINARIAN = 'veterinarian',
-    ZOOTECHNICIAN = "zootechnician"
-}
+import { z } from "@hono/zod-openapi";
+import { UserRole } from "@domain/entities/User.js";
 
 export const signupSchema = z.object({
-    username:z.string()
-    .min(10,{error:"username must be at least 10 characters long"})
-    .max(20,{
-        error:"username cannot be larger than 20 characters"
+    username: z.string().min(3).openapi({
+        example: 'johndoe',
+        description: 'Nombre de usuario'
     }),
-    role:z.enum(AllowedUserRole),
-    email:z.email(),
-    password:z.string().min(10,{error:"password must be at least 10 characters long"})
-});
+    email: z.string().email().openapi({
+        example: 'john@agrovet.com',
+        description: 'Email único'
+    }),
+    password: z.string().min(10).openapi({
+        example: 'password123',
+        description: 'Contraseña segura'
+    }),
+    role: z.enum([UserRole.VETERINARIAN, UserRole.ZOOTECHNICIAN]).openapi({
+        example: UserRole.VETERINARIAN,
+        description: 'Rol asignado al usuario (No se permite crear administradores)'
+    })
+}).openapi('SignupRequest');
 
-export const signupValidator = zValidator('json',signupSchema,(result, c) => {
-    if (!result.success) {
-        return c.json({
-            errors:result.error.issues.map(iss => iss.message)
-        },
-    400);
-    }
-});
+export const signupResponseSchema = z.object({
+    message: z.string().openapi({
+        example: 'User registered successfully'
+    })
+}).openapi('SignupResponse');

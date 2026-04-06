@@ -1,4 +1,3 @@
-import type { Context } from 'hono';
 import { RegisterProductionUseCase } from '@application/use-cases/Production/RegisterProductionUseCase.js';
 import { GetAnimalProductionUseCase } from '@application/use-cases/Production/GetAnimalProductionUseCase.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,13 +8,13 @@ export class ProductionController {
         private getAnimalProductionUseCase: GetAnimalProductionUseCase
     ) { }
 
-    async register(c: Context) {
-        const animalId = c.req.param('id');
+    async register(c: any) {
+        const { id } = c.req.valid('param');
+        const data = c.req.valid('json');
         try {
-            const data = await c.req.json();
             const productionData = {
                 id: uuidv4(),
-                animalId,
+                animalId: id,
                 ...data,
                 recordDate: data.recordDate ? new Date(data.recordDate) : new Date()
             };
@@ -26,13 +25,10 @@ export class ProductionController {
         }
     }
 
-    async getProduction(c: Context) {
-        const animalId = c.req.param('id');
+    async getProduction(c: any) {
+        const { id } = c.req.valid('param');
         try {
-            if (!animalId) {
-                throw new Error("no id found")
-            }
-            const production = await this.getAnimalProductionUseCase.execute(animalId);
+            const production = await this.getAnimalProductionUseCase.execute(id);
             return c.json(production);
         } catch (error: any) {
             return c.json({ error: error.message }, 404);

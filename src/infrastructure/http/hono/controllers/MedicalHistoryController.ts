@@ -1,4 +1,3 @@
-import type { Context } from 'hono';
 import { RegisterMedicalHistoryUseCase } from '@application/use-cases/MedicalHistory/RegisterMedicalHistoryUseCase.js';
 import { ListMedicalHistoriesUseCase } from '@application/use-cases/MedicalHistory/ListMedicalHistoriesUseCase.js';
 
@@ -8,25 +7,21 @@ export class MedicalHistoryController {
         private listMedicalHistoriesUseCase: ListMedicalHistoriesUseCase
     ) { }
 
-    async listByAnimal(c: Context) {
-        const animalId = c.req.param('id');
+    async listByAnimal(c: any) {
+        const { id } = c.req.valid('param');
         try {
-            if (!animalId) {
-                throw new Error("undefined id");
-            }
-
-            const history = await this.listMedicalHistoriesUseCase.executeByAnimal(animalId);
+            const history = await this.listMedicalHistoriesUseCase.executeByAnimal(id);
             return c.json(history);
         } catch (error: any) {
             return c.json({ error: error.message }, 500);
         }
     }
 
-    async register(c: Context) {
-        const animalId = c.req.param('id');
-        const data = await c.req.json();
+    async register(c: any) {
+        const { id } = c.req.valid('param');
+        const data = c.req.valid('json');
         try {
-            await this.registerMedicalHistoryUseCase.execute({ ...data, animalId });
+            await this.registerMedicalHistoryUseCase.execute({ ...data, animalId: id });
             return c.json({ message: 'Medical history entry added successfully' }, 201);
         } catch (error: any) {
             return c.json({ error: error.message }, 400);

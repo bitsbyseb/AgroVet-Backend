@@ -1,4 +1,3 @@
-import type { Context } from 'hono';
 import { RegisterReproductionUseCase } from '@application/use-cases/Reproduction/RegisterReproductionUseCase.js';
 import { GetAnimalReproductionUseCase } from '@application/use-cases/Reproduction/GetAnimalReproductionUseCase.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,13 +8,13 @@ export class ReproductionController {
         private getAnimalReproductionUseCase: GetAnimalReproductionUseCase
     ) { }
 
-    async register(c: Context) {
-        const animalId = c.req.param('id');
+    async register(c: any) {
+        const { id } = c.req.valid('param');
+        const data = c.req.valid('json');
         try {
-            const data = await c.req.json();
             const reproductionData = {
                 id: uuidv4(),
-                animalId,
+                animalId: id,
                 ...data
             };
             await this.registerReproductionUseCase.execute(reproductionData);
@@ -25,13 +24,10 @@ export class ReproductionController {
         }
     }
 
-    async getReproduction(c: Context) {
-        const animalId = c.req.param('id');
+    async getReproduction(c: any) {
+        const { id } = c.req.valid('param');
         try {
-            if (!animalId) {
-                throw new Error("no id found")
-            }
-            const reproduction = await this.getAnimalReproductionUseCase.execute(animalId);
+            const reproduction = await this.getAnimalReproductionUseCase.execute(id);
             return c.json(reproduction);
         } catch (error: any) {
             return c.json({ error: error.message }, 404);

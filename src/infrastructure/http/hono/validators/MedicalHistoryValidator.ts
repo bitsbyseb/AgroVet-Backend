@@ -1,26 +1,13 @@
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
+import { z } from "@hono/zod-openapi";
 
 export const medicalHistorySchema = z.object({
-    animalId: z.uuid(),
-    date: z.iso.datetime().default(new Date().toISOString()),
-    reason: z.string().min(5, "Reason is too short"),
-    diagnosis: z.string().min(5, "Diagnosis is required"),
-    treatment: z.string().min(5, "Treatment is required"),
-    observations: z.string().optional().default(""),
-    createdBy: z.uuid()
-});
+    diagnosis: z.string().openapi({ example: 'Fiebre aftosa', description: 'Diagnóstico médico' }),
+    treatment: z.string().openapi({ example: 'Antibióticos y reposo', description: 'Tratamiento recetado' }),
+    notes: z.string().optional().openapi({ example: 'Observar evolución en 3 días', description: 'Notas adicionales' })
+}).openapi('MedicalHistoryRequest');
 
-export const updateMedicalHistorySchema = medicalHistorySchema.partial();
-
-export const medicalHistoryValidator = zValidator('json', medicalHistorySchema, (result, c) => {
-    if (!result.success) {
-        return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
-    }
-});
-
-export const updateMedicalHistoryValidator = zValidator('json', updateMedicalHistorySchema, (result, c) => {
-    if (!result.success) {
-        return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
-    }
-});
+export const medicalHistoryResponseSchema = medicalHistorySchema.extend({
+    id: z.string().openapi({ example: 'uuid-hist-123' }),
+    animalId: z.string().openapi({ example: 'uuid-animal-456' }),
+    date: z.string().openapi({ example: '2023-10-01' })
+}).openapi('MedicalHistoryResponse');

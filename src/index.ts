@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { sequelize } from '@infrastructure/database/config/db.config.js';
 import '@infrastructure/database/models/index.js';
+import { User, UserRole } from '@domain/entities/User.js';
 
 // Repositories
 import { SequelizeUserRepository } from '@infrastructure/database/repositories/SequelizeUserRepository.js';
@@ -78,6 +79,11 @@ import { createOwnerRouter } from '@infrastructure/http/hono/routers/OwnerRouter
 import { createAnimalRouter } from '@infrastructure/http/hono/routers/AnimalRouter.js';
 import { createAppointmentRouter } from '@infrastructure/http/hono/routers/AppointmentRouter.js';
 import { createFoodRouter } from '@infrastructure/http/hono/routers/FoodRouter.js';
+
+import { swaggerUI } from '@hono/swagger-ui';
+import { OpenAPIHono } from '@hono/zod-openapi';
+import { cors } from 'hono/cors';
+import { randomUUID } from 'node:crypto';
 
 await sequelize.authenticate();
 await sequelize.sync();
@@ -166,6 +172,32 @@ const animalController = new AnimalController(
 );
 const appointmentController = new AppointmentController(registerAppointmentUseCase, listAppointmentsUseCase, updateAppointmentUseCase);
 
+// SEEDING
+const seedAdmins = async () => {
+    const admins = [
+        { username: 'Johan Puentes', email: 'jspuentes@ucundinamar.edu.co' },
+        { username: 'Dayana Oliva', email: 'noliva@ucundinamarca.edu.co' }
+    ];
+
+    for (const admin of admins) {
+        const exists = await userRepository.findByEmail(admin.email);
+        if (!exists) {
+            const hashedPassword = await passwordHasher.hash('AgroVet2026*');
+            const newUser = new User({
+                id: randomUUID(),
+                username: admin.username,
+                email: admin.email,
+                password: hashedPassword,
+                role: UserRole.ADMIN
+            });
+            await userRepository.save(newUser);
+            console.log(`Admin seeded: ${admin.email}`);
+        }
+    }
+};
+
+await seedAdmins();
+
 // Routers setup
 const authRouter = createAuthRouter(authController);
 const ownerRouter = createOwnerRouter(ownerController);
@@ -180,10 +212,31 @@ const animalRouter = createAnimalRouter(
 const appointmentRouter = createAppointmentRouter(appointmentController);
 const foodRouter = createFoodRouter(foodController);
 
-const app = new Hono();
+const app = new OpenAPIHono();
+
+app.use('*', cors());
+
+// Security Scheme Registration
+app.openAPIRegistry.registerComponent('securitySchemes', 'Bearer', {
+    type: 'http',
+    scheme: 'bearer',
+    bearerFormat: 'JWT',
+});
+
+// Swagger Documentation
+app.doc('/doc', {
+    openapi: '3.0.0',
+    info: {
+        title: 'AgroVet API',
+        version: '1.0.0',
+        description: 'API for AgroVet Management System',
+    }
+});
+
+app.get('/ui', swaggerUI({ url: '/doc' }));
 
 // Routes Registration
-const v1 = new Hono();
+const v1 = new OpenAPIHono();
 v1.route('/auth', authRouter);
 v1.route('/owners', ownerRouter);
 v1.route('/animals', animalRouter);

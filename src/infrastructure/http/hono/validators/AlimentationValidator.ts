@@ -1,19 +1,13 @@
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
-import { weightUnits, frequency } from "@domain/entities/Alimentation.js";
+import { z } from "@hono/zod-openapi";
 
 export const alimentationSchema = z.object({
-    foodId: z.uuid(),
-    count: z.number().positive(),
-    unit: z.enum(weightUnits),
-    frequency: z.enum(frequency),
-    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
-    endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
-    observations: z.string().optional().default("")
-});
+    foodId: z.string().openapi({ example: 'uuid-food-123', description: 'ID del alimento' }),
+    quantity: z.number().openapi({ example: 2.5, description: 'Cantidad en kg' }),
+    frequency: z.string().openapi({ example: 'Diario', description: 'Frecuencia de alimentación' })
+}).openapi('AlimentationRequest');
 
-export const alimentationValidator = zValidator('json', alimentationSchema, (result, c) => {
-    if (!result.success) {
-        return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
-    }
-});
+export const alimentationResponseSchema = alimentationSchema.extend({
+    id: z.string().openapi({ example: 'uuid-diet-123' }),
+    animalId: z.string().openapi({ example: 'uuid-animal-456' }),
+    date: z.string().openapi({ example: '2023-10-10' })
+}).openapi('AlimentationResponse');

@@ -1,37 +1,26 @@
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
-import { animalType, speciesType, Gender } from "@domain/entities/Animal.js";
+import { z } from "@hono/zod-openapi";
 
 export const animalSchema = z.object({
-    name: z.string().min(2, "Name is too short"),
-    species: z.enum(speciesType),
-    animalType: z.enum(animalType),
-    breed: z.string().min(2, "Breed is required"),
-    gender: z.enum(Gender),
-    birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)").transform((str) => new Date(str)),
-    color: z.string().min(3),
-    ownerId: z.uuid()
-});
-export const updateAnimalSchema = animalSchema.optional();
+    name: z.string().openapi({ example: 'Bessie', description: 'Nombre del animal' }),
+    species: z.string().openapi({ example: 'Bovino', description: 'Especie del animal' }),
+    breed: z.string().openapi({ example: 'Holstein', description: 'Raza del animal' }),
+    birthDate: z.string().openapi({ example: '2022-01-15', description: 'Fecha de nacimiento (YYYY-MM-DD)' }),
+    ownerId: z.string().openapi({ example: 'uuid-owner-123', description: 'ID del propietario' })
+}).openapi('AnimalRequest');
+
+export const updateAnimalSchema = animalSchema.partial().openapi('UpdateAnimalRequest');
 
 export const transferAnimalSchema = z.object({
-    newOwnerId: z.uuid()
-});
+    newOwnerId: z.string().openapi({ example: 'uuid-new-owner-456', description: 'ID del nuevo propietario' })
+}).openapi('TransferAnimalRequest');
 
-export const animalValidator = zValidator('json', animalSchema, (result, c) => {
-    if (!result.success) {
-        return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
-    }
-});
+export const animalResponseSchema = z.object({
+    id: z.string().openapi({ example: 'uuid-animal-789' }),
+    name: z.string(),
+    species: z.string(),
+    breed: z.string(),
+    birthDate: z.string(),
+    ownerId: z.string()
+}).openapi('AnimalResponse');
 
-export const updateAnimalValidator = zValidator('json',updateAnimalSchema,(result,c) => {
-    if (!result.success) {
-        return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
-    }
-});
-
-export const transferAnimalValidator = zValidator('json', transferAnimalSchema, (result, c) => {
-    if (!result.success) {
-        return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
-    }
-});
+export const animalListResponseSchema = z.array(animalResponseSchema).openapi('AnimalListResponse');

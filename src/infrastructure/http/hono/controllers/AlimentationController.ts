@@ -1,4 +1,3 @@
-import type { Context } from 'hono';
 import { RegisterAlimentationUseCase } from '@application/use-cases/Alimentation/RegisterAlimentationUseCase.js';
 import { GetAnimalDietUseCase } from '@application/use-cases/Alimentation/GetAnimalDietUseCase.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,16 +8,16 @@ export class AlimentationController {
         private getAnimalDietUseCase: GetAnimalDietUseCase
     ) {}
 
-    async register(c: Context) {
-        const animalId = c.req.param('id');
+    async register(c: any) {
+        const { id } = c.req.valid('param');
+        const data = c.req.valid('json');
         try {
-            const data = await c.req.json();
             const alimentationData = {
                 id: uuidv4(),
-                animalId,
+                animalId: id,
                 ...data,
-                startDate: new Date(data.startDate),
-                endDate: new Date(data.endDate)
+                startDate: data.startDate ? new Date(data.startDate) : new Date(),
+                endDate: data.endDate ? new Date(data.endDate) : new Date()
             };
             await this.registerAlimentationUseCase.execute(alimentationData);
             return c.json({ message: 'Alimentation registered successfully', id: alimentationData.id }, 201);
@@ -27,13 +26,10 @@ export class AlimentationController {
         }
     }
 
-    async getDiet(c: Context) {
-        const animalId = c.req.param('id');
+    async getDiet(c: any) {
+        const { id } = c.req.valid('param');
         try {
-            if (!animalId) {
-                throw new Error("no id found")
-            }
-            const diet = await this.getAnimalDietUseCase.execute(animalId);
+            const diet = await this.getAnimalDietUseCase.execute(id);
             return c.json(diet);
         } catch (error: any) {
             return c.json({ error: error.message }, 404);

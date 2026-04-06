@@ -1,11 +1,9 @@
-import type { Context } from 'hono';
 import { RegisterOwnerUseCase } from '@application/use-cases/Owner/RegisterOwnerUseCase.js';
 import { UpdateOwnerProfileUseCase } from '@application/use-cases/Owner/UpdateOwnerProfileUseCase.js';
 import { GetOwnerByIdUseCase } from '@application/use-cases/Owner/GetOwnerByIdUseCase.js';
 import { ListAllOwnersUseCase } from '@application/use-cases/Owner/ListAllOwnersUseCase.js';
 import { DeleteOwnerUseCase } from '@application/use-cases/Owner/DeleteOwnerUseCase.js';
 import { GetOwnerAnimalsUseCase } from '@application/use-cases/Animal/GetOwnerAnimalsUseCase.js';
-import type { ownerCreationType, ownerUpdateType } from '../validators/OwnerValidator.js';
 
 export class OwnerController {
     constructor(
@@ -17,8 +15,8 @@ export class OwnerController {
         private getOwnerAnimalsUseCase: GetOwnerAnimalsUseCase
     ) { }
 
-    async register(c: Context) {
-        const data:ownerCreationType = await c.req.json();
+    async register(c: any) {
+        const data = c.req.valid('json');
         try {
             await this.registerOwnerUseCase.execute(data);
             return c.json({ message: 'Owner registered successfully' }, 201);
@@ -27,13 +25,9 @@ export class OwnerController {
         }
     }
 
-    async update(c: Context) {
-        const id = c.req.param('id');
-        const data:ownerUpdateType = await c.req.json();
-
-        if (!id) {
-            throw new Error("no id provided");
-        }
+    async update(c: any) {
+        const { id } = c.req.valid('param');
+        const data = c.req.valid('json');
         try {
             await this.updateOwnerProfileUseCase.execute(id, data);
             return c.json({ message: 'Owner updated successfully' });
@@ -42,12 +36,8 @@ export class OwnerController {
         }
     }
 
-    async getById(c: Context) {
-        const id = c.req.param('id');
-
-        if (!id) {
-            throw new Error("no id provided");
-        }
+    async getById(c: any) {
+        const { id } = c.req.valid('param');
         try {
             const owner = await this.getOwnerByIdUseCase.execute(id);
             return c.json(owner);
@@ -56,7 +46,7 @@ export class OwnerController {
         }
     }
 
-    async list(c: Context) {
+    async list(c: any) {
         try {
             const owners = await this.listAllOwnersUseCase.execute();
             return c.json(owners);
@@ -65,12 +55,8 @@ export class OwnerController {
         }
     }
 
-    async delete(c: Context) {
-        const id = c.req.param('id');
-
-        if (!id) {
-            throw new Error("no id provided");
-        }
+    async delete(c: any) {
+        const { id } = c.req.valid('param');
         try {
             await this.deleteOwnerUseCase.execute(id);
             return c.json({ message: 'Owner deleted successfully' });
@@ -79,11 +65,8 @@ export class OwnerController {
         }
     }
 
-    async getAnimals(c: Context) {
-        const id = c.req.param('id');
-        if (!id) {
-            throw new Error("no id provided");
-        }
+    async getAnimals(c: any) {
+        const { id } = c.req.valid('param');
         try {
             const animals = await this.getOwnerAnimalsUseCase.execute(id);
             return c.json(animals);

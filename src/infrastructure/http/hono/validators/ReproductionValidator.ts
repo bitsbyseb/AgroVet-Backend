@@ -1,16 +1,12 @@
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
-import { ReproductiveStatus, BreedingType } from "@domain/entities/Reproduction.js";
+import { z } from "@hono/zod-openapi";
 
 export const reproductionSchema = z.object({
-    reproductiveStatus: z.nativeEnum(ReproductiveStatus),
-    lastCalvingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)").nullable().optional(),
-    offspringCount: z.number().int().min(0).default(0),
-    breedingType: z.enum(BreedingType).nullable().optional()
-});
+    date: z.string().openapi({ example: '2023-11-01', description: 'Fecha del evento reproductivo' }),
+    eventType: z.string().openapi({ example: 'Inseminación', description: 'Tipo de evento (Inseminación, Parto, etc)' }),
+    notes: z.string().optional().openapi({ example: 'Exitoso', description: 'Notas adicionales' })
+}).openapi('ReproductionRequest');
 
-export const reproductionValidator = zValidator('json', reproductionSchema, (result, c) => {
-    if (!result.success) {
-        return c.json({ errors: result.error.issues.map(iss => iss.message) }, 400);
-    }
-});
+export const reproductionResponseSchema = reproductionSchema.extend({
+    id: z.string().openapi({ example: 'uuid-repro-123' }),
+    animalId: z.string().openapi({ example: 'uuid-animal-456' })
+}).openapi('ReproductionResponse');

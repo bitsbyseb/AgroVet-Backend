@@ -1,6 +1,6 @@
-import { Owner } from "@domain/entities/Owner.js";
-import type { OwnerRepository } from "@domain/repositories/OwnerRepository.js";
-import type { ownerCreationType } from "@infrastructure/http/hono/validators/OwnerValidator.js";
+import { Owner } from '@domain/entities/Owner.js';
+import type { OwnerRepository } from '@domain/repositories/OwnerRepository.js';
+import type { ownerCreationType } from '@infrastructure/http/hono/validators/OwnerValidator.js';
 import { randomUUID } from "crypto";
 
 export class RegisterOwnerUseCase {

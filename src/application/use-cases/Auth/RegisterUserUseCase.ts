@@ -24,6 +24,10 @@ export class RegisterUserUseCase {
 
         const hashedPassword = await this.passwordHasher.hash(request.password);
 
+        if (request.role === UserRole.ADMIN) {
+            throw new Error('Unauthorized: Cannot create users with Administrator role');
+        }
+
         const newUser = new User({
             id: randomUUID(),
             username: request.username,

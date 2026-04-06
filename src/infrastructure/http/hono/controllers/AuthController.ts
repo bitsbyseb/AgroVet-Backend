@@ -8,8 +8,8 @@ export class AuthController {
         private loginUserUseCase: LoginUserUseCase
     ) {}
 
-    async signup(c: Context) {
-        const data = await c.req.json(); // Use json() directly as valid('json') depends on Zod validator being applied
+    async signup(c: any) {
+        const data = c.req.valid('json');
         try {
             await this.registerUserUseCase.execute(data);
             return c.json({ message: 'User registered successfully' }, 201);
@@ -18,8 +18,8 @@ export class AuthController {
         }
     }
 
-    async login(c: Context) {
-        const data = await c.req.json();
+    async login(c: any) {
+        const data = c.req.valid('json');
         try {
             const token = await this.loginUserUseCase.execute(data);
             return c.json({ token });
