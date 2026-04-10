@@ -3,11 +3,11 @@ import { OwnerType } from "@domain/entities/Owner.js";
 
 export const ownerSchema = z.object({
     name: z.string().openapi({ example: 'Juan Pérez', description: 'Nombre completo del propietario' }),
-    document: z.string().openapi({ example: '1234567890', description: 'Documento de identidad' }),
+    document: z.string().regex(/^[0-9]+$/,{ error:"El documento debe ser solo numeros" }).openapi({ example: '1234567890', description: 'Documento de identidad' }),
     phone: z.string().openapi({ example: '+1234567890', description: 'Número de teléfono' }),
-    email: z.string().email().openapi({ example: 'juan@example.com', description: 'Correo electrónico' }),
+    email: z.email().openapi({ example: 'juan@example.com', description: 'Correo electrónico' }),
     address: z.string().openapi({ example: 'Calle 123, Ciudad', description: 'Dirección del propietario' }),
-    ownerType: z.nativeEnum(OwnerType).openapi({ example: OwnerType.URBAN, description: 'Tipo de propietario (URBAN o RURAL)' })
+    ownerType: z.enum(OwnerType).openapi({ example: OwnerType.URBAN, description: 'Tipo de propietario (URBAN o RURAL)' })
 }).openapi('OwnerRequest');
 
 export const updateOwnerSchema = ownerSchema.omit({ document: true }).partial().openapi('UpdateOwnerRequest');

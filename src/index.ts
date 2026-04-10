@@ -175,7 +175,7 @@ const appointmentController = new AppointmentController(registerAppointmentUseCa
 // SEEDING
 const seedAdmins = async () => {
     const admins = [
-        { username: 'Johan Puentes', email: 'jspuentes@ucundinamar.edu.co' },
+        { username: 'Johan Puentes', email: 'jspuentes@ucundinamarca.edu.co' },
         { username: 'Dayana Oliva', email: 'noliva@ucundinamarca.edu.co' }
     ];
 

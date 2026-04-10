@@ -18,7 +18,7 @@ export enum Gender {
     FEMALE = "female" 
 }
 
-enum Status {
+export enum Status {
     ACTIVE="active",
     INACTIVE="inactive"
 }
