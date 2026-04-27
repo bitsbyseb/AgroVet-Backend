@@ -1,4 +1,4 @@
-import { Animal, Status } from "@domain/entities/Animal.js";
+import { Animal } from "@domain/entities/Animal.js";
 import type { AnimalRepository } from "@domain/repositories/AnimalRepository.js";
 import type { OwnerRepository } from "@domain/repositories/OwnerRepository.js";
 import type { animalCreationType } from "@infrastructure/http/hono/validators/AnimalValidator.js";

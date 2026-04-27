@@ -84,6 +84,7 @@ import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { cors } from 'hono/cors';
 import { randomUUID } from 'node:crypto';
+import { HTTPException } from 'hono/http-exception';
 
 await sequelize.authenticate();
 await sequelize.sync();
@@ -214,6 +215,18 @@ const foodRouter = createFoodRouter(foodController);
 
 const app = new OpenAPIHono();
 
+app.onError((err, c) => {
+    console.error({
+        name: err.name,
+        message: err.message,
+        stack: err.stack
+    })
+    if (err instanceof HTTPException) {
+        return err.getResponse();
+    }
+    return c.text('Error interno del servidor', 500)
+});
+
 app.use('*', cors());
 
 // Security Scheme Registration
@@ -245,9 +258,25 @@ v1.route('/foods', foodRouter);
 
 app.route('/api/v1', v1);
 
-serve({
-  fetch: app.fetch,
-  port: PORT,
+
+
+const server = serve({
+    fetch: app.fetch,
+    port: PORT,
 }, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`);
+    console.log(`Server is running on http://localhost:${info.port}`);
+});
+
+process.on('SIGTERM', () => {
+    console.log('Recibida señal SIGTERM: cerrando servidor...');
+
+    server.close(() => {
+
+        console.log('Servidor cerrado.');
+
+        sequelize.close().then(() => {
+            process.exit(0);
+
+        });
+    });
 });
