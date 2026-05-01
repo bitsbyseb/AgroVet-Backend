@@ -1,7 +1,9 @@
 import { Sequelize } from '@sequelize/core';
 import { MySqlDialect } from '@sequelize/mysql';
 
-const { DATABASE_NAME, DATABASE_PASSWORD, DATABASE_USERNAME, DATABASE_HOST } = process.env;
+const { DATABASE_NAME, DATABASE_PASSWORD, DATABASE_USERNAME, DATABASE_HOST, DATABASE_PORT } = process.env;
+
+const dbPort = parseInt(DATABASE_PORT);
 
 export const sequelize = new Sequelize({
   dialect: MySqlDialect,
@@ -9,5 +11,5 @@ export const sequelize = new Sequelize({
   database: DATABASE_NAME,
   user: DATABASE_USERNAME,
   password: DATABASE_PASSWORD,
-  port: 3306
+  port:dbPort
 });

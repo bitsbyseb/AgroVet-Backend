@@ -8,7 +8,8 @@ const envVars = z.object({
         error:"no port number found"
     }).min(1).max(4),
     JWT_SECRET:z.string({error:"no jwt defined"}),
-    DATABASE_HOST:z.string({ error:"no host found" }).min(2).max(20).default("localhost")
+    DATABASE_HOST:z.string({ error:"no host found" }).min(2).max(20).default("localhost"),
+    DATABASE_PORT:z.string({error:"no database port found"}).min(4).default("3306")
 });
 
 envVars.parse(process.env);
