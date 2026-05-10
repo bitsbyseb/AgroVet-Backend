@@ -1,12 +1,11 @@
-http://localhost:3000
 
+@serviceUrl = http://localhost:3000/api/v1
 ###
 
-POST http://localhost:3000/api/v1/auth/login
-
+POST  {{serviceUrl}}/auth/login
 Content-Type: application/json
 
 {
- "email":"jspuentes@ucundinamarca.edu.co",
-"password":"AgroVet2026*"
+    "email":"jspuentes@ucundinamarca.edu.co",
+    "password":"AgroVet2026*"
 }

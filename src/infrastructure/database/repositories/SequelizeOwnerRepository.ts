@@ -1,6 +1,6 @@
 import { Owner, type OwnerType } from "@domain/entities/Owner.js";
 import type { OwnerRepository } from "@domain/repositories/OwnerRepository.js";
-import { Owner as OwnerModel } from "../models/Owner.model.js";
+import { Owner as OwnerModel } from '@infrastructure/database/models/Owner.model.js';
 
 export class SequelizeOwnerRepository implements OwnerRepository {
     async save(owner: Owner): Promise<void> {

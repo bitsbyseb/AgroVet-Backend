@@ -1,4 +1,4 @@
-import { DataTypes, Model, type InferAttributes, type InferCreationAttributes } from "@sequelize/core";
+import { DataTypes, Model, type InferAttributes, type InferCreationAttributes, type CreationOptional } from "@sequelize/core";
 import { Attribute, NotNull, PrimaryKey, Unique, Default } from "@sequelize/core/decorators-legacy";
 
 export class MedicalHistory extends Model<InferAttributes<MedicalHistory>, InferCreationAttributes<MedicalHistory>> {
@@ -36,4 +36,7 @@ export class MedicalHistory extends Model<InferAttributes<MedicalHistory>, Infer
     @Attribute(DataTypes.UUID)
     @NotNull
     declare createdBy: string;
+
+    declare createdAt: CreationOptional<Date>;
+    declare updatedAt: CreationOptional<Date>;
 }

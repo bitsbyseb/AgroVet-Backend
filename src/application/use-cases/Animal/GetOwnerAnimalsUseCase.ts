@@ -19,9 +19,13 @@ export class GetOwnerAnimalsUseCase {
             id: animal.id,
             name: animal.name,
             species: animal.species,
+            animalType: animal.animalType,
             breed: animal.breed,
             gender: animal.gender,
-            birthDate: animal.birthDate
+            birthDate: animal.birthDate,
+            status: animal.status,
+            color: animal.color,
+            ownerId: animal.ownerId
         }));
     }
 }

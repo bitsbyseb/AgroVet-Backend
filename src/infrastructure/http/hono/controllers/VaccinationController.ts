@@ -20,8 +20,16 @@ export class VaccinationController {
     async register(c: any) {
         const { id } = c.req.valid('param');
         const data = c.req.valid('json');
+        const payload = c.get('jwtPayload');
+        
         try {
-            await this.registerVaccinationUseCase.execute({ ...data, animalId: id });
+            await this.registerVaccinationUseCase.execute({ 
+                ...data, 
+                animalId: id,
+                administeredBy: payload.sub,
+                applicationDate: new Date(data.applicationDate),
+                nextDoseDate: data.nextDoseDate ? new Date(data.nextDoseDate) : null
+            });
             return c.json({ message: 'Vaccination record added successfully' }, 201);
         } catch (error: any) {
             return c.json({ error: error.message }, 400);

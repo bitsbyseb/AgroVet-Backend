@@ -85,6 +85,7 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import { cors } from 'hono/cors';
 import { randomUUID } from 'node:crypto';
 import { HTTPException } from 'hono/http-exception';
+import { ResendEmailService } from '@infrastructure/services/ResendEmail.service.js';
 
 await sequelize.authenticate();
 await sequelize.sync();
@@ -105,9 +106,12 @@ const reproductionRepository = new SequelizeReproductionRepository();
 const passwordHasher = new BcryptHasher();
 const tokenService = new HonoTokenService();
 
+// Services (Email)
+const EmailService = new ResendEmailService();
+
 // Use Cases (Auth)
-const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher);
-const loginUserUseCase = new LoginUserUseCase(userRepository, passwordHasher, tokenService);
+const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher,EmailService);
+const loginUserUseCase = new LoginUserUseCase(userRepository, passwordHasher, tokenService,EmailService);
 
 // Use Cases (Owner)
 const registerOwnerUseCase = new RegisterOwnerUseCase(ownerRepository);

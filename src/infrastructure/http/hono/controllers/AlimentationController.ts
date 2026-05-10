@@ -1,6 +1,6 @@
 import { RegisterAlimentationUseCase } from '@application/use-cases/Alimentation/RegisterAlimentationUseCase.js';
 import { GetAnimalDietUseCase } from '@application/use-cases/Alimentation/GetAnimalDietUseCase.js';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 export class AlimentationController {
     constructor(
@@ -13,7 +13,7 @@ export class AlimentationController {
         const data = c.req.valid('json');
         try {
             const alimentationData = {
-                id: uuidv4(),
+                id: randomUUID(),
                 animalId: id,
                 ...data,
                 startDate: data.startDate ? new Date(data.startDate) : new Date(),

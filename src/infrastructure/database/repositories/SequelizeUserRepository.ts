@@ -1,6 +1,6 @@
 import type { UserRepository } from '@domain/repositories/UserRepository.js';
 import { User, UserRole } from '@domain/entities/User.js';
-import { User as UserModel } from '../models/User.model.js';
+import { User as UserModel } from '@infrastructure/database/models/User.model.js';
 
 export class SequelizeUserRepository implements UserRepository {
     async findByEmail(email: string): Promise<User | null> {

@@ -20,8 +20,15 @@ export class MedicalHistoryController {
     async register(c: any) {
         const { id } = c.req.valid('param');
         const data = c.req.valid('json');
+        const payload = c.get('jwtPayload');
+
         try {
-            await this.registerMedicalHistoryUseCase.execute({ ...data, animalId: id });
+            await this.registerMedicalHistoryUseCase.execute({ 
+                ...data, 
+                animalId: id,
+                createdBy: payload.sub,
+                date: new Date(data.date)
+            });
             return c.json({ message: 'Medical history entry added successfully' }, 201);
         } catch (error: any) {
             return c.json({ error: error.message }, 400);

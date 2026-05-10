@@ -17,6 +17,7 @@ export class GetAnimalByIdUseCase {
             breed: animal.breed,
             gender: animal.gender,
             birthDate: animal.birthDate,
+            status: animal.status,
             color: animal.color,
             ownerId: animal.ownerId
         };

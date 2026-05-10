@@ -2,17 +2,17 @@
 @animalId = 00000000-0000-0000-0000-000000000000
 @appointmentId = 00000000-0000-0000-0000-000000000000
 @userId = 00000000-0000-0000-0000-000000000000
-
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3Y2JkYTNhOS0wOGUwLTRjN2MtOGJlYS0zNGMwMTY4YmZiYzQiLCJyb2xlIjoiYWRtaW5pc3RyYXRvciIsImlhdCI6MTc3ODA4NzE0OCwiZXhwIjoxNzc4MDkwNzQ4fQ.hSjv3ryXqi4lwwxlkoWSrjMYiGICEoMasFlZ6qyU8RM
 ### --- CITAS (APPOINTMENTS) ---
 
 ### Ver calendario de citas
 GET {{baseUrl}}/appointments
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 ### Agendar nueva cita médica
 POST {{baseUrl}}/appointments
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 {
     "animalId": "{{animalId}}",
     "date": "2026-04-10T10:00:00.000Z",
@@ -24,7 +24,7 @@ Content-Type: application/json
 ### Cambiar estado de cita (Completada)
 PATCH {{baseUrl}}/appointments/{{appointmentId}}
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 {
     "status": "completed"
 }
@@ -35,11 +35,11 @@ Content-Type: application/json
 ### Ver historial médico completo de un animal
 GET {{baseUrl}}/animals/{{animalId}}/history
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 ### Agregar nueva entrada al historial clínico
 POST {{baseUrl}}/animals/{{animalId}}/history
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 {
     "reason": "Consulta por pérdida de apetito",
     "diagnosis": "Gastritis leve por cambio de alimento",
@@ -54,11 +54,11 @@ Content-Type: application/json
 ### Ver carnet de vacunación de un animal
 GET {{baseUrl}}/animals/{{animalId}}/vaccines
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 ### Registrar aplicación de una vacuna
 POST {{baseUrl}}/animals/{{animalId}}/vaccines
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 {
     "vaccineName": "Antirrábica",
     "applicationDate": "2026-03-26T00:00:00.000Z",

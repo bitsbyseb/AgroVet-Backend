@@ -1,6 +1,6 @@
 import { RegisterReproductionUseCase } from '@application/use-cases/Reproduction/RegisterReproductionUseCase.js';
 import { GetAnimalReproductionUseCase } from '@application/use-cases/Reproduction/GetAnimalReproductionUseCase.js';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 export class ReproductionController {
     constructor(
@@ -13,7 +13,7 @@ export class ReproductionController {
         const data = c.req.valid('json');
         try {
             const reproductionData = {
-                id: uuidv4(),
+                id: randomUUID(),
                 animalId: id,
                 ...data
             };

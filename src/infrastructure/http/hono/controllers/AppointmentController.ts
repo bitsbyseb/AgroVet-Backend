@@ -20,8 +20,14 @@ export class AppointmentController {
 
     async register(c: any) {
         const data = c.req.valid('json');
+        const payload = c.get('jwtPayload');
+
         try {
-            await this.registerAppointmentUseCase.execute(data);
+            await this.registerAppointmentUseCase.execute({
+                ...data,
+                createdBy: payload.sub,
+                date: new Date(data.date)
+            });
             return c.json({ message: 'Appointment scheduled successfully' }, 201);
         } catch (error: any) {
             return c.json({ error: error.message }, 400);

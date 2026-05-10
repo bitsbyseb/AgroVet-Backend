@@ -1,6 +1,6 @@
 import { RegisterProductionUseCase } from '@application/use-cases/Production/RegisterProductionUseCase.js';
 import { GetAnimalProductionUseCase } from '@application/use-cases/Production/GetAnimalProductionUseCase.js';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 export class ProductionController {
     constructor(
@@ -13,7 +13,7 @@ export class ProductionController {
         const data = c.req.valid('json');
         try {
             const productionData = {
-                id: uuidv4(),
+                id: randomUUID(),
                 animalId: id,
                 ...data,
                 recordDate: data.recordDate ? new Date(data.recordDate) : new Date()

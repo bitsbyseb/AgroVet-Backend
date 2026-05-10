@@ -3,15 +3,18 @@
 @animalId = 00000000-0000-0000-0000-000000000000
 @newOwnerId = 00000000-0000-0000-0000-000000000000
 
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3Y2JkYTNhOS0wOGUwLTRjN2MtOGJlYS0zNGMwMTY4YmZiYzQiLCJyb2xlIjoiYWRtaW5pc3RyYXRvciIsImlhdCI6MTc3ODA4NzE0OCwiZXhwIjoxNzc4MDkwNzQ4fQ.hSjv3ryXqi4lwwxlkoWSrjMYiGICEoMasFlZ6qyU8RM
 ### --- ANIMALES (ANIMALS) ---
 
 ### Listar todos los animales
 GET {{baseUrl}}/animals
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 ### Registrar nuevo animal
 POST {{baseUrl}}/animals
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "name": "Firulais",
@@ -27,10 +30,11 @@ Content-Type: application/json
 ### Obtener animal por ID
 GET {{baseUrl}}/animals/{{animalId}}
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 ### Actualizar datos de animal
 PUT {{baseUrl}}/animals/{{animalId}}
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "name": "Firulais Editado",
@@ -40,6 +44,7 @@ Content-Type: application/json
 ### Transferir propiedad del animal
 PATCH {{baseUrl}}/animals/{{animalId}}/transfer
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "newOwnerId": "{{newOwnerId}}"
@@ -48,3 +53,4 @@ Content-Type: application/json
 ### Eliminar animal
 DELETE {{baseUrl}}/animals/{{animalId}}
 Content-Type: application/json
+Authorization: Bearer {{token}}

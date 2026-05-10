@@ -1,16 +1,17 @@
 @baseUrl = http://localhost:3000/api/v1
 @ownerId = 00000000-0000-0000-0000-000000000000
-
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3Y2JkYTNhOS0wOGUwLTRjN2MtOGJlYS0zNGMwMTY4YmZiYzQiLCJyb2xlIjoiYWRtaW5pc3RyYXRvciIsImlhdCI6MTc3ODA4NzE0OCwiZXhwIjoxNzc4MDkwNzQ4fQ.hSjv3ryXqi4lwwxlkoWSrjMYiGICEoMasFlZ6qyU8RM
 ### --- PROPIETARIOS (OWNERS) ---
 
 ### Listar todos los propietarios
 GET {{baseUrl}}/owners
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 ### Registrar nuevo propietario
+
 POST {{baseUrl}}/owners
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 {
     "name": "Juan Perez",
     "id_number": "123456789",
@@ -22,11 +23,11 @@ Content-Type: application/json
 ### Obtener propietario por ID
 GET {{baseUrl}}/owners/{{ownerId}}
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 ### Actualizar perfil de propietario
 PUT {{baseUrl}}/owners/{{ownerId}}
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 {
     "phone": "3109876543",
     "email": "juan.perez.new@example.com"
@@ -35,7 +36,8 @@ Content-Type: application/json
 ### Listar animales de un propietario
 GET {{baseUrl}}/owners/{{ownerId}}/animals
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 ### Eliminar propietario
 DELETE {{baseUrl}}/owners/{{ownerId}}
 Content-Type: application/json
+Authorization: Bearer {{token}}

@@ -1,6 +1,6 @@
 import { Animal, animalType, speciesType, Gender } from "@domain/entities/Animal.js";
 import type { AnimalRepository } from "@domain/repositories/AnimalRepository.js";
-import { Animal as AnimalModel } from "../models/Animal.model.js";
+import { Animal as AnimalModel } from '@infrastructure/database/models/Animal.model.js';
 
 export class SequelizeAnimalRepository implements AnimalRepository {
     async save(animal: Animal): Promise<void> {
@@ -42,6 +42,7 @@ export class SequelizeAnimalRepository implements AnimalRepository {
             breed: animal.breed,
             gender: animal.gender,
             birthDate: animal.birthDate,
+            status: animal.status,
             color: animal.color,
             ownerId: animal.ownerId
         }, {

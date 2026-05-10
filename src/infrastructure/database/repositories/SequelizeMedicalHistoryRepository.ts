@@ -60,8 +60,8 @@ export class SequelizeMedicalHistoryRepository implements MedicalHistoryReposito
             model.treatment,
             model.observations,
             model.createdBy,
-            // model.createdAt, // MedicalHistory model doesn't seem to have createdAt in its InferAttributes
-            // model.updatedAt
+            model.createdAt,
+            model.updatedAt
         );
     }
 }
