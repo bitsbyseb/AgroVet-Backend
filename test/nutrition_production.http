@@ -1,41 +1,77 @@
 @baseUrl = http://localhost:3000/api/v1
-@animalId = 00000000-0000-0000-0000-000000000000
-@foodId = 00000000-0000-0000-0000-000000000000
+@animalId = 0d8a9284-eb8b-4efd-a276-f92aea5880e3
+@foodId = 3b96556c-6168-4732-b57b-0c00a7377cfe
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YzZlY2I4Zi1hZTdhLTQ0ODItOWZlNS1jNDFkNzI4MDIzY2UiLCJyb2xlIjoiem9vdGVjaG5pY2lhbiIsImlhdCI6MTc3OTc2NTY3OSwiZXhwIjoxNzc5NzY5Mjc5fQ.w3DNsBrWo5VwydOlw4-OVkT95WBfmfY2OI8eJ3V07UQ
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3Y2JkYTNhOS0wOGUwLTRjN2MtOGJlYS0zNGMwMTY4YmZiYzQiLCJyb2xlIjoiYWRtaW5pc3RyYXRvciIsImlhdCI6MTc3ODA4NzE0OCwiZXhwIjoxNzc4MDkwNzQ4fQ.hSjv3ryXqi4lwwxlkoWSrjMYiGICEoMasFlZ6qyU8RM
 ### --- NUTRICIÓN E INVENTARIO (FOOD & ALIMENTATION) ---
 
-### Listar todos los alimentos
+### Listar todos los alimentos en catálogo
 GET {{baseUrl}}/foods
 Content-Type: application/json
 Authorization: Bearer {{token}}
-### Registrar nuevo alimento
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Registrar nuevo alimento al catálogo
 POST {{baseUrl}}/foods
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 {
     "name": "Concentrado Premium",
-    "type": "Seco",
-    "description": "Alimento balanceado para perros adultos"
+    "description":"delicious",
+    "nutritionalValue": "Proteína 20%, Energía Alta",
+    "type": "Seco"
 }
 
-### Ver registro de alimentación de un animal
+
+
+
+
+
+
+
+### Ver registro de alimentación (dieta) de un animal
 GET {{baseUrl}}/animals/{{animalId}}/diet
 Content-Type: application/json
 Authorization: Bearer {{token}}
-### Registrar consumo de alimento
+
+
+
+
+
+
+
+
+
+
+### Registrar nueva dieta / consumo de alimento para un animal
 POST {{baseUrl}}/animals/{{animalId}}/diet
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 {
     "foodId": "{{foodId}}",
-    "count": 500,
-    "unit": "g",
-    "frequency": "daily",
-    "startDate": "2026-04-03",
-    "endDate": "2026-05-03",
-    "observations": "Dieta estándar para mantenimiento"
+    "quantity": 2.5,
+    "frequency": "daily"
 }
+
+
+
+
+
+
 
 
 ### --- PRODUCCIÓN (PRODUCTION) ---
@@ -44,25 +80,39 @@ Authorization: Bearer {{token}}
 GET {{baseUrl}}/animals/{{animalId}}/production
 Content-Type: application/json
 Authorization: Bearer {{token}}
-### Registrar nueva métrica de producción (Leche)
+
+
+
+
+
+
+
+
+
+
+
+
+### Registrar nueva métrica de producción
 POST {{baseUrl}}/animals/{{animalId}}/production
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 {
-    "milkProduction": 25.5,
-    "purpose": "milk",
-    "recordDate": "2026-04-03"
+    "type": "Leche",
+    "quantity": 15.5,
+    "unit": "Litros",
+    "date": "2026-04-03T00:00:00.000Z",
+    "purpose":"milk"
 }
 
-### Registrar nueva métrica de producción (Peso/Carne)
-POST {{baseUrl}}/animals/{{animalId}}/production
-Content-Type: application/json
-Authorization: Bearer {{token}}
-{
-    "weight": 450.2,
-    "purpose": "meat",
-    "recordDate": "2026-04-03"
-}
+
+
+
+
+
+
+
+
 
 
 ### --- REPRODUCCIÓN (REPRODUCTION) ---
@@ -71,23 +121,26 @@ Authorization: Bearer {{token}}
 GET {{baseUrl}}/animals/{{animalId}}/reproduction
 Content-Type: application/json
 Authorization: Bearer {{token}}
-### Registrar evento reproductivo (Celo/Preñez)
-POST {{baseUrl}}/animals/{{animalId}}/reproduction
-Content-Type: application/json
-Authorization: Bearer {{token}}
-{
-    "reproductiveStatus": "pregnant",
-    "breedingType": "insemination",
-    "offspringCount": 0
-}
 
-### Registrar evento reproductivo (Parto)
+
+
+
+
+
+
+
+
+
+
+
+
+### Registrar evento reproductivo
 POST {{baseUrl}}/animals/{{animalId}}/reproduction
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 {
-    "reproductiveStatus": "lactating",
-    "lastCalvingDate": "2026-04-03",
-    "offspringCount": 2,
-    "breedingType": "natural"
+    "reproductiveStatus":"pregnant",
+    "offspringCount":2,
+    "breedingType":"natural"
 }

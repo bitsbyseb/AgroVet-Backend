@@ -28,7 +28,7 @@ export function createOwnerRouter(ownerController: OwnerController) {
         security: [{ Bearer: [] }],
         request: { body: { content: { 'application/json': { schema: ownerSchema } } } },
         responses: {
-            201: { content: { 'application/json': { schema: z.object({ message: z.string() }) } }, description: 'Propietario registrado' },
+            201: { content: { 'application/json': { schema: z.object({ id: z.uuid() }) } }, description: 'identificador del nuevo dueño en caso de exito' },
             400: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Error de validación' }
         },
         tags: ['Propietarios']

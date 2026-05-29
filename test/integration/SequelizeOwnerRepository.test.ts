@@ -3,6 +3,7 @@ import { SequelizeOwnerRepository } from '@infrastructure/database/repositories/
 import { Owner, OwnerType } from '@domain/entities/Owner.js';
 import { Owner as OwnerModel } from '@infrastructure/database/models/Owner.model.js';
 import { randomUUID } from 'node:crypto';
+import '@infrastructure/database/models/index.js'; // Ensure models are initialized
 
 describe('Repositorio Sequelize de Dueños (SequelizeOwnerRepository)', () => {
     let repository: SequelizeOwnerRepository;

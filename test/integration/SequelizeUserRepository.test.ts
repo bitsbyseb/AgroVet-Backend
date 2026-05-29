@@ -3,6 +3,7 @@ import { SequelizeUserRepository } from '@infrastructure/database/repositories/S
 import { User, UserRole } from '@domain/entities/User.js';
 import { User as UserModel } from '@infrastructure/database/models/User.model.ts';
 import { randomUUID } from 'node:crypto';
+import '@infrastructure/database/models/index.js'; // Ensure models are initialized
 
 describe('Repositorio Sequelize de Usuarios (SequelizeUserRepository)', () => {
     let repository: SequelizeUserRepository;

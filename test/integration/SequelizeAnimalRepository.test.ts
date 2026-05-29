@@ -5,6 +5,7 @@ import { Animal as AnimalModel } from '@infrastructure/database/models/Animal.mo
 import { Owner as OwnerModel } from '@infrastructure/database/models/Owner.model.js';
 import { randomUUID } from 'node:crypto';
 import { OwnerType } from '@domain/entities/Owner.js';
+import '@infrastructure/database/models/index.js'; // Ensure models are initialized
 
 
 describe('SequelizeAnimalRepository', () => {

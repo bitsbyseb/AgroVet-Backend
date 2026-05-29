@@ -6,6 +6,12 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     setupFiles: process.env.INTEGRATION_TEST ? ['./test/setup.ts'] : [],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      all: true,
+      include: ['src/**/*.ts'],
+    },
   },
   resolve: {
     alias: {

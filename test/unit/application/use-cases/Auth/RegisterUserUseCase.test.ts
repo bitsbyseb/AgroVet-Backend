@@ -3,10 +3,12 @@ import { RegisterUserUseCase } from '@application/use-cases/Auth/RegisterUserUse
 import { User, UserRole } from '@domain/entities/User.js';
 import type { UserRepository } from '@domain/repositories/UserRepository.js';
 import type { PasswordHasher } from '@domain/services/PasswordHasher.js';
+import type { EmailService } from '@domain/services/EmailService.js';
 
 describe('Caso de Uso: Registrar Usuario (RegisterUserUseCase)', () => {
     let mockUserRepository: ReturnType<typeof vi.fn>;
     let mockPasswordHasher: ReturnType<typeof vi.fn>;
+    let mockEmailService: ReturnType<typeof vi.fn>;
     let useCase: RegisterUserUseCase;
 
     beforeEach(() => {
@@ -19,9 +21,14 @@ describe('Caso de Uso: Registrar Usuario (RegisterUserUseCase)', () => {
             hash: vi.fn(),
         } as unknown as ReturnType<typeof vi.fn>;
 
+        mockEmailService = {
+            send: vi.fn(),
+        } as unknown as ReturnType<typeof vi.fn>;
+
         useCase = new RegisterUserUseCase(
             mockUserRepository as unknown as UserRepository,
-            mockPasswordHasher as unknown as PasswordHasher
+            mockPasswordHasher as unknown as PasswordHasher,
+            mockEmailService as unknown as EmailService
         );
     });
 

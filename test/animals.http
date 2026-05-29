@@ -1,9 +1,9 @@
 @baseUrl = http://localhost:3000/api/v1
-@ownerId = 00000000-0000-0000-0000-000000000000
-@animalId = 00000000-0000-0000-0000-000000000000
-@newOwnerId = 00000000-0000-0000-0000-000000000000
+@ownerId = e2287a56-623a-4f43-bf2c-fed24687a9a9
+@animalId = a89e2959-3b2d-4273-9d66-373a23e9d70f
+@newOwnerId = c7878ef4-411e-4112-b517-38f93b4fa19a
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OWY4MTc1My02MzllLTRjOWQtYmMyNy0xM2I3ZGYzZGJlZDUiLCJyb2xlIjoiYWRtaW5pc3RyYXRvciIsImlhdCI6MTc3OTc2MTA1OSwiZXhwIjoxNzc5NzY0NjU5fQ.lfuEKY7fKsblcQdc9QEL7sXcfs_qU6HLHV2_GAEHT_o
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3Y2JkYTNhOS0wOGUwLTRjN2MtOGJlYS0zNGMwMTY4YmZiYzQiLCJyb2xlIjoiYWRtaW5pc3RyYXRvciIsImlhdCI6MTc3ODA4NzE0OCwiZXhwIjoxNzc4MDkwNzQ4fQ.hSjv3ryXqi4lwwxlkoWSrjMYiGICEoMasFlZ6qyU8RM
 ### --- ANIMALES (ANIMALS) ---
 
 ### Listar todos los animales
@@ -17,31 +17,56 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "name": "Firulais",
-    "species": "canine",
-    "animalType": "urban",
-    "breed": "Labrador",
-    "gender": "male",
-    "birthDate": "2020-05-15",
-    "color": "Dorado",
+    "name": "Bessie",
+    "species": "bovine", 
+    "animalType": "rural", 
+    "breed": "Holstein",
+    "gender": "female", 
+    "birthDate": "2020-05-15T00:00:00.000Z",
+    "color": "Blanco y Negro",
     "ownerId": "{{ownerId}}"
 }
+
+
+
 
 ### Obtener animal por ID
 GET {{baseUrl}}/animals/{{animalId}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
-### Actualizar datos de animal
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Actualizar datos físicos o estado de animal
 PUT {{baseUrl}}/animals/{{animalId}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "name": "Firulais Editado",
-    "color": "Blanco con Dorado"
+    "name": "Bessie Editada",
+    "color": "Negro Total",
+    "breed": "Angus",
+    "status": "inactive"
 }
 
-### Transferir propiedad del animal
+
+
+
+
+
+### Transferir propiedad del animal a otro dueño
 PATCH {{baseUrl}}/animals/{{animalId}}/transfer
 Content-Type: application/json
 Authorization: Bearer {{token}}
@@ -49,6 +74,12 @@ Authorization: Bearer {{token}}
 {
     "newOwnerId": "{{newOwnerId}}"
 }
+
+
+
+
+
+
 
 ### Eliminar animal
 DELETE {{baseUrl}}/animals/{{animalId}}

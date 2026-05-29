@@ -1,33 +1,39 @@
 @baseUrl = http://localhost:3000/api/v1
-@ownerId = 00000000-0000-0000-0000-000000000000
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3Y2JkYTNhOS0wOGUwLTRjN2MtOGJlYS0zNGMwMTY4YmZiYzQiLCJyb2xlIjoiYWRtaW5pc3RyYXRvciIsImlhdCI6MTc3ODA4NzE0OCwiZXhwIjoxNzc4MDkwNzQ4fQ.hSjv3ryXqi4lwwxlkoWSrjMYiGICEoMasFlZ6qyU8RM
+@ownerId = 0f1710ce-7e0b-488a-bfe6-747d936c38e0
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0OWY4MTc1My02MzllLTRjOWQtYmMyNy0xM2I3ZGYzZGJlZDUiLCJyb2xlIjoiYWRtaW5pc3RyYXRvciIsImlhdCI6MTc3OTc2MTA1OSwiZXhwIjoxNzc5NzY0NjU5fQ.lfuEKY7fKsblcQdc9QEL7sXcfs_qU6HLHV2_GAEHT_o
+
 ### --- PROPIETARIOS (OWNERS) ---
 
 ### Listar todos los propietarios
 GET {{baseUrl}}/owners
 Content-Type: application/json
 Authorization: Bearer {{token}}
-### Registrar nuevo propietario
 
+### Registrar nuevo propietario
 POST {{baseUrl}}/owners
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 {
-    "name": "Juan Perez",
-    "id_number": "123456789",
+    "name": "Luis Miguel",
+    "document": "1013113151",
     "phone": "3001234567",
     "email": "juan.perez@example.com",
-    "address": "Calle 123 # 45-67"
+    "address": "Calle 123 # 45-67",
+    "ownerType": "urban" 
 }
+# ownerType puede ser "urban" o "rural"
 
 ### Obtener propietario por ID
 GET {{baseUrl}}/owners/{{ownerId}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 ### Actualizar perfil de propietario
 PUT {{baseUrl}}/owners/{{ownerId}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 {
     "phone": "3109876543",
     "email": "juan.perez.new@example.com"
@@ -37,6 +43,7 @@ Authorization: Bearer {{token}}
 GET {{baseUrl}}/owners/{{ownerId}}/animals
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 ### Eliminar propietario
 DELETE {{baseUrl}}/owners/{{ownerId}}
 Content-Type: application/json

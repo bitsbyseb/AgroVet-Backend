@@ -1,30 +1,46 @@
 @baseUrl = http://localhost:3000/api/v1
-@animalId = 00000000-0000-0000-0000-000000000000
-@appointmentId = 00000000-0000-0000-0000-000000000000
-@userId = 00000000-0000-0000-0000-000000000000
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3Y2JkYTNhOS0wOGUwLTRjN2MtOGJlYS0zNGMwMTY4YmZiYzQiLCJyb2xlIjoiYWRtaW5pc3RyYXRvciIsImlhdCI6MTc3ODA4NzE0OCwiZXhwIjoxNzc4MDkwNzQ4fQ.hSjv3ryXqi4lwwxlkoWSrjMYiGICEoMasFlZ6qyU8RM
+@animalId = 0d8a9284-eb8b-4efd-a276-f92aea5880e3
+@appointmentId = 3ce0c685-2221-4cb8-9161-5043740ced54
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiNzMxZTBiMy02Mzg0LTRhNTgtODdmNi1hYzFmOTFlYjY4ZWQiLCJyb2xlIjoidmV0ZXJpbmFyaWFuIiwiaWF0IjoxNzc5NzYyMzI1LCJleHAiOjE3Nzk3NjU5MjV9.skRk00TQgPwvOZTUKZxdxwuJxq-9f7NHkSSUqh3zuAA
+
 ### --- CITAS (APPOINTMENTS) ---
 
 ### Ver calendario de citas
 GET {{baseUrl}}/appointments
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
+
+
+
+
+
+
+
 ### Agendar nueva cita médica
 POST {{baseUrl}}/appointments
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 {
     "animalId": "{{animalId}}",
     "date": "2026-04-10T10:00:00.000Z",
     "reason": "Revisión general y desparasitación",
-    "status": "scheduled",
-    "createdBy": "{{userId}}"
+    "status": "scheduled"
 }
 
-### Cambiar estado de cita (Completada)
+
+
+
+
+
+
+
+### Cambiar estado de cita (Completada o Cancelada)
 PATCH {{baseUrl}}/appointments/{{appointmentId}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 {
     "status": "completed"
 }
@@ -36,17 +52,32 @@ Authorization: Bearer {{token}}
 GET {{baseUrl}}/animals/{{animalId}}/history
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
+
+
+
+
+
+
+
+
 ### Agregar nueva entrada al historial clínico
 POST {{baseUrl}}/animals/{{animalId}}/history
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 {
+    "date": "2023-10-01T10:00:00.000Z",
     "reason": "Consulta por pérdida de apetito",
     "diagnosis": "Gastritis leve por cambio de alimento",
     "treatment": "Dieta blanda por 3 días y protector gástrico",
-    "observations": "El animal se encuentra estable, peso normal.",
-    "createdBy": "{{userId}}"
+    "observations": "El animal se encuentra estable, peso normal."
 }
+
+
+
+
+
 
 
 ### --- VACUNACIÓN ---
@@ -55,14 +86,27 @@ Authorization: Bearer {{token}}
 GET {{baseUrl}}/animals/{{animalId}}/vaccines
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### Registrar aplicación de una vacuna
 POST {{baseUrl}}/animals/{{animalId}}/vaccines
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 {
     "vaccineName": "Antirrábica",
     "applicationDate": "2026-03-26T00:00:00.000Z",
     "nextDoseDate": "2027-03-26T00:00:00.000Z",
-    "batchNumber": "VAC-12345-XZ",
-    "administeredBy": "{{userId}}"
+    "batchNumber": "VAC-12345-XZ"
 }

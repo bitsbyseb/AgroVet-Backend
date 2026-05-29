@@ -6,7 +6,7 @@ import { randomUUID } from "crypto";
 export class RegisterOwnerUseCase {
     constructor(private readonly ownerRepository: OwnerRepository) {}
 
-    async execute(request: ownerCreationType): Promise<void> {
+    async execute(request: ownerCreationType): Promise<string> {
         const existingOwner = await this.ownerRepository.findByDocument(request.document);
         if (existingOwner) {
             throw new Error("Owner with this document already exists");
@@ -23,5 +23,6 @@ export class RegisterOwnerUseCase {
         );
 
         await this.ownerRepository.save(owner);
+        return id;
     }
 }

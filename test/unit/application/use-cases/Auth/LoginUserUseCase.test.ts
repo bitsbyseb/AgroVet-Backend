@@ -4,22 +4,26 @@ import { User, UserRole } from '@domain/entities/User.js';
 import type { UserRepository } from '@domain/repositories/UserRepository.js';
 import type { PasswordHasher } from '@domain/services/PasswordHasher.js';
 import type { TokenService } from '@domain/services/TokenService.js';
+import type { EmailService } from '@domain/services/EmailService.js';
 
 describe('Caso de Uso: Iniciar Sesión (LoginUserUseCase)', () => {
     let mockUserRepository: any;
     let mockPasswordHasher: any;
     let mockTokenService: any;
+    let mockEmailService: any;
     let useCase: LoginUserUseCase;
 
     beforeEach(() => {
         mockUserRepository = { findByEmail: vi.fn() };
         mockPasswordHasher = { compare: vi.fn() };
         mockTokenService = { generateToken: vi.fn() };
+        mockEmailService = { send: vi.fn() };
 
         useCase = new LoginUserUseCase(
             mockUserRepository as UserRepository,
             mockPasswordHasher as PasswordHasher,
-            mockTokenService as TokenService
+            mockTokenService as TokenService,
+            mockEmailService as EmailService
         );
     });
 

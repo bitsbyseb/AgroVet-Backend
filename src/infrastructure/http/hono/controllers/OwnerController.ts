@@ -18,8 +18,8 @@ export class OwnerController {
     async register(c: any) {
         const data = c.req.valid('json');
         try {
-            await this.registerOwnerUseCase.execute(data);
-            return c.json({ message: 'Owner registered successfully' }, 201);
+            const registeredId = await this.registerOwnerUseCase.execute(data);
+            return c.json({ id: registeredId }, 201);
         } catch (error: any) {
             return c.json({ error: error.message }, 400);
         }

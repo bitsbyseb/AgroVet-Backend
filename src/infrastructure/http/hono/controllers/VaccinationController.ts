@@ -30,7 +30,7 @@ export class VaccinationController {
                 applicationDate: new Date(data.applicationDate),
                 nextDoseDate: data.nextDoseDate ? new Date(data.nextDoseDate) : null
             });
-            return c.json({ message: 'Vaccination record added successfully' }, 201);
+            return c.json({ message: 'vacunacion registrada con exito' }, 201);
         } catch (error: any) {
             return c.json({ error: error.message }, 400);
         }
