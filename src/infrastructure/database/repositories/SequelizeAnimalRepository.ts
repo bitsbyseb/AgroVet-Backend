@@ -12,9 +12,10 @@ export class SequelizeAnimalRepository implements AnimalRepository {
             breed: animal.breed,
             gender: animal.gender,
             birthDate: animal.birthDate,
-            status:animal.status,
+            status: animal.status,
             color: animal.color,
-            ownerId: animal.ownerId
+            ownerId: animal.ownerId,
+            paddockId: animal.paddockId || null
         });
     }
 
@@ -44,7 +45,8 @@ export class SequelizeAnimalRepository implements AnimalRepository {
             birthDate: animal.birthDate,
             status: animal.status,
             color: animal.color,
-            ownerId: animal.ownerId
+            ownerId: animal.ownerId,
+            paddockId: animal.paddockId || null
         }, {
             where: { id: animal.id }
         });
@@ -65,7 +67,8 @@ export class SequelizeAnimalRepository implements AnimalRepository {
             model.birthDate,
             model.status,
             model.color,
-            model.ownerId
+            model.ownerId,
+            model.paddockId
         );
     }
 }

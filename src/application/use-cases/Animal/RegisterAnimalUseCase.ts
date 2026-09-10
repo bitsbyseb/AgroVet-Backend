@@ -15,6 +15,11 @@ export class RegisterAnimalUseCase {
             throw new Error("Owner not found");
         }
 
+        const parsedBirthDate = new Date(request.birthDate);
+        if (isNaN(parsedBirthDate.getTime())) {
+            throw new Error("Invalid birth date");
+        }
+
         const animal = new Animal(
             crypto.randomUUID(), // El ID se genera en el backend
             request.name,
@@ -22,10 +27,11 @@ export class RegisterAnimalUseCase {
             request.animalType,
             request.breed,
             request.gender,
-            new Date(request.birthDate), // Convertimos el string a Date
+            parsedBirthDate, // Date validado
             undefined, // status por defecto
             request.color,
-            request.ownerId
+            request.ownerId,
+            request.paddockId || null
         );
 
         await this.animalRepository.save(animal);

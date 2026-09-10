@@ -72,4 +72,7 @@ export class Animal extends Model<InferAttributes<Animal>,InferCreationAttribute
     @Attribute(DataTypes.UUID)
     @NotNull
     declare ownerId:string;
+
+    @Attribute(DataTypes.UUID)
+    declare paddockId: string | null;
 }

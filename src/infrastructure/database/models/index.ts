@@ -1,14 +1,16 @@
 import { ProductionData } from "./ProductionData.model.js";
 import { MedicalHistory } from "./MedicalHistory.model.js";
 import { ReproductionData } from "./Reproduction.model.js";
+import { Alimentation } from "./Alimentation.model.js";
 import { Appointment } from "./Appointment.model.js";
 import { Vaccination } from "./Vaccination.model.js";
 import { sequelize } from "../config/db.config.js";
+import { Paddock } from "./Paddock.model.js";
 import { Animal } from "./Animal.model.js";
 import { Owner } from "./Owner.model.js";
 import { User } from "./User.model.js";
-import { Alimentation } from "./Alimentation.model.js";
 import { Food } from "./Food.model.js";
+
 
 sequelize.addModels([
     ReproductionData,
@@ -20,7 +22,9 @@ sequelize.addModels([
     Animal,
     Owner,
     User,
-    Food])
+    Food,
+    Paddock
+])
 
 Owner.hasMany(Animal, {
     foreignKey: 'ownerId',
@@ -79,3 +83,13 @@ ProductionData.belongsTo(Animal, { foreignKey: 'animalId', as: 'animal' });
 
 Animal.hasMany(ReproductionData, { foreignKey: 'animalId', as: 'reproductions' });
 ReproductionData.belongsTo(Animal, { foreignKey: 'animalId', as: 'animal' });
+
+Paddock.hasMany(Animal, {
+    foreignKey: 'paddockId',
+    as: 'animals'
+});
+Animal.belongsTo(Paddock, {
+    foreignKey: 'paddockId',
+    as: 'paddock'
+});
+

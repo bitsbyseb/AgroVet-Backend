@@ -15,6 +15,7 @@ import { SequelizeFoodRepository } from '@infrastructure/database/repositories/S
 import { SequelizeAlimentationRepository } from '@infrastructure/database/repositories/SequelizeAlimentationRepository.js';
 import { SequelizeProductionDataRepository } from '@infrastructure/database/repositories/SequelizeProductionDataRepository.js';
 import { SequelizeReproductionRepository } from '@infrastructure/database/repositories/SequelizeReproductionRepository.js';
+import { SequelizePaddockRepository } from '@infrastructure/database/repositories/SequelizePaddockRepository.js';
 
 // Security
 import { BcryptHasher } from '@infrastructure/security/BcryptHasher.js';
@@ -61,6 +62,11 @@ import { GetAnimalProductionUseCase } from '@application/use-cases/Production/Ge
 import { RegisterReproductionUseCase } from '@application/use-cases/Reproduction/RegisterReproductionUseCase.js';
 import { GetAnimalReproductionUseCase } from '@application/use-cases/Reproduction/GetAnimalReproductionUseCase.js';
 
+// Use Cases - Paddocks
+import { RegisterPaddockUseCase } from '@application/use-cases/paddocks/RegisterPaddockUseCase.js';
+import { GetPaddocksUseCase } from '@application/use-cases/paddocks/GetPaddocksUseCase.js';
+import { UpdatePaddockUseCase } from '@application/use-cases/paddocks/UpdatePaddockUseCase.js';
+
 // Controllers
 import { AuthController } from '@infrastructure/http/hono/controllers/AuthController.js';
 import { OwnerController } from '@infrastructure/http/hono/controllers/OwnerController.js';
@@ -72,6 +78,7 @@ import { FoodController } from '@infrastructure/http/hono/controllers/FoodContro
 import { AlimentationController } from '@infrastructure/http/hono/controllers/AlimentationController.js';
 import { ProductionController } from '@infrastructure/http/hono/controllers/ProductionController.js';
 import { ReproductionController } from '@infrastructure/http/hono/controllers/ReproductionController.js';
+import { PaddockController } from '@infrastructure/http/hono/controllers/PaddockController.js';
 
 // Routers
 import { createAuthRouter } from '@infrastructure/http/hono/routers/AuthRouter.js';
@@ -79,6 +86,7 @@ import { createOwnerRouter } from '@infrastructure/http/hono/routers/OwnerRouter
 import { createAnimalRouter } from '@infrastructure/http/hono/routers/AnimalRouter.js';
 import { createAppointmentRouter } from '@infrastructure/http/hono/routers/AppointmentRouter.js';
 import { createFoodRouter } from '@infrastructure/http/hono/routers/FoodRouter.js';
+import { createPaddockRouter } from '@infrastructure/http/hono/routers/PaddockRouter.js';
 
 import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
@@ -103,6 +111,7 @@ const foodRepository = new SequelizeFoodRepository();
 const alimentationRepository = new SequelizeAlimentationRepository();
 const productionRepository = new SequelizeProductionDataRepository();
 const reproductionRepository = new SequelizeReproductionRepository();
+const paddockRepository = new SequelizePaddockRepository();
 const passwordHasher = new BcryptHasher();
 const tokenService = new HonoTokenService();
 
@@ -150,6 +159,11 @@ const getAnimalProductionUseCase = new GetAnimalProductionUseCase(productionRepo
 const registerReproductionUseCase = new RegisterReproductionUseCase(reproductionRepository, animalRepository);
 const getAnimalReproductionUseCase = new GetAnimalReproductionUseCase(reproductionRepository, animalRepository);
 
+// Use Cases (Paddocks)
+const registerPaddockUseCase = new RegisterPaddockUseCase(paddockRepository);
+const getPaddocksUseCase = new GetPaddocksUseCase(paddockRepository);
+const updatePaddockUseCase = new UpdatePaddockUseCase(paddockRepository);
+
 // Controllers
 const authController = new AuthController(registerUserUseCase, loginUserUseCase);
 const ownerController = new OwnerController(
@@ -166,6 +180,7 @@ const foodController = new FoodController(registerFoodUseCase, listFoodsUseCase)
 const alimentationController = new AlimentationController(registerAlimentationUseCase, getAnimalDietUseCase);
 const productionController = new ProductionController(registerProductionUseCase, getAnimalProductionUseCase);
 const reproductionController = new ReproductionController(registerReproductionUseCase, getAnimalReproductionUseCase);
+const paddockController = new PaddockController(registerPaddockUseCase, getPaddocksUseCase, updatePaddockUseCase);
 
 const animalController = new AnimalController(
     registerAnimalUseCase,
@@ -216,6 +231,7 @@ const animalRouter = createAnimalRouter(
 );
 const appointmentRouter = createAppointmentRouter(appointmentController);
 const foodRouter = createFoodRouter(foodController);
+const paddockRouter = createPaddockRouter(paddockController);
 
 const app = new OpenAPIHono();
 
@@ -259,6 +275,7 @@ v1.route('/owners', ownerRouter);
 v1.route('/animals', animalRouter);
 v1.route('/appointments', appointmentRouter);
 v1.route('/foods', foodRouter);
+v1.route('/paddocks', paddockRouter);
 
 app.route('/api/v1', v1);
 

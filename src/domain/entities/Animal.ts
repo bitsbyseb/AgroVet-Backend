@@ -35,6 +35,7 @@ export class Animal {
         public status:Status = Status.ACTIVE,
         public color: string,
         public ownerId: string, // El ID del dueño actual
+        public paddockId?: string | null,
         public readonly createdAt?: Date,
         public readonly updatedAt?: Date
     ) {}
@@ -51,10 +52,11 @@ export class Animal {
     }
 
     // Regla de negocio: Actualización de datos físicos
-    public updatePhysicalData(data: { name?: string; color?: string; breed?: string; status?:Status }): void {
+    public updatePhysicalData(data: { name?: string; color?: string; breed?: string; status?:Status; paddockId?: string | null }): void {
         if (data.name) this.name = data.name;
         if (data.color) this.color = data.color;
         if (data.breed) this.breed = data.breed;
         if (data.status) this.status = data.status;
+        if (data.paddockId !== undefined) this.paddockId = data.paddockId;
     }
 }
