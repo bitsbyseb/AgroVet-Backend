@@ -15,6 +15,7 @@ import { SequelizeAlimentationRepository } from './infrastructure/database/repos
 import { SequelizeProductionDataRepository } from './infrastructure/database/repositories/SequelizeProductionDataRepository.js';
 import { SequelizeReproductionRepository } from './infrastructure/database/repositories/SequelizeReproductionRepository.js';
 import { SequelizePaddockRepository } from './infrastructure/database/repositories/SequelizePaddockRepository.js';
+import { SequelizeGrazingActivityRepository } from './infrastructure/database/repositories/SequelizeGrazingActivityRepository.js';
 // Security
 import { BcryptHasher } from './infrastructure/security/BcryptHasher.js';
 import { HonoTokenService } from './infrastructure/security/HonoTokenService.js';
@@ -53,10 +54,11 @@ import { RegisterProductionUseCase } from './application/use-cases/Production/Re
 import { GetAnimalProductionUseCase } from './application/use-cases/Production/GetAnimalProductionUseCase.js';
 import { RegisterReproductionUseCase } from './application/use-cases/Reproduction/RegisterReproductionUseCase.js';
 import { GetAnimalReproductionUseCase } from './application/use-cases/Reproduction/GetAnimalReproductionUseCase.js';
-// Use Cases - Paddocks
+// Use Cases - Paddocks & Grazing
 import { RegisterPaddockUseCase } from './application/use-cases/paddocks/RegisterPaddockUseCase.js';
 import { GetPaddocksUseCase } from './application/use-cases/paddocks/GetPaddocksUseCase.js';
 import { UpdatePaddockUseCase } from './application/use-cases/paddocks/UpdatePaddockUseCase.js';
+import { RegisterGrazingActivityUseCase } from './application/use-cases/paddocks/RegisterGrazingActivityUseCase.js';
 // Controllers
 import { AuthController } from './infrastructure/http/hono/controllers/AuthController.js';
 import { OwnerController } from './infrastructure/http/hono/controllers/OwnerController.js';
@@ -69,6 +71,7 @@ import { AlimentationController } from './infrastructure/http/hono/controllers/A
 import { ProductionController } from './infrastructure/http/hono/controllers/ProductionController.js';
 import { ReproductionController } from './infrastructure/http/hono/controllers/ReproductionController.js';
 import { PaddockController } from './infrastructure/http/hono/controllers/PaddockController.js';
+import { GrazingController } from './infrastructure/http/hono/controllers/grazingController.js';
 // Routers
 import { createAuthRouter } from './infrastructure/http/hono/routers/AuthRouter.js';
 import { createOwnerRouter } from './infrastructure/http/hono/routers/OwnerRouter.js';
@@ -76,6 +79,7 @@ import { createAnimalRouter } from './infrastructure/http/hono/routers/AnimalRou
 import { createAppointmentRouter } from './infrastructure/http/hono/routers/AppointmentRouter.js';
 import { createFoodRouter } from './infrastructure/http/hono/routers/FoodRouter.js';
 import { createPaddockRouter } from './infrastructure/http/hono/routers/PaddockRouter.js';
+import { createGrazingRouter } from './infrastructure/http/hono/routers/grazingRouter.js';
 import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { cors } from 'hono/cors';
@@ -97,6 +101,7 @@ const alimentationRepository = new SequelizeAlimentationRepository();
 const productionRepository = new SequelizeProductionDataRepository();
 const reproductionRepository = new SequelizeReproductionRepository();
 const paddockRepository = new SequelizePaddockRepository();
+const grazingActivityRepository = new SequelizeGrazingActivityRepository();
 const passwordHasher = new BcryptHasher();
 const tokenService = new HonoTokenService();
 // Services (Email)
@@ -136,10 +141,11 @@ const registerProductionUseCase = new RegisterProductionUseCase(productionReposi
 const getAnimalProductionUseCase = new GetAnimalProductionUseCase(productionRepository, animalRepository);
 const registerReproductionUseCase = new RegisterReproductionUseCase(reproductionRepository, animalRepository);
 const getAnimalReproductionUseCase = new GetAnimalReproductionUseCase(reproductionRepository, animalRepository);
-// Use Cases (Paddocks)
+// Use Cases (Paddocks & Grazing)
 const registerPaddockUseCase = new RegisterPaddockUseCase(paddockRepository);
 const getPaddocksUseCase = new GetPaddocksUseCase(paddockRepository);
 const updatePaddockUseCase = new UpdatePaddockUseCase(paddockRepository);
+const registerGrazingActivityUseCase = new RegisterGrazingActivityUseCase(grazingActivityRepository, paddockRepository);
 // Controllers
 const authController = new AuthController(registerUserUseCase, loginUserUseCase);
 const ownerController = new OwnerController(registerOwnerUseCase, updateOwnerProfileUseCase, getOwnerByIdUseCase, listAllOwnersUseCase, deleteOwnerUseCase, getOwnerAnimalsUseCase);
@@ -150,6 +156,7 @@ const alimentationController = new AlimentationController(registerAlimentationUs
 const productionController = new ProductionController(registerProductionUseCase, getAnimalProductionUseCase);
 const reproductionController = new ReproductionController(registerReproductionUseCase, getAnimalReproductionUseCase);
 const paddockController = new PaddockController(registerPaddockUseCase, getPaddocksUseCase, updatePaddockUseCase);
+const grazingController = new GrazingController(registerGrazingActivityUseCase);
 const animalController = new AnimalController(registerAnimalUseCase, getAnimalByIdUseCase, listAllAnimalsUseCase, updateAnimalUseCase, deleteAnimalUseCase, transferAnimalOwnershipUseCase);
 const appointmentController = new AppointmentController(registerAppointmentUseCase, listAppointmentsUseCase, updateAppointmentUseCase);
 // SEEDING
@@ -182,6 +189,7 @@ const animalRouter = createAnimalRouter(animalController, medicalHistoryControll
 const appointmentRouter = createAppointmentRouter(appointmentController);
 const foodRouter = createFoodRouter(foodController);
 const paddockRouter = createPaddockRouter(paddockController);
+const grazingRouter = createGrazingRouter(grazingController);
 const app = new OpenAPIHono();
 app.onError((err, c) => {
     console.error({
@@ -219,6 +227,7 @@ v1.route('/animals', animalRouter);
 v1.route('/appointments', appointmentRouter);
 v1.route('/foods', foodRouter);
 v1.route('/paddocks', paddockRouter);
+v1.route('/grazing', grazingRouter);
 app.route('/api/v1', v1);
 const server = serve({
     fetch: app.fetch,

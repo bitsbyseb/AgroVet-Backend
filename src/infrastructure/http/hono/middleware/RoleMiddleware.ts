@@ -9,7 +9,7 @@ export const authMiddleware = jwt({
     alg: 'HS256'
 });
 
-type Resource = 'animales' | 'historial_medico' | 'vacunas' | 'consultas_veterinarias' | 'datos_productivos' | 'alimentacion' | 'reproduccion' | 'propietarios' | 'usuarios' | 'potreros';
+type Resource = 'animales' | 'historial_medico' | 'vacunas' | 'consultas_veterinarias' | 'datos_productivos' | 'alimentacion' | 'reproduccion' | 'propietarios' | 'usuarios' | 'potreros' | 'pastoreo';
 
 const permissions: Record<Resource, { full: UserRole[], readOnly: UserRole[] }> = {
     animales: {
@@ -41,6 +41,10 @@ const permissions: Record<Resource, { full: UserRole[], readOnly: UserRole[] }> 
         readOnly: [UserRole.ADMIN]
     },
     potreros: {
+        full: [UserRole.ZOOTECHNICIAN, UserRole.ADMIN],
+        readOnly: [UserRole.VETERINARIAN]
+    },
+    pastoreo: {
         full: [UserRole.ZOOTECHNICIAN, UserRole.ADMIN],
         readOnly: [UserRole.VETERINARIAN]
     },

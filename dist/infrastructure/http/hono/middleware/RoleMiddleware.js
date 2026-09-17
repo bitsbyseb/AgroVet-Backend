@@ -38,6 +38,10 @@ const permissions = {
         full: [UserRole.ZOOTECHNICIAN, UserRole.ADMIN],
         readOnly: [UserRole.VETERINARIAN]
     },
+    pastoreo: {
+        full: [UserRole.ZOOTECHNICIAN, UserRole.ADMIN],
+        readOnly: [UserRole.VETERINARIAN]
+    },
     propietarios: {
         full: [UserRole.ADMIN],
         readOnly: [UserRole.VETERINARIAN]
