@@ -16,6 +16,7 @@ import {
 } from '@sequelize/core/decorators-legacy';
 import { PaddockStatus } from '@domain/entities/Paddock.js';
 import type { Animal } from './Animal.model.js';
+import type { GrazingActivity } from './grazingActivity.model.js';
 
 @Table({
     tableName: 'paddocks',
@@ -54,4 +55,5 @@ export class Paddock extends Model<InferAttributes<Paddock>, InferCreationAttrib
 
     // Estructura de relación 1:N (Un potrero tiene muchos animales)
     declare animals?: NonAttribute<Animal[]>;
+    declare grazingActivities?: NonAttribute<GrazingActivity[]>;
 }

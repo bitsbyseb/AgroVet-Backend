@@ -9,11 +9,11 @@ export class RegisterAnimalUseCase {
     async execute(request) {
         const owner = await this.ownerRepository.findById(request.ownerId);
         if (!owner) {
-            throw new Error("Propietario no encontrado");
+            throw new Error("Owner not found");
         }
         const parsedBirthDate = new Date(request.birthDate);
         if (isNaN(parsedBirthDate.getTime())) {
-            throw new Error("Fecha de nacimiento no válida");
+            throw new Error("Invalid birth date");
         }
         const animal = new Animal(crypto.randomUUID(), // El ID se genera en el backend
         request.name, request.species, request.animalType, request.breed, request.gender, parsedBirthDate, // Date validado

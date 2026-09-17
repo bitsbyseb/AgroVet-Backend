@@ -10,6 +10,7 @@ import { Animal } from "./Animal.model.js";
 import { Owner } from "./Owner.model.js";
 import { User } from "./User.model.js";
 import { Food } from "./Food.model.js";
+import { GrazingActivity } from "./grazingActivity.model.js";
 sequelize.addModels([
     ReproductionData,
     ProductionData,
@@ -21,7 +22,8 @@ sequelize.addModels([
     Owner,
     User,
     Food,
-    Paddock
+    Paddock,
+    GrazingActivity
 ]);
 Owner.hasMany(Animal, {
     foreignKey: 'ownerId',
@@ -70,6 +72,14 @@ Paddock.hasMany(Animal, {
     as: 'animals'
 });
 Animal.belongsTo(Paddock, {
+    foreignKey: 'paddockId',
+    as: 'paddock'
+});
+Paddock.hasMany(GrazingActivity, {
+    foreignKey: 'paddockId',
+    as: 'grazingActivities'
+});
+GrazingActivity.belongsTo(Paddock, {
     foreignKey: 'paddockId',
     as: 'paddock'
 });
