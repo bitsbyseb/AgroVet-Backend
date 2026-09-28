@@ -34,7 +34,8 @@ __decorate([
 ], Owner.prototype, "phone", void 0);
 __decorate([
     Attribute(DataTypes.STRING),
-    NotNull
+    NotNull,
+    Unique
 ], Owner.prototype, "email", void 0);
 __decorate([
     Attribute(DataTypes.TEXT),

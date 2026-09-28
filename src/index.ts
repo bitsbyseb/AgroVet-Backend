@@ -68,6 +68,8 @@ import { RegisterPaddockUseCase } from '@application/use-cases/paddocks/Register
 import { GetPaddocksUseCase } from '@application/use-cases/paddocks/GetPaddocksUseCase.js';
 import { UpdatePaddockUseCase } from '@application/use-cases/paddocks/UpdatePaddockUseCase.js';
 import { RegisterGrazingActivityUseCase } from '@application/use-cases/paddocks/RegisterGrazingActivityUseCase.js';
+import { GetGrazingActivitiesUseCase } from '@application/use-cases/paddocks/GetGrazingActivitiesUseCase.js';
+import { GetGrazingHistoryUseCase } from '@application/use-cases/paddocks/GetGrazingHistoryUseCase.js';
 
 // Controllers
 import { AuthController } from '@infrastructure/http/hono/controllers/AuthController.js';
@@ -82,6 +84,7 @@ import { ProductionController } from '@infrastructure/http/hono/controllers/Prod
 import { ReproductionController } from '@infrastructure/http/hono/controllers/ReproductionController.js';
 import { PaddockController } from '@infrastructure/http/hono/controllers/PaddockController.js';
 import { GrazingController } from '@infrastructure/http/hono/controllers/grazingController.js';
+import { GrazingHistoryController } from '@infrastructure/http/hono/controllers/grazingHistoryController.js';
 
 // Routers
 import { createAuthRouter } from '@infrastructure/http/hono/routers/AuthRouter.js';
@@ -100,7 +103,7 @@ import { HTTPException } from 'hono/http-exception';
 import { ResendEmailService } from '@infrastructure/services/ResendEmail.service.js';
 
 await sequelize.authenticate();
-await sequelize.sync();
+await sequelize.sync({ alter: true });
 
 const PORT = parseInt(process.env.PORT || '3000');
 
@@ -169,6 +172,8 @@ const registerPaddockUseCase = new RegisterPaddockUseCase(paddockRepository);
 const getPaddocksUseCase = new GetPaddocksUseCase(paddockRepository);
 const updatePaddockUseCase = new UpdatePaddockUseCase(paddockRepository);
 const registerGrazingActivityUseCase = new RegisterGrazingActivityUseCase(grazingActivityRepository, paddockRepository);
+const getGrazingActivitiesUseCase = new GetGrazingActivitiesUseCase(grazingActivityRepository);
+const getGrazingHistoryUseCase = new GetGrazingHistoryUseCase(grazingActivityRepository);
 
 // Controllers
 const authController = new AuthController(registerUserUseCase, loginUserUseCase);
@@ -187,7 +192,8 @@ const alimentationController = new AlimentationController(registerAlimentationUs
 const productionController = new ProductionController(registerProductionUseCase, getAnimalProductionUseCase);
 const reproductionController = new ReproductionController(registerReproductionUseCase, getAnimalReproductionUseCase);
 const paddockController = new PaddockController(registerPaddockUseCase, getPaddocksUseCase, updatePaddockUseCase);
-const grazingController = new GrazingController(registerGrazingActivityUseCase);
+const grazingController = new GrazingController(registerGrazingActivityUseCase, getGrazingActivitiesUseCase);
+const grazingHistoryController = new GrazingHistoryController(getGrazingHistoryUseCase);
 
 const animalController = new AnimalController(
     registerAnimalUseCase,
@@ -239,7 +245,7 @@ const animalRouter = createAnimalRouter(
 const appointmentRouter = createAppointmentRouter(appointmentController);
 const foodRouter = createFoodRouter(foodController);
 const paddockRouter = createPaddockRouter(paddockController);
-const grazingRouter = createGrazingRouter(grazingController);
+const grazingRouter = createGrazingRouter(grazingController, grazingHistoryController);
 
 const app = new OpenAPIHono();
 
@@ -285,6 +291,7 @@ v1.route('/appointments', appointmentRouter);
 v1.route('/foods', foodRouter);
 v1.route('/paddocks', paddockRouter);
 v1.route('/grazing', grazingRouter);
+v1.route('/grazing-activities', grazingRouter);
 
 app.route('/api/v1', v1);
 

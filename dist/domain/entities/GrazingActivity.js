@@ -63,6 +63,36 @@ export class GrazingActivity {
         const diffTime = end - start;
         return Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
     }
+    // Regla de negocio: Cálculo dinámico del tiempo de permanencia (diferencia en días u horas)
+    getPermanenceTime(referenceDate = new Date()) {
+        const inProgress = this.isActive();
+        const end = this.exitDate ? this.exitDate.getTime() : referenceDate.getTime();
+        const start = this.entryDate.getTime();
+        const diffMs = Math.max(0, end - start);
+        const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const days = Math.floor(totalHours / 24);
+        const hours = totalHours % 24;
+        let formatted = '';
+        if (days > 0 && hours > 0) {
+            formatted = `${days} día${days !== 1 ? 's' : ''}, ${hours} hora${hours !== 1 ? 's' : ''}`;
+        }
+        else if (days > 0) {
+            formatted = `${days} día${days !== 1 ? 's' : ''}`;
+        }
+        else {
+            formatted = `${hours} hora${hours !== 1 ? 's' : ''}`;
+        }
+        if (inProgress) {
+            formatted += ' (en curso)';
+        }
+        return {
+            days,
+            hours,
+            totalHours,
+            inProgress,
+            formatted
+        };
+    }
     // Regla de negocio: Actualización de detalles de la actividad
     updateDetails(details) {
         const newEntry = details.entryDate ?? this.entryDate;

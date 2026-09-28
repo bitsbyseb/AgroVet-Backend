@@ -8,7 +8,11 @@ export class RegisterOwnerUseCase {
     async execute(request) {
         const existingOwner = await this.ownerRepository.findByDocument(request.document);
         if (existingOwner) {
-            throw new Error("Owner with this document already exists");
+            throw new Error('Ya existe un propietario con este número de documento');
+        }
+        const existingOwnerByEmail = await this.ownerRepository.findByEmail(request.email);
+        if (existingOwnerByEmail) {
+            throw new Error('Ya existe un propietario registrado con este correo electrónico');
         }
         const id = randomUUID();
         const owner = new Owner(id, request.name, request.document, request.phone, request.email, request.address, request.ownerType);

@@ -163,4 +163,44 @@ describe('GrazingActivity Domain Entity Unit Tests', () => {
         expect(activity.rotationNumber).toBe(3);
         expect(activity.observations).toBe('Pastoreo intensivo');
     });
+
+    it('should calculate permanenceTime correctly when exitDate exists', () => {
+        const entry = new Date('2026-03-01T08:00:00Z');
+        const exit = new Date('2026-03-04T14:00:00Z'); // 3 days, 6 hours = 78 hours
+        const activity = new GrazingActivity(
+            randomUUID(),
+            validPaddockId,
+            [validAnimalId1],
+            entry,
+            exit,
+            1
+        );
+
+        const permanence = activity.getPermanenceTime();
+        expect(permanence.inProgress).toBe(false);
+        expect(permanence.days).toBe(3);
+        expect(permanence.hours).toBe(6);
+        expect(permanence.totalHours).toBe(78);
+        expect(permanence.formatted).toBe('3 días, 6 horas');
+    });
+
+    it('should calculate permanenceTime correctly when activity is in progress (exitDate is null)', () => {
+        const entry = new Date('2026-03-01T08:00:00Z');
+        const activity = new GrazingActivity(
+            randomUUID(),
+            validPaddockId,
+            [validAnimalId1],
+            entry,
+            null,
+            1
+        );
+
+        const refDate = new Date('2026-03-02T13:00:00Z'); // 1 day, 5 hours = 29 hours
+        const permanence = activity.getPermanenceTime(refDate);
+        expect(permanence.inProgress).toBe(true);
+        expect(permanence.days).toBe(1);
+        expect(permanence.hours).toBe(5);
+        expect(permanence.totalHours).toBe(29);
+        expect(permanence.formatted).toBe('1 día, 5 horas (en curso)');
+    });
 });

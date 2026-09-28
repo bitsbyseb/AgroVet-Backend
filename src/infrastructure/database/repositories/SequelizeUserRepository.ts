@@ -9,6 +9,12 @@ export class SequelizeUserRepository implements UserRepository {
         return this.toDomain(userModel);
     }
 
+    async findByUsername(username: string): Promise<User | null> {
+        const userModel = await UserModel.findOne({ where: { username } });
+        if (!userModel) return null;
+        return this.toDomain(userModel);
+    }
+
     async save(user: User): Promise<void> {
         const primitives = user.toPrimitives();
         await UserModel.upsert({

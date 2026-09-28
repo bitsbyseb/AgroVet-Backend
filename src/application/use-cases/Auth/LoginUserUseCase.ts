@@ -19,12 +19,12 @@ export class LoginUserUseCase {
     async execute(request: LoginUserRequest): Promise<string> {
         const user = await this.userRepository.findByEmail(request.email);
         if (!user) {
-            throw new Error('Invalid Credentials');
+            throw new Error('Credenciales inválidas');
         }
 
         const isValid = await this.passwordHasher.compare(request.password, user.password);
         if (!isValid) {
-            throw new Error('Invalid Credentials');
+            throw new Error('Credenciales inválidas');
         }
 
         const currentDate = new Date();

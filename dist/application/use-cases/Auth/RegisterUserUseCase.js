@@ -10,13 +10,17 @@ export class RegisterUserUseCase {
         this.emailService = emailService;
     }
     async execute(request) {
-        const existingUser = await this.userRepository.findByEmail(request.email);
-        if (existingUser) {
-            throw new Error('User is already in the system');
+        const existingUserByEmail = await this.userRepository.findByEmail(request.email);
+        if (existingUserByEmail) {
+            throw new Error('El correo electrónico ya está registrado en el sistema');
+        }
+        const existingUserByUsername = await this.userRepository.findByUsername(request.username);
+        if (existingUserByUsername) {
+            throw new Error('El nombre de usuario ya está en uso');
         }
         const hashedPassword = await this.passwordHasher.hash(request.password);
         if (request.role === UserRole.ADMIN) {
-            throw new Error('Unauthorized: Cannot create users with Administrator role');
+            throw new Error('No autorizado: No se pueden crear usuarios con rol de Administrador');
         }
         const newUser = new User({
             id: randomUUID(),

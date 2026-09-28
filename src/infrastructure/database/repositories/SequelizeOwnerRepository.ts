@@ -27,6 +27,12 @@ export class SequelizeOwnerRepository implements OwnerRepository {
         return this.toDomain(ownerModel);
     }
 
+    async findByEmail(email: string): Promise<Owner | null> {
+        const ownerModel = await OwnerModel.findOne({ where: { email } });
+        if (!ownerModel) return null;
+        return this.toDomain(ownerModel);
+    }
+
     async findAll(): Promise<Owner[]> {
         const owners = await OwnerModel.findAll();
         return owners.map(this.toDomain);

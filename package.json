@@ -12,28 +12,28 @@
     "test:coverage": "node --env-file=.env node_modules/vitest/vitest.mjs run --coverage --no-file-parallelism"
   },
   "dependencies": {
-    "@hono/node-server": "^2.1.0",
-    "@hono/swagger-ui": "^0.6.1",
+    "@hono/node-server": "2.1.0",
+    "@hono/swagger-ui": "0.6.1",
     "@hono/zod-openapi": "1.5.3",
-    "@hono/zod-validator": "^0.9.0",
-    "@sequelize/core": "^7.0.0-alpha.48",
-    "@sequelize/mysql": "^7.0.0-alpha.48",
-    "bcrypt": "^6.0.0",
-    "hono": "^4.13.2",
-    "resend": "^6.19.0",
-    "zod": "^4.4.3"
+    "@hono/zod-validator": "0.9.0",
+    "@sequelize/core": "7.0.0-alpha.48",
+    "@sequelize/mysql": "7.0.0-alpha.48",
+    "bcrypt": "6.0.0",
+    "hono": "^4.13.9",
+    "resend": "6.19.0",
+    "zod": "4.4.3"
   },
   "devDependencies": {
-    "@types/bcrypt": "^6.0.0",
-    "@types/node": "^26.2.0",
-    "@vitest/coverage-v8": "^4.1.10",
-    "tsc-alias": "^1.9.1",
-    "tsx": "^4.23.12",
-    "typescript": "^7.0.2",
-    "vitest": "^4.1.10"
+    "@types/bcrypt": "6.0.0",
+    "@types/node": "26.2.0",
+    "@vitest/coverage-v8": "5.0.2",
+    "tsc-alias": "1.9.1",
+    "tsx": "4.23.12",
+    "typescript": "7.0.2",
+    "vitest": "5.0.2"
   },
   "allowScripts": {
     "bcrypt@6.0.0": true,
-    "esbuild@0.27.2": true
+    "esbuild@0.28.2": true
   }
 }

@@ -21,7 +21,8 @@ export class GetOwnerAnimalsUseCase {
             birthDate: animal.birthDate,
             status: animal.status,
             color: animal.color,
-            ownerId: animal.ownerId
+            ownerId: animal.ownerId,
+            paddockId: animal.paddockId ?? null
         }));
     }
 }

@@ -28,6 +28,7 @@ export class Owner extends Model<InferAttributes<Owner>, InferCreationAttributes
 
     @Attribute(DataTypes.STRING)
     @NotNull
+    @Unique
     declare email: string;
 
     @Attribute(DataTypes.TEXT)

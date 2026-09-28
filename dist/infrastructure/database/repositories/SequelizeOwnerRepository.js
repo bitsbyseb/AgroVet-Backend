@@ -24,6 +24,12 @@ export class SequelizeOwnerRepository {
             return null;
         return this.toDomain(ownerModel);
     }
+    async findByEmail(email) {
+        const ownerModel = await OwnerModel.findOne({ where: { email } });
+        if (!ownerModel)
+            return null;
+        return this.toDomain(ownerModel);
+    }
     async findAll() {
         const owners = await OwnerModel.findAll();
         return owners.map(this.toDomain);

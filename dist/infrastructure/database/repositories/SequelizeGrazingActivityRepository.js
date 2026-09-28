@@ -1,5 +1,6 @@
 import { GrazingActivity } from "../../../domain/entities/GrazingActivity.js";
 import { GrazingActivity as GrazingActivityModel } from "../models/grazingActivity.model.js";
+import { Op } from "@sequelize/core";
 export class SequelizeGrazingActivityRepository {
     async save(activity) {
         await GrazingActivityModel.create({
@@ -38,6 +39,39 @@ export class SequelizeGrazingActivityRepository {
     async findByAnimalId(animalId) {
         const all = await this.findAll();
         return all.filter((activity) => activity.animalIds.includes(animalId));
+    }
+    async findHistory(filters = {}) {
+        const where = {};
+        if (filters.paddockId) {
+            where.paddockId = filters.paddockId;
+        }
+        const startDate = filters.startDate ? new Date(filters.startDate) : undefined;
+        const endDate = filters.endDate ? new Date(filters.endDate) : undefined;
+        if (startDate && endDate) {
+            where.entryDate = {
+                [Op.gte]: startDate,
+                [Op.lte]: endDate
+            };
+        }
+        else if (startDate) {
+            where.entryDate = {
+                [Op.gte]: startDate
+            };
+        }
+        else if (endDate) {
+            where.entryDate = {
+                [Op.lte]: endDate
+            };
+        }
+        const models = await GrazingActivityModel.findAll({
+            where,
+            order: [['entryDate', 'DESC']]
+        });
+        let activities = models.map((model) => this.toDomain(model));
+        if (filters.animalId) {
+            activities = activities.filter((activity) => activity.animalIds.includes(filters.animalId));
+        }
+        return activities;
     }
     async findAll() {
         const models = await GrazingActivityModel.findAll();

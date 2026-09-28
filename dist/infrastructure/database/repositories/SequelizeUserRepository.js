@@ -7,6 +7,12 @@ export class SequelizeUserRepository {
             return null;
         return this.toDomain(userModel);
     }
+    async findByUsername(username) {
+        const userModel = await UserModel.findOne({ where: { username } });
+        if (!userModel)
+            return null;
+        return this.toDomain(userModel);
+    }
     async save(user) {
         const primitives = user.toPrimitives();
         await UserModel.upsert({

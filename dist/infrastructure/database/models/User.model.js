@@ -22,7 +22,8 @@ __decorate([
 ], User.prototype, "id", void 0);
 __decorate([
     Attribute(DataTypes.STRING),
-    NotNull
+    NotNull,
+    Unique
 ], User.prototype, "username", void 0);
 __decorate([
     Attribute(DataTypes.STRING),

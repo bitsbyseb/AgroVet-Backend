@@ -60,7 +60,7 @@ describe('Caso de Uso: Iniciar Sesión (LoginUserUseCase)', () => {
         await expect(useCase.execute({
             email: 'wrong@example.com',
             password: 'password123'
-        })).rejects.toThrow('Invalid Credentials');
+        })).rejects.toThrow('Credenciales inválidas');
 
         expect(mockPasswordHasher.compare).not.toHaveBeenCalled();
         expect(mockTokenService.generateToken).not.toHaveBeenCalled();
@@ -81,7 +81,7 @@ describe('Caso de Uso: Iniciar Sesión (LoginUserUseCase)', () => {
         await expect(useCase.execute({
             email: 'john@example.com',
             password: 'wrongPassword'
-        })).rejects.toThrow('Invalid Credentials');
+        })).rejects.toThrow('Credenciales inválidas');
 
         expect(mockTokenService.generateToken).not.toHaveBeenCalled();
     });

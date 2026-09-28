@@ -1,6 +1,7 @@
 import { GrazingActivity } from "@domain/entities/GrazingActivity.js";
-import type { GrazingActivityRepository } from "@domain/repositories/GrazingActivityRepository.js";
+import type { GrazingActivityRepository, IGrazingFilters } from "@domain/repositories/GrazingActivityRepository.js";
 import { GrazingActivity as GrazingActivityModel } from "../models/grazingActivity.model.js";
+import { Op } from "@sequelize/core";
 
 export class SequelizeGrazingActivityRepository implements GrazingActivityRepository {
     async save(activity: GrazingActivity): Promise<void> {
@@ -42,6 +43,45 @@ export class SequelizeGrazingActivityRepository implements GrazingActivityReposi
     async findByAnimalId(animalId: string): Promise<GrazingActivity[]> {
         const all = await this.findAll();
         return all.filter((activity) => activity.animalIds.includes(animalId));
+    }
+
+    async findHistory(filters: IGrazingFilters = {}): Promise<GrazingActivity[]> {
+        const where: Record<string | symbol, unknown> = {};
+
+        if (filters.paddockId) {
+            where.paddockId = filters.paddockId;
+        }
+
+        const startDate = filters.startDate ? new Date(filters.startDate) : undefined;
+        const endDate = filters.endDate ? new Date(filters.endDate) : undefined;
+
+        if (startDate && endDate) {
+            where.entryDate = {
+                [Op.gte]: startDate,
+                [Op.lte]: endDate
+            };
+        } else if (startDate) {
+            where.entryDate = {
+                [Op.gte]: startDate
+            };
+        } else if (endDate) {
+            where.entryDate = {
+                [Op.lte]: endDate
+            };
+        }
+
+        const models = await GrazingActivityModel.findAll({
+            where,
+            order: [['entryDate', 'DESC']]
+        });
+
+        let activities = models.map((model) => this.toDomain(model));
+
+        if (filters.animalId) {
+            activities = activities.filter((activity) => activity.animalIds.includes(filters.animalId!));
+        }
+
+        return activities;
     }
 
     async findAll(): Promise<GrazingActivity[]> {

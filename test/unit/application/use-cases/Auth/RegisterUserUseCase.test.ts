@@ -14,6 +14,7 @@ describe('Caso de Uso: Registrar Usuario (RegisterUserUseCase)', () => {
     beforeEach(() => {
         mockUserRepository = {
             findByEmail: vi.fn(),
+            findByUsername: vi.fn(),
             save: vi.fn(),
         } as unknown as ReturnType<typeof vi.fn>;
 
@@ -34,6 +35,7 @@ describe('Caso de Uso: Registrar Usuario (RegisterUserUseCase)', () => {
 
     it('debería crear un usuario nuevo exitosamente', async () => {
         (mockUserRepository.findByEmail as any).mockResolvedValue(null);
+        (mockUserRepository.findByUsername as any).mockResolvedValue(null);
         (mockPasswordHasher.hash as any).mockResolvedValue('hashedPassword123');
 
         await useCase.execute({
@@ -44,6 +46,7 @@ describe('Caso de Uso: Registrar Usuario (RegisterUserUseCase)', () => {
         });
 
         expect(mockUserRepository.findByEmail).toHaveBeenCalledWith('john@example.com');
+        expect(mockUserRepository.findByUsername).toHaveBeenCalledWith('johndoe');
         expect(mockPasswordHasher.hash).toHaveBeenCalledWith('securePassword');
         expect(mockUserRepository.save).toHaveBeenCalled();
         
@@ -53,7 +56,7 @@ describe('Caso de Uso: Registrar Usuario (RegisterUserUseCase)', () => {
         expect(savedUser.password).toBe('hashedPassword123');
     });
 
-    it('debería lanzar un error si el usuario ya se encuentra registrado en el sistema', async () => {
+    it('debería lanzar un error si el correo electrónico ya está registrado', async () => {
         (mockUserRepository.findByEmail as any).mockResolvedValue(new User({
             id: '123', username: 'existing', email: 'john@example.com', password: 'pwd', role: UserRole.VETERINARIAN
         }));
@@ -63,13 +66,30 @@ describe('Caso de Uso: Registrar Usuario (RegisterUserUseCase)', () => {
             email: 'john@example.com',
             password: 'securePassword',
             role: UserRole.VETERINARIAN
-        })).rejects.toThrow('User is already in the system');
+        })).rejects.toThrow('El correo electrónico ya está registrado en el sistema');
+
+        expect(mockUserRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('debería lanzar un error si el nombre de usuario ya está en uso', async () => {
+        (mockUserRepository.findByEmail as any).mockResolvedValue(null);
+        (mockUserRepository.findByUsername as any).mockResolvedValue(new User({
+            id: '456', username: 'johndoe', email: 'other@example.com', password: 'pwd', role: UserRole.VETERINARIAN
+        }));
+
+        await expect(useCase.execute({
+            username: 'johndoe',
+            email: 'newuser@example.com',
+            password: 'securePassword',
+            role: UserRole.VETERINARIAN
+        })).rejects.toThrow('El nombre de usuario ya está en uso');
 
         expect(mockUserRepository.save).not.toHaveBeenCalled();
     });
 
     it('debería bloquear el registro si se intenta crear un usuario con rol de Administrador', async () => {
         (mockUserRepository.findByEmail as any).mockResolvedValue(null);
+        (mockUserRepository.findByUsername as any).mockResolvedValue(null);
         (mockPasswordHasher.hash as any).mockResolvedValue('hashed');
 
         await expect(useCase.execute({
@@ -77,7 +97,7 @@ describe('Caso de Uso: Registrar Usuario (RegisterUserUseCase)', () => {
             email: 'admin@example.com',
             password: 'pwd',
             role: UserRole.ADMIN
-        })).rejects.toThrow('Unauthorized: Cannot create users with Administrator role');
+        })).rejects.toThrow('No autorizado: No se pueden crear usuarios con rol de Administrador');
 
         expect(mockUserRepository.save).not.toHaveBeenCalled();
     });
