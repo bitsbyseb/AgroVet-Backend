@@ -1,7 +1,8 @@
 export enum UserRole {
     ADMIN = 'administrator',
     VETERINARIAN = 'veterinarian',
-    ZOOTECHNICIAN = "zootechnician"
+    ZOOTECHNICIAN = "zootechnician",
+    OWNER = "owner"
 }
 
 export interface UserProps {

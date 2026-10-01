@@ -45,3 +45,6 @@ __decorate([
     Attribute(DataTypes.ENUM(...Object.values(OwnerType))),
     NotNull
 ], Owner.prototype, "ownerType", void 0);
+__decorate([
+    Attribute(DataTypes.UUID)
+], Owner.prototype, "userId", void 0);

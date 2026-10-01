@@ -39,6 +39,14 @@ export class Owner extends Model<InferAttributes<Owner>, InferCreationAttributes
     @NotNull
     declare ownerType: OwnerType;
 
+    /**
+     * FK nullable hacia `users.id`.
+     * Permite vincular este propietario con una cuenta de usuario autenticado (rol OWNER).
+     * La asociación User hasOne Owner / Owner belongsTo User se declara en models/index.ts.
+     */
+    @Attribute(DataTypes.UUID)
+    declare userId: CreationOptional<string | null>;
+
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
 }

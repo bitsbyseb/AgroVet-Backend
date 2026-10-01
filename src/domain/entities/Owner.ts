@@ -12,6 +12,7 @@ export class Owner {
         public email: string,
         public address: string,
         public ownerType: OwnerType,
+        public userId?: string | null,
         public readonly createdAt?: Date,
         public readonly updatedAt?: Date
     ) {}

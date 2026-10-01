@@ -37,6 +37,16 @@ Animal.belongsTo(Owner, {
     as: 'owner'
 });
 
+/** Un User con rol OWNER puede estar vinculado a un registro Owner */
+User.hasOne(Owner, {
+    foreignKey: 'userId',
+    as: 'ownerProfile'
+});
+Owner.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'userAccount'
+});
+
 
 Animal.hasMany(MedicalHistory, {
     foreignKey: 'animalId',

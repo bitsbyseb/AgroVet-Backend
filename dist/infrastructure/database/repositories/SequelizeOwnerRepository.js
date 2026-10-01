@@ -9,7 +9,8 @@ export class SequelizeOwnerRepository {
             phone: owner.phone,
             email: owner.email,
             address: owner.address,
-            ownerType: owner.ownerType
+            ownerType: owner.ownerType,
+            userId: owner.userId ?? null
         });
     }
     async findById(id) {
@@ -30,6 +31,12 @@ export class SequelizeOwnerRepository {
             return null;
         return this.toDomain(ownerModel);
     }
+    async findByUserId(userId) {
+        const ownerModel = await OwnerModel.findOne({ where: { userId } });
+        if (!ownerModel)
+            return null;
+        return this.toDomain(ownerModel);
+    }
     async findAll() {
         const owners = await OwnerModel.findAll();
         return owners.map(this.toDomain);
@@ -40,7 +47,8 @@ export class SequelizeOwnerRepository {
             phone: owner.phone,
             email: owner.email,
             address: owner.address,
-            ownerType: owner.ownerType
+            ownerType: owner.ownerType,
+            userId: owner.userId ?? null
         }, {
             where: { id: owner.id }
         });
@@ -49,6 +57,6 @@ export class SequelizeOwnerRepository {
         await OwnerModel.destroy({ where: { id } });
     }
     toDomain(model) {
-        return new Owner(model.id, model.name, model.document, model.phone, model.email, model.address, model.ownerType, model.createdAt, model.updatedAt);
+        return new Owner(model.id, model.name, model.document, model.phone, model.email, model.address, model.ownerType, model.userId ?? null, model.createdAt, model.updatedAt);
     }
 }

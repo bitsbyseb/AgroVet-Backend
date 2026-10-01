@@ -4,7 +4,8 @@ import { Attribute, NotNull, PrimaryKey, Unique } from '@sequelize/core/decorato
 export enum UserRole {
     ADMIN = 'administrator',
     VETERINARIAN = 'veterinarian',
-    ZOOTECHNICIAN = "zootechnician"
+    ZOOTECHNICIAN = "zootechnician",
+    OWNER = "owner"
 }
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {

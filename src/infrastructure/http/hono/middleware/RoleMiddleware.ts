@@ -9,7 +9,7 @@ export const authMiddleware = jwt({
     alg: 'HS256'
 });
 
-type Resource = 'animales' | 'historial_medico' | 'vacunas' | 'consultas_veterinarias' | 'datos_productivos' | 'alimentacion' | 'reproduccion' | 'propietarios' | 'usuarios' | 'potreros' | 'pastoreo';
+type Resource = 'animales' | 'historial_medico' | 'vacunas' | 'consultas_veterinarias' | 'datos_productivos' | 'alimentacion' | 'reproduccion' | 'propietarios' | 'usuarios' | 'potreros' | 'pastoreo' | 'portal_propietario';
 
 const permissions: Record<Resource, { full: UserRole[], readOnly: UserRole[] }> = {
     animales: {
@@ -55,6 +55,11 @@ const permissions: Record<Resource, { full: UserRole[], readOnly: UserRole[] }> 
     usuarios: {
         full: [UserRole.ADMIN],
         readOnly: []
+    },
+    /** Portal de propietario: solo lectura (GET) para OWNER, ADMIN y VETERINARIAN; prohíbe POST/PUT/DELETE */
+    portal_propietario: {
+        full: [],
+        readOnly: [UserRole.OWNER, UserRole.ADMIN, UserRole.VETERINARIAN]
     }
 };
 

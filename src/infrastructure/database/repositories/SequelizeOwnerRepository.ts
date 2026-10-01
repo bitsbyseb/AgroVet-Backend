@@ -11,7 +11,8 @@ export class SequelizeOwnerRepository implements OwnerRepository {
             phone: owner.phone,
             email: owner.email,
             address: owner.address,
-            ownerType: owner.ownerType
+            ownerType: owner.ownerType,
+            userId: owner.userId ?? null
         });
     }
 
@@ -33,6 +34,12 @@ export class SequelizeOwnerRepository implements OwnerRepository {
         return this.toDomain(ownerModel);
     }
 
+    async findByUserId(userId: string): Promise<Owner | null> {
+        const ownerModel = await OwnerModel.findOne({ where: { userId } });
+        if (!ownerModel) return null;
+        return this.toDomain(ownerModel);
+    }
+
     async findAll(): Promise<Owner[]> {
         const owners = await OwnerModel.findAll();
         return owners.map(this.toDomain);
@@ -44,7 +51,8 @@ export class SequelizeOwnerRepository implements OwnerRepository {
             phone: owner.phone,
             email: owner.email,
             address: owner.address,
-            ownerType: owner.ownerType
+            ownerType: owner.ownerType,
+            userId: owner.userId ?? null
         }, {
             where: { id: owner.id }
         });
@@ -63,6 +71,7 @@ export class SequelizeOwnerRepository implements OwnerRepository {
             model.email,
             model.address,
             model.ownerType as unknown as OwnerType,
+            model.userId ?? null,
             model.createdAt,
             model.updatedAt
         );

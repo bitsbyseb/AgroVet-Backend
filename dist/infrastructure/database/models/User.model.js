@@ -11,6 +11,7 @@ export var UserRole;
     UserRole["ADMIN"] = "administrator";
     UserRole["VETERINARIAN"] = "veterinarian";
     UserRole["ZOOTECHNICIAN"] = "zootechnician";
+    UserRole["OWNER"] = "owner";
 })(UserRole || (UserRole = {}));
 export class User extends Model {
 }

@@ -11,9 +11,10 @@ export class Owner {
     email;
     address;
     ownerType;
+    userId;
     createdAt;
     updatedAt;
-    constructor(id, name, document, phone, email, address, ownerType, createdAt, updatedAt) {
+    constructor(id, name, document, phone, email, address, ownerType, userId, createdAt, updatedAt) {
         this.id = id;
         this.name = name;
         this.document = document;
@@ -21,6 +22,7 @@ export class Owner {
         this.email = email;
         this.address = address;
         this.ownerType = ownerType;
+        this.userId = userId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

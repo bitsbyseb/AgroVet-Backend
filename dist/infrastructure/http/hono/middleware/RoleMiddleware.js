@@ -49,6 +49,11 @@ const permissions = {
     usuarios: {
         full: [UserRole.ADMIN],
         readOnly: []
+    },
+    /** Portal de propietario: solo lectura (GET) para OWNER, ADMIN y VETERINARIAN; prohíbe POST/PUT/DELETE */
+    portal_propietario: {
+        full: [],
+        readOnly: [UserRole.OWNER, UserRole.ADMIN, UserRole.VETERINARIAN]
     }
 };
 export const rbacMiddleware = (resource) => {

@@ -28,6 +28,9 @@ import { UpdateOwnerProfileUseCase } from './application/use-cases/Owner/UpdateO
 import { GetOwnerByIdUseCase } from './application/use-cases/Owner/GetOwnerByIdUseCase.js';
 import { ListAllOwnersUseCase } from './application/use-cases/Owner/ListAllOwnersUseCase.js';
 import { DeleteOwnerUseCase } from './application/use-cases/Owner/DeleteOwnerUseCase.js';
+// Sprint 11 - Portal del Propietario
+import { GetOwnerAnimalsUseCase as GetOwnerAnimalsPortalUseCase } from './application/use-cases/Owner/GetOwnerAnimalsUseCase.js';
+import { GetOwnerMedicalHistoryUseCase } from './application/use-cases/Owner/GetOwnerMedicalHistoryUseCase.js';
 // Use Cases - Animal
 import { RegisterAnimalUseCase } from './application/use-cases/Animal/RegisterAnimalUseCase.js';
 import { GetAnimalByIdUseCase } from './application/use-cases/Animal/GetAnimalByIdUseCase.js';
@@ -118,6 +121,9 @@ const updateOwnerProfileUseCase = new UpdateOwnerProfileUseCase(ownerRepository)
 const getOwnerByIdUseCase = new GetOwnerByIdUseCase(ownerRepository);
 const listAllOwnersUseCase = new ListAllOwnersUseCase(ownerRepository);
 const deleteOwnerUseCase = new DeleteOwnerUseCase(ownerRepository);
+// Sprint 11 - Portal del Propietario
+const getOwnerAnimalsPortalUseCase = new GetOwnerAnimalsPortalUseCase(ownerRepository, animalRepository);
+const getOwnerMedicalHistoryUseCase = new GetOwnerMedicalHistoryUseCase(ownerRepository, animalRepository, medicalHistoryRepository);
 // Use Cases (Animal)
 const registerAnimalUseCase = new RegisterAnimalUseCase(animalRepository, ownerRepository);
 const getAnimalByIdUseCase = new GetAnimalByIdUseCase(animalRepository);
@@ -153,7 +159,7 @@ const getGrazingActivitiesUseCase = new GetGrazingActivitiesUseCase(grazingActiv
 const getGrazingHistoryUseCase = new GetGrazingHistoryUseCase(grazingActivityRepository);
 // Controllers
 const authController = new AuthController(registerUserUseCase, loginUserUseCase);
-const ownerController = new OwnerController(registerOwnerUseCase, updateOwnerProfileUseCase, getOwnerByIdUseCase, listAllOwnersUseCase, deleteOwnerUseCase, getOwnerAnimalsUseCase);
+const ownerController = new OwnerController(registerOwnerUseCase, updateOwnerProfileUseCase, getOwnerByIdUseCase, listAllOwnersUseCase, deleteOwnerUseCase, getOwnerAnimalsUseCase, getOwnerAnimalsPortalUseCase, getOwnerMedicalHistoryUseCase);
 const medicalHistoryController = new MedicalHistoryController(registerMedicalHistoryUseCase, listMedicalHistoriesUseCase);
 const vaccinationController = new VaccinationController(registerVaccinationUseCase, listVaccinationsUseCase);
 const foodController = new FoodController(registerFoodUseCase, listFoodsUseCase);
@@ -229,6 +235,8 @@ app.get('/ui', swaggerUI({ url: '/doc' }));
 const v1 = new OpenAPIHono();
 v1.route('/auth', authRouter);
 v1.route('/owners', ownerRouter);
+v1.route('/owner', ownerRouter); // Sprint 11 - Portal del Propietario (/owner/animals, etc.)
+v1.route('/', ownerRouter); // Montaje raíz para soportar rutas absolutas como /owner/animals
 v1.route('/animals', animalRouter);
 v1.route('/appointments', appointmentRouter);
 v1.route('/foods', foodRouter);
