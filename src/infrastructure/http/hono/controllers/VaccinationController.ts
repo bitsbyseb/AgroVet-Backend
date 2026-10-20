@@ -1,5 +1,6 @@
 import { RegisterVaccinationUseCase } from '@application/use-cases/Vaccination/RegisterVaccinationUseCase.js';
 import { ListVaccinationsUseCase } from '@application/use-cases/Vaccination/ListVaccinationsUseCase.js';
+import { handleControllerError } from '../utils/errorHandler.js';
 
 export class VaccinationController {
     constructor(
@@ -8,21 +9,21 @@ export class VaccinationController {
     ) { }
 
     async listByAnimal(c: any) {
-        const { id } = c.req.valid('param');
         try {
+            const { id } = c.req.valid('param');
             const vaccines = await this.listVaccinationsUseCase.executeByAnimal(id);
             return c.json(vaccines);
         } catch (error: any) {
-            return c.json({ error: error.message }, 500);
+            return handleControllerError(c, error, 'Error al listar vacunas', 500);
         }
     }
 
     async register(c: any) {
-        const { id } = c.req.valid('param');
-        const data = c.req.valid('json');
-        const payload = c.get('jwtPayload');
-        
         try {
+            const { id } = c.req.valid('param');
+            const data = c.req.valid('json');
+            const payload = c.get('jwtPayload');
+            
             await this.registerVaccinationUseCase.execute({ 
                 ...data, 
                 animalId: id,
@@ -32,7 +33,7 @@ export class VaccinationController {
             });
             return c.json({ message: 'vacunacion registrada con exito' }, 201);
         } catch (error: any) {
-            return c.json({ error: error.message }, 400);
+            return handleControllerError(c, error, 'Error al registrar vacunación', 400);
         }
     }
 }

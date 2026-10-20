@@ -1,5 +1,6 @@
 import { RegisterGrazingActivityUseCase } from '../../../../application/use-cases/paddocks/RegisterGrazingActivityUseCase.js';
 import { GetGrazingActivitiesUseCase } from '../../../../application/use-cases/paddocks/GetGrazingActivitiesUseCase.js';
+import { handleControllerError } from '../utils/errorHandler.js';
 export class GrazingController {
     registerGrazingActivityUseCase;
     getGrazingActivitiesUseCase;
@@ -8,8 +9,8 @@ export class GrazingController {
         this.getGrazingActivitiesUseCase = getGrazingActivitiesUseCase;
     }
     async register(c) {
-        const data = c.req.valid('json');
         try {
+            const data = c.req.valid('json');
             const grazingActivity = await this.registerGrazingActivityUseCase.execute(data);
             return c.json({
                 message: 'Actividad de pastoreo registrada exitosamente',
@@ -17,8 +18,7 @@ export class GrazingController {
             }, 201);
         }
         catch (error) {
-            const status = error.message === 'Paddock not found' ? 404 : 400;
-            return c.json({ error: error.message }, status);
+            return handleControllerError(c, error, 'Error al registrar actividad de pastoreo', 400);
         }
     }
     async list(c) {
@@ -28,7 +28,7 @@ export class GrazingController {
             return c.json(activities, 200);
         }
         catch (error) {
-            return c.json({ error: error.message }, 500);
+            return handleControllerError(c, error, 'Error al listar actividades de pastoreo', 500);
         }
     }
 }

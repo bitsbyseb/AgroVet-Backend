@@ -14,10 +14,11 @@ export class SequelizeFoodRepository implements FoodRepository {
 
     async findAll(): Promise<Food[]> {
         const models = await FoodModel.findAll();
-        return models.map(this.toDomain);
+        return models.map((model) => this.toDomain(model));
     }
 
     async findById(id: string): Promise<Food | null> {
+        if (!id || id.trim() === '') return null;
         const model = await FoodModel.findByPk(id);
         if (!model) return null;
         return this.toDomain(model);

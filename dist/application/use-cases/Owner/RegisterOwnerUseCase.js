@@ -1,5 +1,5 @@
-import { Owner } from '../../../domain/entities/Owner.js';
-import { randomUUID } from "crypto";
+import { Owner, OwnerType } from '../../../domain/entities/Owner.js';
+import { randomUUID } from 'node:crypto';
 export class RegisterOwnerUseCase {
     ownerRepository;
     constructor(ownerRepository) {

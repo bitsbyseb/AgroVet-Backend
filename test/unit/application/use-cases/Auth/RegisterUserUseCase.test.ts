@@ -101,4 +101,93 @@ describe('Caso de Uso: Registrar Usuario (RegisterUserUseCase)', () => {
 
         expect(mockUserRepository.save).not.toHaveBeenCalled();
     });
+
+    it('debería permitir registrar un usuario con rol de Propietario (OWNER) y vincular su perfil de Owner si existe', async () => {
+        const mockOwnerRepository = {
+            findByEmail: vi.fn(),
+            update: vi.fn()
+        };
+
+        const useCaseWithOwner = new RegisterUserUseCase(
+            mockUserRepository as any,
+            mockPasswordHasher as any,
+            mockEmailService as any,
+            mockOwnerRepository as any
+        );
+
+        (mockUserRepository.findByEmail as any).mockResolvedValue(null);
+        (mockUserRepository.findByUsername as any).mockResolvedValue(null);
+        (mockPasswordHasher.hash as any).mockResolvedValue('hashedOwnerPwd');
+
+        const existingOwner = {
+            id: 'owner-uuid-1',
+            name: 'Carlos Ruiz',
+            email: 'carlos@agrovet.com',
+            userId: null
+        };
+        mockOwnerRepository.findByEmail.mockResolvedValue(existingOwner);
+
+        await useCaseWithOwner.execute({
+            username: 'carlosruiz',
+            email: 'carlos@agrovet.com',
+            password: 'securePassword123',
+            role: UserRole.OWNER
+        });
+
+        expect(mockUserRepository.save).toHaveBeenCalled();
+        const savedUser = (mockUserRepository.save as any).mock.calls[0][0];
+        expect(savedUser.role).toBe(UserRole.OWNER);
+
+        expect(mockOwnerRepository.findByEmail).toHaveBeenCalledWith('carlos@agrovet.com');
+        expect(mockOwnerRepository.update).toHaveBeenCalledWith(
+            expect.objectContaining({
+                userId: savedUser.id
+            })
+        );
+    });
+
+    it('debería crear automáticamente la entidad Owner si no existe al registrar un usuario OWNER', async () => {
+        const mockOwnerRepository = {
+            findByEmail: vi.fn(),
+            save: vi.fn(),
+            update: vi.fn()
+        };
+
+        const useCaseWithOwner = new RegisterUserUseCase(
+            mockUserRepository as any,
+            mockPasswordHasher as any,
+            mockEmailService as any,
+            mockOwnerRepository as any
+        );
+
+        (mockUserRepository.findByEmail as any).mockResolvedValue(null);
+        (mockUserRepository.findByUsername as any).mockResolvedValue(null);
+        (mockPasswordHasher.hash as any).mockResolvedValue('hashedOwnerPwd');
+        mockOwnerRepository.findByEmail.mockResolvedValue(null);
+
+        await useCaseWithOwner.execute({
+            username: 'mariagomez',
+            email: 'maria@agrovet.com',
+            password: 'securePassword123',
+            role: UserRole.OWNER,
+            ownerData: {
+                name: 'Maria Gomez',
+                document: '1098765432',
+                phone: '3109876543',
+                address: 'Vereda El Salitre',
+                ownerType: 'rural'
+            }
+        });
+
+        expect(mockUserRepository.save).toHaveBeenCalled();
+        expect(mockOwnerRepository.save).toHaveBeenCalled();
+        const savedOwner = mockOwnerRepository.save.mock.calls[0][0];
+        expect(savedOwner.name).toBe('Maria Gomez');
+        expect(savedOwner.document).toBe('1098765432');
+        expect(savedOwner.email).toBe('maria@agrovet.com');
+        expect(savedOwner.phone).toBe('3109876543');
+        expect(savedOwner.address).toBe('Vereda El Salitre');
+        expect(savedOwner.ownerType).toBe('rural');
+        expect(savedOwner.userId).toBeDefined();
+    });
 });

@@ -1,6 +1,7 @@
 import { RegisterAppointmentUseCase } from '@application/use-cases/Appointment/RegisterAppointmentUseCase.js';
 import { ListAppointmentsUseCase } from '@application/use-cases/Appointment/ListAppointmentsUseCase.js';
 import { UpdateAppointmentUseCase } from '@application/use-cases/Appointment/UpdateAppointmentUseCase.js';
+import { handleControllerError } from '../utils/errorHandler.js';
 
 export class AppointmentController {
     constructor(
@@ -14,15 +15,14 @@ export class AppointmentController {
             const appointments = await this.listAppointmentsUseCase.execute();
             return c.json(appointments);
         } catch (error: any) {
-            return c.json({ error: error.message }, 500);
+            return handleControllerError(c, error, 'Error al listar citas', 500);
         }
     }
 
     async register(c: any) {
-        const data = c.req.valid('json');
-        const payload = c.get('jwtPayload');
-
         try {
+            const data = c.req.valid('json');
+            const payload = c.get('jwtPayload');
             await this.registerAppointmentUseCase.execute({
                 ...data,
                 createdBy: payload.sub,
@@ -30,18 +30,18 @@ export class AppointmentController {
             });
             return c.json({ message: 'Appointment scheduled successfully' }, 201);
         } catch (error: any) {
-            return c.json({ error: error.message }, 400);
+            return handleControllerError(c, error, 'Error al programar cita', 400);
         }
     }
 
     async updateStatus(c: any) {
-        const { id } = c.req.valid('param');
-        const data = c.req.valid('json');
         try {
+            const { id } = c.req.valid('param');
+            const data = c.req.valid('json');
             await this.updateAppointmentUseCase.execute(id, { status: data.status });
             return c.json({ message: 'Appointment status updated successfully' });
         } catch (error: any) {
-            return c.json({ error: error.message }, 400);
+            return handleControllerError(c, error, 'Error al actualizar estado de la cita', 400);
         }
     }
 }

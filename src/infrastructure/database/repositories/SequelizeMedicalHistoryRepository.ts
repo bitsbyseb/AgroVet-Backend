@@ -1,6 +1,7 @@
 import { MedicalHistory } from "@domain/entities/MedicalHistory.js";
 import type { MedicalHistoryRepository } from "@domain/repositories/MedicalHistoryRepository.js";
 import { MedicalHistory as MedicalHistoryModel } from "../models/MedicalHistory.model.js";
+import { cleanWhereClause } from "../utils/whereHelper.js";
 
 export class SequelizeMedicalHistoryRepository implements MedicalHistoryRepository {
     async save(medicalHistory: MedicalHistory): Promise<void> {
@@ -17,22 +18,26 @@ export class SequelizeMedicalHistoryRepository implements MedicalHistoryReposito
     }
 
     async findById(id: string): Promise<MedicalHistory | null> {
+        if (!id || id.trim() === '') return null;
         const model = await MedicalHistoryModel.findByPk(id);
         if (!model) return null;
         return this.toDomain(model);
     }
 
     async findByAnimalId(animalId: string): Promise<MedicalHistory[]> {
-        const models = await MedicalHistoryModel.findAll({ where: { animalId } });
-        return models.map(this.toDomain);
+        if (!animalId || animalId.trim() === '') return [];
+        const where = cleanWhereClause({ animalId });
+        const models = await MedicalHistoryModel.findAll({ where });
+        return models.map((model) => this.toDomain(model));
     }
 
     async findAll(): Promise<MedicalHistory[]> {
         const models = await MedicalHistoryModel.findAll();
-        return models.map(this.toDomain);
+        return models.map((model) => this.toDomain(model));
     }
 
     async update(medicalHistory: MedicalHistory): Promise<void> {
+        if (!medicalHistory.id || medicalHistory.id.trim() === '') return;
         await MedicalHistoryModel.update({
             animalId: medicalHistory.animalId,
             date: medicalHistory.date,
@@ -42,12 +47,15 @@ export class SequelizeMedicalHistoryRepository implements MedicalHistoryReposito
             observations: medicalHistory.observations,
             createdBy: medicalHistory.createdBy
         }, {
-            where: { id: medicalHistory.id }
+            where: cleanWhereClause({ id: medicalHistory.id })
         });
     }
 
     async delete(id: string): Promise<void> {
-        await MedicalHistoryModel.destroy({ where: { id } });
+        if (!id || id.trim() === '') return;
+        await MedicalHistoryModel.destroy({
+            where: cleanWhereClause({ id })
+        });
     }
 
     private toDomain(model: MedicalHistoryModel): MedicalHistory {

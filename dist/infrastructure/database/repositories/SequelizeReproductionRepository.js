@@ -1,5 +1,6 @@
 import { Reproduction, ReproductiveStatus, BreedingType } from "../../../domain/entities/Reproduction.js";
 import { ReproductionData as ReproductionModel } from "../models/Reproduction.model.js";
+import { cleanWhereClause } from "../utils/whereHelper.js";
 export class SequelizeReproductionRepository {
     async save(reproduction) {
         await ReproductionModel.create({
@@ -12,8 +13,11 @@ export class SequelizeReproductionRepository {
         });
     }
     async findByAnimalId(animalId) {
-        const models = await ReproductionModel.findAll({ where: { animalId } });
-        return models.map(this.toDomain);
+        if (!animalId || animalId.trim() === '')
+            return [];
+        const where = cleanWhereClause({ animalId });
+        const models = await ReproductionModel.findAll({ where });
+        return models.map((model) => this.toDomain(model));
     }
     toDomain(model) {
         return new Reproduction(model.id, model.animalId, model.reproductiveStatus, model.lastCalvingDate, model.offspringCount, model.breedingType);

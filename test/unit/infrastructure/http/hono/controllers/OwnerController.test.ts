@@ -8,6 +8,7 @@ import type { Context } from 'hono';
 describe('OwnerController - Portal del Propietario (Sprint 11)', () => {
     let mockGetOwnerAnimalsPortalUseCase: { execute: ReturnType<typeof vi.fn> };
     let mockGetOwnerMedicalHistoryUseCase: { execute: ReturnType<typeof vi.fn> };
+    let mockGetOwnerRemindersUseCase: { execute: ReturnType<typeof vi.fn> };
     let controller: OwnerController;
 
     beforeEach(() => {
@@ -15,6 +16,9 @@ describe('OwnerController - Portal del Propietario (Sprint 11)', () => {
             execute: vi.fn()
         };
         mockGetOwnerMedicalHistoryUseCase = {
+            execute: vi.fn()
+        };
+        mockGetOwnerRemindersUseCase = {
             execute: vi.fn()
         };
 
@@ -26,7 +30,8 @@ describe('OwnerController - Portal del Propietario (Sprint 11)', () => {
             {} as any, // deleteOwnerUseCase
             {} as any, // getOwnerAnimalsUseCase (antiguo)
             mockGetOwnerAnimalsPortalUseCase as unknown as GetOwnerAnimalsUseCase,
-            mockGetOwnerMedicalHistoryUseCase as unknown as GetOwnerMedicalHistoryUseCase
+            mockGetOwnerMedicalHistoryUseCase as unknown as GetOwnerMedicalHistoryUseCase,
+            mockGetOwnerRemindersUseCase as any
         );
     });
 
@@ -249,6 +254,138 @@ describe('OwnerController - Portal del Propietario (Sprint 11)', () => {
             expect(response).toEqual({
                 data: expect.objectContaining({ error: expect.any(String) }),
                 status: 400
+            });
+        });
+    });
+
+    describe('getOwnerReminders (Sprint 16 - HU7)', () => {
+        it('debería retornar 200 y la lista de recordatorios unificados del propietario', async () => {
+            const userId = 'user-uuid-1';
+            const mockReminders = [
+                {
+                    id: 'rem-1',
+                    animalId: 'animal-1',
+                    animalName: 'Firulais',
+                    category: 'vaccination',
+                    title: 'Próxima dosis: Antirrábica',
+                    description: 'Dosis programada',
+                    dueDate: '2026-11-20T00:00:00.000Z',
+                    status: 'pending'
+                }
+            ];
+
+            mockGetOwnerRemindersUseCase.execute.mockResolvedValue(mockReminders);
+
+            const mockContext = {
+                get: vi.fn().mockReturnValue({ sub: userId, role: 'owner' }),
+                req: {
+                    valid: vi.fn().mockReturnValue({}),
+                    query: vi.fn().mockReturnValue(undefined)
+                },
+                json: vi.fn().mockImplementation((data, status) => ({ data, status }))
+            } as unknown as Context;
+
+            const response = await controller.getOwnerReminders(mockContext);
+
+            expect(mockGetOwnerRemindersUseCase.execute).toHaveBeenCalledWith(userId, { animalId: undefined });
+            expect(mockContext.json).toHaveBeenCalledWith(mockReminders, 200);
+            expect(response).toEqual({ data: mockReminders, status: 200 });
+        });
+
+        it('debería filtrar por animalId cuando se envía en la query (ASIDGA-174)', async () => {
+            const userId = 'user-uuid-1';
+            const animalId = 'animal-uuid-99';
+
+            mockGetOwnerRemindersUseCase.execute.mockResolvedValue([]);
+
+            const mockContext = {
+                get: vi.fn().mockReturnValue({ sub: userId, role: 'owner' }),
+                req: {
+                    valid: vi.fn().mockReturnValue({ animalId }),
+                    query: vi.fn().mockReturnValue(animalId)
+                },
+                json: vi.fn().mockImplementation((data, status) => ({ data, status }))
+            } as unknown as Context;
+
+            const response = await controller.getOwnerReminders(mockContext);
+
+            expect(mockGetOwnerRemindersUseCase.execute).toHaveBeenCalledWith(userId, { animalId });
+            expect(mockContext.json).toHaveBeenCalledWith([], 200);
+            expect(response).toEqual({ data: [], status: 200 });
+        });
+
+        it('debería retornar 401 si no hay token JWT o sub', async () => {
+            const mockContext = {
+                get: vi.fn().mockReturnValue(undefined),
+                req: {
+                    valid: vi.fn().mockReturnValue({}),
+                    query: vi.fn().mockReturnValue(undefined)
+                },
+                json: vi.fn().mockImplementation((data, status) => ({ data, status }))
+            } as unknown as Context;
+
+            const response = await controller.getOwnerReminders(mockContext);
+
+            expect(mockGetOwnerRemindersUseCase.execute).not.toHaveBeenCalled();
+            expect(mockContext.json).toHaveBeenCalledWith(
+                expect.objectContaining({ error: expect.stringContaining('token') }),
+                401
+            );
+            expect(response).toEqual({
+                data: expect.objectContaining({ error: expect.any(String) }),
+                status: 401
+            });
+        });
+
+        it('debería retornar 403 si el animal no pertenece al propietario autenticado', async () => {
+            mockGetOwnerRemindersUseCase.execute.mockRejectedValue(
+                new Error('Acceso no autorizado: el animal solicitado no pertenece a este propietario.')
+            );
+
+            const mockContext = {
+                get: vi.fn().mockReturnValue({ sub: 'user-uuid-1', role: 'owner' }),
+                req: {
+                    valid: vi.fn().mockReturnValue({ animalId: 'animal-ajeno' }),
+                    query: vi.fn().mockReturnValue('animal-ajeno')
+                },
+                json: vi.fn().mockImplementation((data, status) => ({ data, status }))
+            } as unknown as Context;
+
+            const response = await controller.getOwnerReminders(mockContext);
+
+            expect(mockContext.json).toHaveBeenCalledWith(
+                expect.objectContaining({ error: expect.stringContaining('Acceso no autorizado') }),
+                403
+            );
+            expect(response).toEqual({
+                data: expect.objectContaining({ error: expect.any(String) }),
+                status: 403
+            });
+        });
+
+        it('debería retornar 404 si el animal solicitado no existe', async () => {
+            mockGetOwnerRemindersUseCase.execute.mockRejectedValue(
+                new Error('El animal con ID "animal-inexistente" no fue encontrado.')
+            );
+
+            const mockContext = {
+                get: vi.fn().mockReturnValue({ sub: 'user-uuid-1', role: 'owner' }),
+                req: {
+                    valid: vi.fn().mockReturnValue({ animalId: 'animal-inexistente' }),
+                    query: vi.fn().mockReturnValue('animal-inexistente')
+                },
+                json: vi.fn().mockImplementation((data, status) => ({ data, status }))
+            } as unknown as Context;
+
+            const response = await controller.getOwnerReminders(mockContext);
+
+            expect(mockContext.json).toHaveBeenCalledWith(
+                expect.objectContaining({ error: expect.stringContaining('no fue encontrado') }),
+                404
+            );
+            expect(response).toEqual({
+                data: expect.objectContaining({ error: expect.any(String) }),
+                status: 404
             });
         });
     });

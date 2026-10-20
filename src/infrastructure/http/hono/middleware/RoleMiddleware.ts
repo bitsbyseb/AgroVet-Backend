@@ -2,14 +2,14 @@ import type { Context, Next } from 'hono';
 import { jwt } from 'hono/jwt';
 import { UserRole } from '@domain/entities/User.js';
 
-const { JWT_SECRET } = process.env;
+const JWT_SECRET = process.env.JWT_SECRET || 'agrovet_jwt_secret_default_key_32_chars';
 
 export const authMiddleware = jwt({
     secret: JWT_SECRET,
     alg: 'HS256'
 });
 
-type Resource = 'animales' | 'historial_medico' | 'vacunas' | 'consultas_veterinarias' | 'datos_productivos' | 'alimentacion' | 'reproduccion' | 'propietarios' | 'usuarios' | 'potreros' | 'pastoreo' | 'portal_propietario';
+type Resource = 'animales' | 'historial_medico' | 'vacunas' | 'consultas_veterinarias' | 'datos_productivos' | 'alimentacion' | 'reproduccion' | 'propietarios' | 'usuarios' | 'potreros' | 'pastoreo' | 'portal_propietario' | 'recordatorios_propietario';
 
 const permissions: Record<Resource, { full: UserRole[], readOnly: UserRole[] }> = {
     animales: {
@@ -58,6 +58,11 @@ const permissions: Record<Resource, { full: UserRole[], readOnly: UserRole[] }> 
     },
     /** Portal de propietario: solo lectura (GET) para OWNER, ADMIN y VETERINARIAN; prohíbe POST/PUT/DELETE */
     portal_propietario: {
+        full: [],
+        readOnly: [UserRole.OWNER, UserRole.ADMIN, UserRole.VETERINARIAN]
+    },
+    /** Recordatorios del propietario (Sprint 16 - ASIDGA-180): Solo lectura (GET) para OWNER, ADMIN y VETERINARIAN; prohíbe POST/PUT/DELETE */
+    recordatorios_propietario: {
         full: [],
         readOnly: [UserRole.OWNER, UserRole.ADMIN, UserRole.VETERINARIAN]
     }

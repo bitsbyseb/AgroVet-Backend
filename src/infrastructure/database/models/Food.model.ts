@@ -1,21 +1,23 @@
 import { DataTypes, Model, type InferAttributes, type InferCreationAttributes } from "@sequelize/core";
-import { Attribute, NotNull, PrimaryKey } from "@sequelize/core/decorators-legacy";
+import { Attribute, NotNull, PrimaryKey, Table } from "@sequelize/core/decorators-legacy";
 
-export class Food extends Model<InferAttributes<Food>,InferCreationAttributes<Food>>
-{
+@Table({
+    tableName: "foods"
+})
+export class Food extends Model<InferAttributes<Food>, InferCreationAttributes<Food>> {
     @Attribute(DataTypes.UUID)
     @PrimaryKey
-    declare foodId:string;
+    declare foodId: string;
 
     @Attribute(DataTypes.STRING)
     @NotNull
-    declare name:string;
+    declare name: string;
 
     @Attribute(DataTypes.STRING)
     @NotNull
-    declare type:string;
+    declare type: string;
 
     @Attribute(DataTypes.STRING)
     @NotNull
-    declare description:string;
+    declare description: string;
 }

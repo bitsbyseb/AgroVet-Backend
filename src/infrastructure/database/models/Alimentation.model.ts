@@ -34,11 +34,41 @@ export class Alimentation extends Model {
     @Attribute(DataTypes.ENUM(...Object.values(frequency)))
     declare frequency: frequency;
 
-    @Attribute(DataTypes.DATE)
-    declare start_date: Date;
+    @Attribute({
+        type: DataTypes.DATE,
+        columnName: 'start_date'
+    })
+    declare startDate: Date;
 
-    @Attribute(DataTypes.DATE)
-    declare end_date: Date;
+    @Attribute({
+        type: DataTypes.DATE,
+        columnName: 'end_date'
+    })
+    declare endDate: Date;
+
+    get start_date(): Date {
+        return (this as any).getDataValue ? (this as any).getDataValue('startDate') : this.startDate;
+    }
+
+    set start_date(value: Date) {
+        if ((this as any).setDataValue) {
+            (this as any).setDataValue('startDate', value);
+        } else {
+            this.startDate = value;
+        }
+    }
+
+    get end_date(): Date {
+        return (this as any).getDataValue ? (this as any).getDataValue('endDate') : this.endDate;
+    }
+
+    set end_date(value: Date) {
+        if ((this as any).setDataValue) {
+            (this as any).setDataValue('endDate', value);
+        } else {
+            this.endDate = value;
+        }
+    }
 
     @Attribute(DataTypes.TEXT)
     declare observations: string;

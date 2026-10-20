@@ -1,13 +1,16 @@
 import { User, UserRole } from '../../../domain/entities/User.js';
+import { Owner } from '../../../domain/entities/Owner.js';
 import { randomUUID } from 'node:crypto';
 export class RegisterUserUseCase {
     userRepository;
     passwordHasher;
     emailService;
-    constructor(userRepository, passwordHasher, emailService) {
+    ownerRepository;
+    constructor(userRepository, passwordHasher, emailService, ownerRepository) {
         this.userRepository = userRepository;
         this.passwordHasher = passwordHasher;
         this.emailService = emailService;
+        this.ownerRepository = ownerRepository;
     }
     async execute(request) {
         const existingUserByEmail = await this.userRepository.findByEmail(request.email);
@@ -30,6 +33,32 @@ export class RegisterUserUseCase {
             role: request.role,
         });
         await this.userRepository.save(newUser);
+        if (request.role === UserRole.OWNER && this.ownerRepository) {
+            const existingOwner = await this.ownerRepository.findByEmail(request.email);
+            if (existingOwner) {
+                existingOwner.userId = newUser.id;
+                if (request.ownerData) {
+                    if (request.ownerData.name)
+                        existingOwner.name = request.ownerData.name;
+                    if (request.ownerData.phone)
+                        existingOwner.phone = request.ownerData.phone;
+                    if (request.ownerData.address)
+                        existingOwner.address = request.ownerData.address;
+                    if (request.ownerData.ownerType)
+                        existingOwner.ownerType = request.ownerData.ownerType;
+                }
+                await this.ownerRepository.update(existingOwner);
+            }
+            else {
+                const ownerName = request.ownerData?.name?.trim() || request.username;
+                const ownerDocument = request.ownerData?.document?.trim() || `DOC-${randomUUID().slice(0, 8)}`;
+                const ownerPhone = request.ownerData?.phone?.trim() || 'Sin registrar';
+                const ownerAddress = request.ownerData?.address?.trim() || 'Sin registrar';
+                const ownerType = request.ownerData?.ownerType || 'urban';
+                const newOwner = new Owner(randomUUID(), ownerName, ownerDocument, ownerPhone, request.email, ownerAddress, ownerType, newUser.id);
+                await this.ownerRepository.save(newOwner);
+            }
+        }
         await this.emailService.send({
             to: request.email,
             subject: "Creacion de Cuenta Exitosa - Agrovet",

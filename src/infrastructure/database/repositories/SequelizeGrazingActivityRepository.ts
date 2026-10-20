@@ -2,6 +2,7 @@ import { GrazingActivity } from "@domain/entities/GrazingActivity.js";
 import type { GrazingActivityRepository, IGrazingFilters } from "@domain/repositories/GrazingActivityRepository.js";
 import { GrazingActivity as GrazingActivityModel } from "../models/grazingActivity.model.js";
 import { Op } from "@sequelize/core";
+import { cleanWhereClause, buildJsonArrayContains, isValidUuid } from "../utils/whereHelper.js";
 
 export class SequelizeGrazingActivityRepository implements GrazingActivityRepository {
     async save(activity: GrazingActivity): Promise<void> {
@@ -17,58 +18,70 @@ export class SequelizeGrazingActivityRepository implements GrazingActivityReposi
     }
 
     async findById(id: string): Promise<GrazingActivity | null> {
+        if (!id || id.trim() === '' || !isValidUuid(id)) return null;
         const model = await GrazingActivityModel.findByPk(id);
         if (!model) return null;
         return this.toDomain(model);
     }
 
     async findByPaddockId(paddockId: string): Promise<GrazingActivity[]> {
-        const models = await GrazingActivityModel.findAll({
-            where: { paddockId }
-        });
+        if (!paddockId || paddockId.trim() === '' || !isValidUuid(paddockId)) return [];
+        const where = cleanWhereClause({ paddockId });
+        const models = await GrazingActivityModel.findAll({ where });
         return models.map((model) => this.toDomain(model));
     }
 
     async findActiveByPaddockId(paddockId: string): Promise<GrazingActivity | null> {
-        const model = await GrazingActivityModel.findOne({
-            where: {
-                paddockId,
-                exitDate: null
-            }
-        });
+        if (!paddockId || paddockId.trim() === '' || !isValidUuid(paddockId)) return null;
+        const where = {
+            ...cleanWhereClause({ paddockId }),
+            exitDate: null
+        };
+        const model = await GrazingActivityModel.findOne({ where });
         if (!model) return null;
         return this.toDomain(model);
     }
 
     async findByAnimalId(animalId: string): Promise<GrazingActivity[]> {
-        const all = await this.findAll();
-        return all.filter((activity) => activity.animalIds.includes(animalId));
+        if (!animalId || animalId.trim() === '' || !isValidUuid(animalId)) return [];
+        const where = cleanWhereClause({
+            animalIds: buildJsonArrayContains(animalId)
+        });
+        const models = await GrazingActivityModel.findAll({ where });
+        const activities = models.map((model) => this.toDomain(model));
+        return activities.filter((activity) => activity.animalIds.includes(animalId));
     }
 
     async findHistory(filters: IGrazingFilters = {}): Promise<GrazingActivity[]> {
-        const where: Record<string | symbol, unknown> = {};
+        const rawWhere: Record<string | symbol, unknown> = {};
 
-        if (filters.paddockId) {
-            where.paddockId = filters.paddockId;
+        if (filters.paddockId && isValidUuid(filters.paddockId)) {
+            rawWhere.paddockId = filters.paddockId;
+        }
+
+        if (filters.animalId && isValidUuid(filters.animalId)) {
+            rawWhere.animalIds = buildJsonArrayContains(filters.animalId);
         }
 
         const startDate = filters.startDate ? new Date(filters.startDate) : undefined;
         const endDate = filters.endDate ? new Date(filters.endDate) : undefined;
 
         if (startDate && endDate) {
-            where.entryDate = {
+            rawWhere.entryDate = {
                 [Op.gte]: startDate,
                 [Op.lte]: endDate
             };
         } else if (startDate) {
-            where.entryDate = {
+            rawWhere.entryDate = {
                 [Op.gte]: startDate
             };
         } else if (endDate) {
-            where.entryDate = {
+            rawWhere.entryDate = {
                 [Op.lte]: endDate
             };
         }
+
+        const where = cleanWhereClause(rawWhere);
 
         const models = await GrazingActivityModel.findAll({
             where,
@@ -77,7 +90,7 @@ export class SequelizeGrazingActivityRepository implements GrazingActivityReposi
 
         let activities = models.map((model) => this.toDomain(model));
 
-        if (filters.animalId) {
+        if (filters.animalId && filters.animalId.trim() !== '' && isValidUuid(filters.animalId)) {
             activities = activities.filter((activity) => activity.animalIds.includes(filters.animalId!));
         }
 
@@ -90,6 +103,7 @@ export class SequelizeGrazingActivityRepository implements GrazingActivityReposi
     }
 
     async update(activity: GrazingActivity): Promise<void> {
+        if (!activity.id || activity.id.trim() === '' || !isValidUuid(activity.id)) return;
         await GrazingActivityModel.update({
             paddockId: activity.paddockId,
             animalIds: activity.animalIds,
@@ -98,12 +112,15 @@ export class SequelizeGrazingActivityRepository implements GrazingActivityReposi
             rotationNumber: activity.rotationNumber,
             observations: activity.observations
         }, {
-            where: { id: activity.id }
+            where: cleanWhereClause({ id: activity.id })
         });
     }
 
     async delete(id: string): Promise<void> {
-        await GrazingActivityModel.destroy({ where: { id } });
+        if (!id || id.trim() === '' || !isValidUuid(id)) return;
+        await GrazingActivityModel.destroy({
+            where: cleanWhereClause({ id })
+        });
     }
 
     private toDomain(model: GrazingActivityModel): GrazingActivity {

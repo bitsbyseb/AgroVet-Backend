@@ -8,7 +8,9 @@ import {
     ownerMedicalHistoryParamSchema,
     ownerMedicalHistoryIdParamSchema,
     ownerAnimalsResponseSchema,
-    ownerMedicalHistoriesResponseSchema
+    ownerMedicalHistoriesResponseSchema,
+    ownerRemindersQuerySchema,
+    ownerRemindersResponseSchema
 } from '../validators/OwnerValidator.js';
 import { authMiddleware, rbacMiddleware } from '../middleware/RoleMiddleware.js';
 import { errorResponseSchema } from '../validators/LoginValidator.js';
@@ -51,7 +53,7 @@ export function createOwnerRouter(ownerController: OwnerController) {
         path: '/{id}',
         summary: 'Obtener propietario por ID',
         security: [{ Bearer: [] }],
-        request: { params: z.object({ id: z.string().openapi({ example: 'uuid-123' }) }) },
+        request: { params: z.object({ id: z.string().uuid({ message: 'El ID de propietario debe ser un UUID válido' }).openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }) }) },
         responses: {
             200: { content: { 'application/json': { schema: ownerResponseSchema } }, description: 'Detalle del propietario' },
             404: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Propietario no encontrado' }
@@ -65,7 +67,7 @@ export function createOwnerRouter(ownerController: OwnerController) {
         summary: 'Actualizar propietario',
         security: [{ Bearer: [] }],
         request: { 
-            params: z.object({ id: z.string() }),
+            params: z.object({ id: z.string().uuid({ message: 'El ID de propietario debe ser un UUID válido' }) }),
             body: { content: { 'application/json': { schema: updateOwnerSchema } } } 
         },
         responses: {
@@ -80,7 +82,7 @@ export function createOwnerRouter(ownerController: OwnerController) {
         path: '/{id}',
         summary: 'Eliminar propietario',
         security: [{ Bearer: [] }],
-        request: { params: z.object({ id: z.string() }) },
+        request: { params: z.object({ id: z.string().uuid({ message: 'El ID de propietario debe ser un UUID válido' }) }) },
         responses: {
             200: { content: { 'application/json': { schema: z.object({ message: z.string() }) } }, description: 'Propietario eliminado' },
             400: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Error de eliminación' }
@@ -93,7 +95,7 @@ export function createOwnerRouter(ownerController: OwnerController) {
         path: '/{id}/animals',
         summary: 'Obtener animales de un propietario por su ID',
         security: [{ Bearer: [] }],
-        request: { params: z.object({ id: z.string() }) },
+        request: { params: z.object({ id: z.string().uuid({ message: 'El ID de propietario debe ser un UUID válido' }) }) },
         responses: {
             200: { content: { 'application/json': { schema: animalListResponseSchema } }, description: 'Lista de animales' },
             400: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Error de consulta' }
@@ -210,35 +212,93 @@ export function createOwnerRouter(ownerController: OwnerController) {
         tags: ['Portal Propietario']
     });
 
+    // ─── Rutas de Recordatorios del Propietario (Sprint 16 - HU7 / ASIDGA-172 a ASIDGA-174) ───
+
+    const getOwnerPortalRemindersRoute = createRoute({
+        method: 'get',
+        path: '/owner/reminders',
+        summary: 'Consultar recordatorios unificados del propietario autenticado',
+        description: 'Retorna la lista unificada de recordatorios futuros y pendientes de vacunaciones, citas y alimentación para los animales del propietario autenticado, soportando filtro opcional por animalId.',
+        security: [{ Bearer: [] }],
+        request: {
+            query: ownerRemindersQuerySchema
+        },
+        responses: {
+            200: { content: { 'application/json': { schema: ownerRemindersResponseSchema } }, description: 'Lista unificada de recordatorios' },
+            400: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Parámetros inválidos' },
+            401: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'No autenticado o token JWT inválido' },
+            403: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Acceso no autorizado' },
+            404: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Perfil de propietario o animal no encontrado' },
+            500: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Error interno del servidor' }
+        },
+        tags: ['Portal Propietario']
+    });
+
+    const getOwnerPortalRemindersRelativeRoute = createRoute({
+        method: 'get',
+        path: '/reminders',
+        summary: 'Consultar recordatorios unificados (ruta relativa al router /owner)',
+        description: 'Retorna la lista de recordatorios futuros y pendientes.',
+        security: [{ Bearer: [] }],
+        request: {
+            query: ownerRemindersQuerySchema
+        },
+        responses: {
+            200: { content: { 'application/json': { schema: ownerRemindersResponseSchema } }, description: 'Lista unificada de recordatorios' },
+            400: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Parámetros inválidos' },
+            401: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'No autenticado' },
+            403: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Acceso no autorizado' },
+            404: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Perfil o animal no encontrado' },
+            500: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Error interno del servidor' }
+        },
+        tags: ['Portal Propietario']
+    });
+
     // ─── Asignación de RBAC por ruta ─────────────────────────────────────────
 
-    // Rutas de administración
-    router.use('/', rbacMiddleware('propietarios'));
-    router.use('/:id', rbacMiddleware('propietarios'));
-    router.use('/:id/animals', rbacMiddleware('propietarios'));
-
-    // Rutas del portal del propietario (solo rol OWNER y solo GET)
+    // 1. Rutas del portal del propietario (Sprint 11 y Sprint 16 - Rol OWNER, ADMIN, VET en solo lectura)
+    router.use('/owner/reminders', rbacMiddleware('recordatorios_propietario'));
+    router.use('/reminders', rbacMiddleware('recordatorios_propietario'));
     router.use('/owner/animals', rbacMiddleware('portal_propietario'));
     router.use('/owner/animals/*', rbacMiddleware('portal_propietario'));
     router.use('/animals', rbacMiddleware('portal_propietario'));
     router.use('/animals/*', rbacMiddleware('portal_propietario'));
 
+    // 2. Rutas de administración de propietarios (Rol ADMIN / VET)
+    router.use('/:id/animals', rbacMiddleware('propietarios'));
+    router.use('/:id', async (c, next) => {
+        const paramId = c.req.param('id');
+        // Si el segmento corresponde a rutas de portal no evaluadas antes, delegar sin bloquear
+        if (paramId === 'reminders' || paramId === 'animals') {
+            return next();
+        }
+        return rbacMiddleware('propietarios')(c, next);
+    });
+    router.use('/', rbacMiddleware('propietarios'));
+
     // ─── Enlace de Handlers ──────────────────────────────────────────────────
 
-    router.openapi(listOwnersRoute, (c) => ownerController.list(c));
-    router.openapi(registerOwnerRoute, (c) => ownerController.register(c));
-    router.openapi(getOwnerRoute, (c) => ownerController.getById(c));
-    router.openapi(updateOwnerRoute, (c) => ownerController.update(c));
-    router.openapi(deleteOwnerRoute, (c) => ownerController.delete(c));
-    router.openapi(getOwnerAnimalsRoute, (c) => ownerController.getAnimals(c));
-
-    // Handlers del Portal del Propietario (Sprint 11)
+    // 1. Handlers del Portal del Propietario (Sprint 11 y Sprint 16 - Rutas estáticas prioritarias)
+    router.openapi(getOwnerPortalRemindersRoute, (c) => ownerController.getOwnerReminders(c));
+    router.openapi(getOwnerPortalRemindersRelativeRoute, (c) => ownerController.getOwnerReminders(c));
     router.openapi(getOwnerPortalAnimalsRoute, (c) => ownerController.getOwnerAnimals(c));
     router.openapi(getOwnerPortalAnimalsRelativeRoute, (c) => ownerController.getOwnerAnimals(c));
     router.openapi(getOwnerPortalMedicalHistoryRoute, (c) => ownerController.getOwnerAnimalMedicalHistory(c));
     router.openapi(getOwnerPortalMedicalHistoryRelativeRoute, (c) => ownerController.getOwnerAnimalMedicalHistory(c));
     router.openapi(getOwnerPortalMedicalHistoryWithAnimalIdRoute, (c) => ownerController.getOwnerAnimalMedicalHistory(c));
     router.openapi(getOwnerPortalMedicalHistoryRelativeAnimalIdRoute, (c) => ownerController.getOwnerAnimalMedicalHistory(c));
+
+    // 2. Rutas con sub-recursos
+    router.openapi(getOwnerAnimalsRoute, (c) => ownerController.getAnimals(c));
+
+    // 3. Rutas de colección raíz
+    router.openapi(listOwnersRoute, (c) => ownerController.list(c));
+    router.openapi(registerOwnerRoute, (c) => ownerController.register(c));
+
+    // 4. Rutas comodín por ID (al final para no colisionar)
+    router.openapi(getOwnerRoute, (c) => ownerController.getById(c));
+    router.openapi(updateOwnerRoute, (c) => ownerController.update(c));
+    router.openapi(deleteOwnerRoute, (c) => ownerController.delete(c));
 
     return router;
 }

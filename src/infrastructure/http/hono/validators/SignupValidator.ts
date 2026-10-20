@@ -14,9 +14,18 @@ export const signupSchema = z.object({
         example: 'password123',
         description: 'Contraseña segura'
     }),
-    role: z.enum([UserRole.VETERINARIAN, UserRole.ZOOTECHNICIAN]).openapi({
+    role: z.enum([UserRole.VETERINARIAN, UserRole.ZOOTECHNICIAN, UserRole.OWNER]).openapi({
         example: UserRole.VETERINARIAN,
-        description: 'Rol asignado al usuario (No se permite crear administradores)'
+        description: 'Rol asignado al usuario (Veterinario, Zootecnista o Propietario. No se permite crear administradores)'
+    }),
+    ownerData: z.object({
+        name: z.string().optional(),
+        document: z.string().optional(),
+        phone: z.string().optional(),
+        address: z.string().optional(),
+        ownerType: z.enum(['urban', 'rural']).optional(),
+    }).optional().openapi({
+        description: 'Datos del perfil de propietario (cuando role es OWNER)'
     })
 }).openapi('SignupRequest');
 

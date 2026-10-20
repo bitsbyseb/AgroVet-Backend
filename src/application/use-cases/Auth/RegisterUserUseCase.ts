@@ -1,5 +1,7 @@
 import { User, UserRole } from '@domain/entities/User.js';
+import { Owner } from '@domain/entities/Owner.js';
 import type { UserRepository } from '@domain/repositories/UserRepository.js';
+import type { OwnerRepository } from '@domain/repositories/OwnerRepository.js';
 import type { EmailService } from '@domain/services/EmailService.js';
 import type { PasswordHasher } from '@domain/services/PasswordHasher.js';
 import { randomUUID } from 'node:crypto';
@@ -9,13 +11,21 @@ export interface RegisterUserRequest {
     email: string;
     password: string;
     role: UserRole;
+    ownerData?: {
+        name?: string;
+        document?: string;
+        phone?: string;
+        address?: string;
+        ownerType?: 'urban' | 'rural';
+    };
 }
 
 export class RegisterUserUseCase {
     constructor(
         private userRepository: UserRepository,
         private passwordHasher: PasswordHasher,
-        private emailService: EmailService
+        private emailService: EmailService,
+        private ownerRepository?: OwnerRepository
     ) { }
 
     async execute(request: RegisterUserRequest): Promise<void> {
@@ -44,6 +54,39 @@ export class RegisterUserUseCase {
         });
 
         await this.userRepository.save(newUser);
+
+        if (request.role === UserRole.OWNER && this.ownerRepository) {
+            const existingOwner = await this.ownerRepository.findByEmail(request.email);
+            if (existingOwner) {
+                existingOwner.userId = newUser.id;
+                if (request.ownerData) {
+                    if (request.ownerData.name) existingOwner.name = request.ownerData.name;
+                    if (request.ownerData.phone) existingOwner.phone = request.ownerData.phone;
+                    if (request.ownerData.address) existingOwner.address = request.ownerData.address;
+                    if (request.ownerData.ownerType) existingOwner.ownerType = request.ownerData.ownerType as any;
+                }
+                await this.ownerRepository.update(existingOwner);
+            } else {
+                const ownerName = request.ownerData?.name?.trim() || request.username;
+                const ownerDocument = request.ownerData?.document?.trim() || `DOC-${randomUUID().slice(0, 8)}`;
+                const ownerPhone = request.ownerData?.phone?.trim() || 'Sin registrar';
+                const ownerAddress = request.ownerData?.address?.trim() || 'Sin registrar';
+                const ownerType = (request.ownerData?.ownerType as any) || 'urban';
+
+                const newOwner = new Owner(
+                    randomUUID(),
+                    ownerName,
+                    ownerDocument,
+                    ownerPhone,
+                    request.email,
+                    ownerAddress,
+                    ownerType,
+                    newUser.id
+                );
+
+                await this.ownerRepository.save(newOwner);
+            }
+        }
 
         await this.emailService.send({
             to: request.email,

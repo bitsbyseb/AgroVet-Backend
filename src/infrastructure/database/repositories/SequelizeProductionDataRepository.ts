@@ -1,6 +1,7 @@
 import { ProductionData, ProductionPurpose } from "@domain/entities/ProductionData.js";
 import type { ProductionDataRepository } from "@domain/repositories/ProductionDataRepository.js";
 import { ProductionData as ProductionModel } from "../models/ProductionData.model.js";
+import { cleanWhereClause } from "../utils/whereHelper.js";
 
 export class SequelizeProductionDataRepository implements ProductionDataRepository {
     async save(productionData: ProductionData): Promise<void> {
@@ -15,8 +16,10 @@ export class SequelizeProductionDataRepository implements ProductionDataReposito
     }
 
     async findByAnimalId(animalId: string): Promise<ProductionData[]> {
-        const models = await ProductionModel.findAll({ where: { animalId } });
-        return models.map(this.toDomain);
+        if (!animalId || animalId.trim() === '') return [];
+        const where = cleanWhereClause({ animalId });
+        const models = await ProductionModel.findAll({ where });
+        return models.map((model) => this.toDomain(model));
     }
 
     private toDomain(model: ProductionModel): ProductionData {

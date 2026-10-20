@@ -1,11 +1,14 @@
 import { DataTypes, Model, type CreationOptional, type InferAttributes, type InferCreationAttributes } from "@sequelize/core";
-import { Attribute, NotNull, PrimaryKey, Unique } from "@sequelize/core/decorators-legacy";
+import { Attribute, NotNull, PrimaryKey, Table, Unique } from "@sequelize/core/decorators-legacy";
 
 enum OwnerType {
     URBAN = "urban",
     RURAL = "rural"
 }
 
+@Table({
+    tableName: "owners"
+})
 export class Owner extends Model<InferAttributes<Owner>, InferCreationAttributes<Owner>> {
     @Attribute(DataTypes.UUID)
     @NotNull

@@ -1,6 +1,7 @@
 import { RegisterFoodUseCase } from '../../../../application/use-cases/Food/RegisterFoodUseCase.js';
 import { ListFoodsUseCase } from '../../../../application/use-cases/Food/ListFoodsUseCase.js';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
+import { handleControllerError } from '../utils/errorHandler.js';
 export class FoodController {
     registerFoodUseCase;
     listFoodsUseCase;
@@ -9,17 +10,17 @@ export class FoodController {
         this.listFoodsUseCase = listFoodsUseCase;
     }
     async register(c) {
-        const data = c.req.valid('json');
         try {
+            const data = c.req.valid('json');
             const foodData = {
-                id: uuidv4(),
+                id: randomUUID(),
                 ...data
             };
             await this.registerFoodUseCase.execute(foodData);
             return c.json({ message: 'Food registered successfully', id: foodData.id }, 201);
         }
         catch (error) {
-            return c.json({ error: error.message }, 400);
+            return handleControllerError(c, error, 'Error al registrar alimento', 400);
         }
     }
     async list(c) {
@@ -28,7 +29,7 @@ export class FoodController {
             return c.json(foods);
         }
         catch (error) {
-            return c.json({ error: error.message }, 500);
+            return handleControllerError(c, error, 'Error al listar alimentos', 500);
         }
     }
 }

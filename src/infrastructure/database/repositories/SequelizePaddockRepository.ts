@@ -1,6 +1,7 @@
 import { Paddock, type PaddockStatus } from "@domain/entities/Paddock.js";
 import type { PaddockRepository } from "@domain/repositories/PaddockRepository.js";
 import { Paddock as PaddockModel } from "../models/Paddock.model.js";
+import { cleanWhereClause } from "../utils/whereHelper.js";
 
 export class SequelizePaddockRepository implements PaddockRepository {
     async save(paddock: Paddock): Promise<void> {
@@ -15,13 +16,16 @@ export class SequelizePaddockRepository implements PaddockRepository {
     }
 
     async findById(id: string): Promise<Paddock | null> {
+        if (!id || id.trim() === '') return null;
         const model = await PaddockModel.findByPk(id);
         if (!model) return null;
         return this.toDomain(model);
     }
 
     async findByName(name: string): Promise<Paddock | null> {
-        const model = await PaddockModel.findOne({ where: { name } });
+        if (!name || name.trim() === '') return null;
+        const where = cleanWhereClause({ name });
+        const model = await PaddockModel.findOne({ where });
         if (!model) return null;
         return this.toDomain(model);
     }
@@ -32,6 +36,7 @@ export class SequelizePaddockRepository implements PaddockRepository {
     }
 
     async update(paddock: Paddock): Promise<void> {
+        if (!paddock.id || paddock.id.trim() === '') return;
         await PaddockModel.update({
             name: paddock.name,
             area: paddock.area,
@@ -39,12 +44,15 @@ export class SequelizePaddockRepository implements PaddockRepository {
             status: paddock.status,
             description: paddock.description
         }, {
-            where: { id: paddock.id }
+            where: cleanWhereClause({ id: paddock.id })
         });
     }
 
     async delete(id: string): Promise<void> {
-        await PaddockModel.destroy({ where: { id } });
+        if (!id || id.trim() === '') return;
+        await PaddockModel.destroy({
+            where: cleanWhereClause({ id })
+        });
     }
 
     private toDomain(model: PaddockModel): Paddock {

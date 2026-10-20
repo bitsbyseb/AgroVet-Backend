@@ -1,6 +1,7 @@
 import type { Context } from 'hono';
 import { GetGrazingHistoryUseCase } from '@application/use-cases/paddocks/GetGrazingHistoryUseCase.js';
 import type { GrazingHistoryQueryType } from '../validators/grazingHistoryValidator.js';
+import { handleControllerError } from '../utils/errorHandler.js';
 
 export class GrazingHistoryController {
     constructor(private readonly getGrazingHistoryUseCase: GetGrazingHistoryUseCase) {}
@@ -19,15 +20,7 @@ export class GrazingHistoryController {
             const history = await this.getGrazingHistoryUseCase.execute(query);
             return c.json(history, 200);
         } catch (error: any) {
-            const message = error?.message || 'Error desconocido';
-            if (
-                message.includes('Invalid') ||
-                message.includes('cannot be after') ||
-                message.includes('inválid')
-            ) {
-                return c.json({ error: message }, 400);
-            }
-            return c.json({ error: message }, 500);
+            return handleControllerError(c, error, 'Error al consultar historial de pastoreo', 500);
         }
     }
 }

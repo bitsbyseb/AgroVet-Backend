@@ -1,6 +1,7 @@
 import { RegisterProductionUseCase } from '../../../../application/use-cases/Production/RegisterProductionUseCase.js';
 import { GetAnimalProductionUseCase } from '../../../../application/use-cases/Production/GetAnimalProductionUseCase.js';
 import { randomUUID } from 'node:crypto';
+import { handleControllerError } from '../utils/errorHandler.js';
 export class ProductionController {
     registerProductionUseCase;
     getAnimalProductionUseCase;
@@ -9,9 +10,9 @@ export class ProductionController {
         this.getAnimalProductionUseCase = getAnimalProductionUseCase;
     }
     async register(c) {
-        const { id } = c.req.valid('param');
-        const data = c.req.valid('json');
         try {
+            const { id } = c.req.valid('param');
+            const data = c.req.valid('json');
             const productionData = {
                 id: randomUUID(),
                 animalId: id,
@@ -22,17 +23,17 @@ export class ProductionController {
             return c.json({ message: 'Production record registered successfully', id: productionData.id }, 201);
         }
         catch (error) {
-            return c.json({ error: error.message }, 400);
+            return handleControllerError(c, error, 'Error al registrar producción', 400);
         }
     }
     async getProduction(c) {
-        const { id } = c.req.valid('param');
         try {
+            const { id } = c.req.valid('param');
             const production = await this.getAnimalProductionUseCase.execute(id);
             return c.json(production);
         }
         catch (error) {
-            return c.json({ error: error.message }, 404);
+            return handleControllerError(c, error, 'Error al consultar producción del animal', 404);
         }
     }
 }

@@ -11,9 +11,11 @@ export class SequelizeFoodRepository {
     }
     async findAll() {
         const models = await FoodModel.findAll();
-        return models.map(this.toDomain);
+        return models.map((model) => this.toDomain(model));
     }
     async findById(id) {
+        if (!id || id.trim() === '')
+            return null;
         const model = await FoodModel.findByPk(id);
         if (!model)
             return null;

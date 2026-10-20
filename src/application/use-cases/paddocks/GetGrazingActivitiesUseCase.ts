@@ -5,8 +5,8 @@ export class GetGrazingActivitiesUseCase {
     constructor(private readonly grazingActivityRepository: GrazingActivityRepository) {}
 
     async execute(paddockId?: string): Promise<GrazingActivity[]> {
-        if (paddockId) {
-            return await this.grazingActivityRepository.findByPaddockId(paddockId);
+        if (paddockId && paddockId.trim() !== '') {
+            return await this.grazingActivityRepository.findByPaddockId(paddockId.trim());
         }
         return await this.grazingActivityRepository.findAll();
     }

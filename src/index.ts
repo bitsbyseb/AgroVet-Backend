@@ -17,6 +17,7 @@ import { SequelizeProductionDataRepository } from '@infrastructure/database/repo
 import { SequelizeReproductionRepository } from '@infrastructure/database/repositories/SequelizeReproductionRepository.js';
 import { SequelizePaddockRepository } from '@infrastructure/database/repositories/SequelizePaddockRepository.js';
 import { SequelizeGrazingActivityRepository } from '@infrastructure/database/repositories/SequelizeGrazingActivityRepository.js';
+import { handleControllerError } from '@infrastructure/http/hono/utils/errorHandler.js';
 
 // Security
 import { BcryptHasher } from '@infrastructure/security/BcryptHasher.js';
@@ -32,9 +33,10 @@ import { UpdateOwnerProfileUseCase } from '@application/use-cases/Owner/UpdateOw
 import { GetOwnerByIdUseCase } from '@application/use-cases/Owner/GetOwnerByIdUseCase.js';
 import { ListAllOwnersUseCase } from '@application/use-cases/Owner/ListAllOwnersUseCase.js';
 import { DeleteOwnerUseCase } from '@application/use-cases/Owner/DeleteOwnerUseCase.js';
-// Sprint 11 - Portal del Propietario
+// Sprint 11 y Sprint 16 - Portal del Propietario
 import { GetOwnerAnimalsUseCase as GetOwnerAnimalsPortalUseCase } from '@application/use-cases/Owner/GetOwnerAnimalsUseCase.js';
 import { GetOwnerMedicalHistoryUseCase } from '@application/use-cases/Owner/GetOwnerMedicalHistoryUseCase.js';
+import { GetOwnerRemindersUseCase } from '@application/use-cases/Owner/GetOwnerRemindersUseCase.js';
 
 // Use Cases - Animal
 import { RegisterAnimalUseCase } from '@application/use-cases/Animal/RegisterAnimalUseCase.js';
@@ -130,7 +132,7 @@ const tokenService = new HonoTokenService();
 const EmailService = new ResendEmailService();
 
 // Use Cases (Auth)
-const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher,EmailService);
+const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher, EmailService, ownerRepository);
 const loginUserUseCase = new LoginUserUseCase(userRepository, passwordHasher, tokenService,EmailService);
 
 // Use Cases (Owner)
@@ -139,9 +141,16 @@ const updateOwnerProfileUseCase = new UpdateOwnerProfileUseCase(ownerRepository)
 const getOwnerByIdUseCase = new GetOwnerByIdUseCase(ownerRepository);
 const listAllOwnersUseCase = new ListAllOwnersUseCase(ownerRepository);
 const deleteOwnerUseCase = new DeleteOwnerUseCase(ownerRepository);
-// Sprint 11 - Portal del Propietario
+// Sprint 11 y Sprint 16 - Portal del Propietario
 const getOwnerAnimalsPortalUseCase = new GetOwnerAnimalsPortalUseCase(ownerRepository, animalRepository);
 const getOwnerMedicalHistoryUseCase = new GetOwnerMedicalHistoryUseCase(ownerRepository, animalRepository, medicalHistoryRepository);
+const getOwnerRemindersUseCase = new GetOwnerRemindersUseCase(
+    ownerRepository,
+    animalRepository,
+    vaccinationRepository,
+    appointmentRepository,
+    alimentationRepository
+);
 
 // Use Cases (Animal)
 const registerAnimalUseCase = new RegisterAnimalUseCase(animalRepository, ownerRepository);
@@ -191,7 +200,8 @@ const ownerController = new OwnerController(
     deleteOwnerUseCase,
     getOwnerAnimalsUseCase,
     getOwnerAnimalsPortalUseCase,
-    getOwnerMedicalHistoryUseCase
+    getOwnerMedicalHistoryUseCase,
+    getOwnerRemindersUseCase
 );
 const medicalHistoryController = new MedicalHistoryController(registerMedicalHistoryUseCase, listMedicalHistoriesUseCase);
 const vaccinationController = new VaccinationController(registerVaccinationUseCase, listVaccinationsUseCase);
@@ -259,15 +269,10 @@ const grazingRouter = createGrazingRouter(grazingController, grazingHistoryContr
 const app = new OpenAPIHono();
 
 app.onError((err, c) => {
-    console.error({
-        name: err.name,
-        message: err.message,
-        stack: err.stack
-    })
     if (err instanceof HTTPException) {
         return err.getResponse();
     }
-    return c.text('Error interno del servidor', 500)
+    return handleControllerError(c, err, 'Error interno del servidor', 500);
 });
 
 app.use('*', cors());
@@ -296,7 +301,6 @@ const v1 = new OpenAPIHono();
 v1.route('/auth', authRouter);
 v1.route('/owners', ownerRouter);
 v1.route('/owner', ownerRouter);              // Sprint 11 - Portal del Propietario (/owner/animals, etc.)
-v1.route('/', ownerRouter);                   // Montaje raíz para soportar rutas absolutas como /owner/animals
 v1.route('/animals', animalRouter);
 v1.route('/appointments', appointmentRouter);
 v1.route('/foods', foodRouter);

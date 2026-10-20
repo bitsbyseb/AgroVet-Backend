@@ -1,12 +1,21 @@
-import { Owner } from '@domain/entities/Owner.js';
+import { Owner, OwnerType } from '@domain/entities/Owner.js';
 import type { OwnerRepository } from '@domain/repositories/OwnerRepository.js';
-import type { ownerCreationType } from '@infrastructure/http/hono/validators/OwnerValidator.js';
-import { randomUUID } from "crypto";
+import { randomUUID } from 'node:crypto';
+
+/** DTO de entrada para el caso de uso — pertenece a la capa de aplicación, no a infraestructura. */
+export interface RegisterOwnerDTO {
+    name: string;
+    document: string;
+    phone: string;
+    email: string;
+    address: string;
+    ownerType: OwnerType;
+}
 
 export class RegisterOwnerUseCase {
     constructor(private readonly ownerRepository: OwnerRepository) {}
 
-    async execute(request: ownerCreationType): Promise<string> {
+    async execute(request: RegisterOwnerDTO): Promise<string> {
         const existingOwner = await this.ownerRepository.findByDocument(request.document);
         if (existingOwner) {
             throw new Error('Ya existe un propietario con este número de documento');

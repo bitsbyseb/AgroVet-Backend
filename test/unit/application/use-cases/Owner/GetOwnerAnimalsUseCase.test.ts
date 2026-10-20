@@ -39,8 +39,8 @@ function buildAnimal(ownerId: string): Animal {
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
 describe('Caso de Uso (Sprint 11): GetOwnerAnimalsUseCase', () => {
-    let mockOwnerRepository: jest.Mocked<OwnerRepository>;
-    let mockAnimalRepository: jest.Mocked<AnimalRepository>;
+    let mockOwnerRepository: any;
+    let mockAnimalRepository: any;
     let useCase: GetOwnerAnimalsUseCase;
 
     beforeEach(() => {

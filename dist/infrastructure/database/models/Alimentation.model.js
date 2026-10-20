@@ -8,6 +8,28 @@ import { DataTypes, Model } from "@sequelize/core";
 import { Table, PrimaryKey, Attribute, NotNull } from "@sequelize/core/decorators-legacy";
 import { weightUnits, frequency } from "../../../domain/entities/Alimentation.js";
 let Alimentation = class Alimentation extends Model {
+    get start_date() {
+        return this.getDataValue ? this.getDataValue('startDate') : this.startDate;
+    }
+    set start_date(value) {
+        if (this.setDataValue) {
+            this.setDataValue('startDate', value);
+        }
+        else {
+            this.startDate = value;
+        }
+    }
+    get end_date() {
+        return this.getDataValue ? this.getDataValue('endDate') : this.endDate;
+    }
+    set end_date(value) {
+        if (this.setDataValue) {
+            this.setDataValue('endDate', value);
+        }
+        else {
+            this.endDate = value;
+        }
+    }
 };
 __decorate([
     Attribute(DataTypes.UUID),
@@ -32,11 +54,17 @@ __decorate([
     Attribute(DataTypes.ENUM(...Object.values(frequency)))
 ], Alimentation.prototype, "frequency", void 0);
 __decorate([
-    Attribute(DataTypes.DATE)
-], Alimentation.prototype, "start_date", void 0);
+    Attribute({
+        type: DataTypes.DATE,
+        columnName: 'start_date'
+    })
+], Alimentation.prototype, "startDate", void 0);
 __decorate([
-    Attribute(DataTypes.DATE)
-], Alimentation.prototype, "end_date", void 0);
+    Attribute({
+        type: DataTypes.DATE,
+        columnName: 'end_date'
+    })
+], Alimentation.prototype, "endDate", void 0);
 __decorate([
     Attribute(DataTypes.TEXT)
 ], Alimentation.prototype, "observations", void 0);

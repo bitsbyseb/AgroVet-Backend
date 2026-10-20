@@ -1,4 +1,5 @@
 import { GetGrazingHistoryUseCase } from '../../../../application/use-cases/paddocks/GetGrazingHistoryUseCase.js';
+import { handleControllerError } from '../utils/errorHandler.js';
 export class GrazingHistoryController {
     getGrazingHistoryUseCase;
     constructor(getGrazingHistoryUseCase) {
@@ -18,13 +19,7 @@ export class GrazingHistoryController {
             return c.json(history, 200);
         }
         catch (error) {
-            const message = error?.message || 'Error desconocido';
-            if (message.includes('Invalid') ||
-                message.includes('cannot be after') ||
-                message.includes('inválid')) {
-                return c.json({ error: message }, 400);
-            }
-            return c.json({ error: message }, 500);
+            return handleControllerError(c, error, 'Error al consultar historial de pastoreo', 500);
         }
     }
 }

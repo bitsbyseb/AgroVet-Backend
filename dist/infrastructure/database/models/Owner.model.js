@@ -5,14 +5,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { DataTypes, Model } from "@sequelize/core";
-import { Attribute, NotNull, PrimaryKey, Unique } from "@sequelize/core/decorators-legacy";
+import { Attribute, NotNull, PrimaryKey, Table, Unique } from "@sequelize/core/decorators-legacy";
 var OwnerType;
 (function (OwnerType) {
     OwnerType["URBAN"] = "urban";
     OwnerType["RURAL"] = "rural";
 })(OwnerType || (OwnerType = {}));
-export class Owner extends Model {
-}
+let Owner = class Owner extends Model {
+};
 __decorate([
     Attribute(DataTypes.UUID),
     NotNull,
@@ -48,3 +48,9 @@ __decorate([
 __decorate([
     Attribute(DataTypes.UUID)
 ], Owner.prototype, "userId", void 0);
+Owner = __decorate([
+    Table({
+        tableName: "owners"
+    })
+], Owner);
+export { Owner };

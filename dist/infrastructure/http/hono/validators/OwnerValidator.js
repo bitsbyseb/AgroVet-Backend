@@ -81,3 +81,34 @@ export const ownerMedicalHistoryItemResponseSchema = z.object({
  * Historial clínico completo del animal del propietario en modo solo lectura.
  */
 export const ownerMedicalHistoriesResponseSchema = z.array(ownerMedicalHistoryItemResponseSchema).openapi('OwnerMedicalHistoriesResponse');
+// ─── Esquemas de Recordatorios del Propietario (Sprint 16 - HU7 / ASIDGA-172 a ASIDGA-174) ───
+/**
+ * Esquema de validación para parámetros de consulta opcionales de recordatorios.
+ */
+export const ownerRemindersQuerySchema = z.object({
+    animalId: z.string().uuid({ message: 'El animalId debe ser un UUID válido' }).optional().openapi({
+        param: {
+            name: 'animalId',
+            in: 'query'
+        },
+        example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        description: 'Filtro opcional por identificador único del animal'
+    })
+}).openapi('OwnerRemindersQuery');
+/**
+ * Esquema de respuesta para un recordatorio individual de propietario.
+ */
+export const ownerReminderItemResponseSchema = z.object({
+    id: z.string().openapi({ example: 'uuid-reminder-123', description: 'Identificador único del recordatorio o registro origen' }),
+    animalId: z.string().openapi({ example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', description: 'ID del animal vinculado' }),
+    animalName: z.string().openapi({ example: 'Canela', description: 'Nombre del animal' }),
+    category: z.enum(['vaccination', 'appointment', 'alimentation']).openapi({ example: 'vaccination', description: 'Categoría del recordatorio (vaccination | appointment | alimentation)' }),
+    title: z.string().openapi({ example: 'Próxima dosis: Vacuna Antirrábica', description: 'Título descriptivo del evento o actividad' }),
+    description: z.string().openapi({ example: 'Dosis de refuerzo programada para Vacuna Antirrábica', description: 'Detalle complementario de la actividad' }),
+    dueDate: z.string().openapi({ example: '2026-11-20T09:00:00.000Z', description: 'Fecha programada o límite en formato ISO 8601' }),
+    status: z.string().openapi({ example: 'pending', description: 'Estado del recordatorio (pending, overdue, scheduled, active)' })
+}).openapi('OwnerReminderItemResponse');
+/**
+ * Esquema de lista completa de recordatorios futuros y pendientes del propietario.
+ */
+export const ownerRemindersResponseSchema = z.array(ownerReminderItemResponseSchema).openapi('OwnerRemindersResponse');

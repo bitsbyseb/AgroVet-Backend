@@ -5,9 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { DataTypes, Model } from "@sequelize/core";
-import { Attribute, NotNull, PrimaryKey } from "@sequelize/core/decorators-legacy";
-export class Food extends Model {
-}
+import { Attribute, NotNull, PrimaryKey, Table } from "@sequelize/core/decorators-legacy";
+let Food = class Food extends Model {
+};
 __decorate([
     Attribute(DataTypes.UUID),
     PrimaryKey
@@ -24,3 +24,9 @@ __decorate([
     Attribute(DataTypes.STRING),
     NotNull
 ], Food.prototype, "description", void 0);
+Food = __decorate([
+    Table({
+        tableName: "foods"
+    })
+], Food);
+export { Food };

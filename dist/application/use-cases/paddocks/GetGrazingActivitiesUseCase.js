@@ -4,8 +4,8 @@ export class GetGrazingActivitiesUseCase {
         this.grazingActivityRepository = grazingActivityRepository;
     }
     async execute(paddockId) {
-        if (paddockId) {
-            return await this.grazingActivityRepository.findByPaddockId(paddockId);
+        if (paddockId && paddockId.trim() !== '') {
+            return await this.grazingActivityRepository.findByPaddockId(paddockId.trim());
         }
         return await this.grazingActivityRepository.findAll();
     }

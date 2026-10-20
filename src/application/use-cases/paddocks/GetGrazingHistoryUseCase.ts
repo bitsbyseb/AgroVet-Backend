@@ -26,29 +26,41 @@ export class GetGrazingHistoryUseCase {
     constructor(private readonly grazingActivityRepository: GrazingActivityRepository) {}
 
     async execute(filters: IGrazingFilters = {}, referenceDate?: Date): Promise<GrazingHistoryItemDTO[]> {
-        if (filters.startDate) {
+        const normalizedFilters: IGrazingFilters = {};
+
+        if (filters.paddockId && typeof filters.paddockId === 'string' && filters.paddockId.trim() !== '' && filters.paddockId !== 'ALL') {
+            normalizedFilters.paddockId = filters.paddockId.trim();
+        }
+
+        if (filters.animalId && typeof filters.animalId === 'string' && filters.animalId.trim() !== '' && filters.animalId !== 'ALL') {
+            normalizedFilters.animalId = filters.animalId.trim();
+        }
+
+        if (filters.startDate !== undefined && filters.startDate !== null && (filters.startDate as unknown) !== '') {
             const start = new Date(filters.startDate);
             if (isNaN(start.getTime())) {
                 throw new Error('Invalid startDate filter');
             }
+            normalizedFilters.startDate = filters.startDate;
         }
 
-        if (filters.endDate) {
+        if (filters.endDate !== undefined && filters.endDate !== null && (filters.endDate as unknown) !== '') {
             const end = new Date(filters.endDate);
             if (isNaN(end.getTime())) {
                 throw new Error('Invalid endDate filter');
             }
+            normalizedFilters.endDate = filters.endDate;
         }
 
-        if (filters.startDate && filters.endDate) {
-            const start = new Date(filters.startDate);
-            const end = new Date(filters.endDate);
+        if (normalizedFilters.startDate && normalizedFilters.endDate) {
+            const start = new Date(normalizedFilters.startDate);
+            const end = new Date(normalizedFilters.endDate);
             if (start.getTime() > end.getTime()) {
                 throw new Error('startDate cannot be after endDate');
             }
         }
 
-        const activities = await this.grazingActivityRepository.findHistory(filters);
+        const activities = await this.grazingActivityRepository.findHistory(normalizedFilters);
 
         return activities.map((activity) => {
             const permanenceTime = typeof activity.getPermanenceTime === 'function'

@@ -1,6 +1,7 @@
 import { Animal, animalType, speciesType, Gender } from "@domain/entities/Animal.js";
 import type { AnimalRepository } from "@domain/repositories/AnimalRepository.js";
 import { Animal as AnimalModel } from '@infrastructure/database/models/Animal.model.js';
+import { cleanWhereClause, isValidUuid } from "../utils/whereHelper.js";
 
 export class SequelizeAnimalRepository implements AnimalRepository {
     async save(animal: Animal): Promise<void> {
@@ -20,22 +21,26 @@ export class SequelizeAnimalRepository implements AnimalRepository {
     }
 
     async findById(id: string): Promise<Animal | null> {
+        if (!id || id.trim() === '' || !isValidUuid(id)) return null;
         const model = await AnimalModel.findByPk(id);
         if (!model) return null;
         return this.toDomain(model);
     }
 
     async findByOwnerId(ownerId: string): Promise<Animal[]> {
-        const models = await AnimalModel.findAll({ where: { ownerId } });
-        return models.map(this.toDomain);
+        if (!ownerId || ownerId.trim() === '' || !isValidUuid(ownerId)) return [];
+        const where = cleanWhereClause({ ownerId });
+        const models = await AnimalModel.findAll({ where });
+        return models.map((model) => this.toDomain(model));
     }
 
     async findAll(): Promise<Animal[]> {
         const models = await AnimalModel.findAll();
-        return models.map(this.toDomain);
+        return models.map((model) => this.toDomain(model));
     }
 
     async update(animal: Animal): Promise<void> {
+        if (!animal.id || animal.id.trim() === '' || !isValidUuid(animal.id)) return;
         await AnimalModel.update({
             name: animal.name,
             species: animal.species,
@@ -48,12 +53,15 @@ export class SequelizeAnimalRepository implements AnimalRepository {
             ownerId: animal.ownerId,
             paddockId: animal.paddockId || null
         }, {
-            where: { id: animal.id }
+            where: cleanWhereClause({ id: animal.id })
         });
     }
 
     async delete(id: string): Promise<void> {
-        await AnimalModel.destroy({ where: { id } });
+        if (!id || id.trim() === '' || !isValidUuid(id)) return;
+        await AnimalModel.destroy({
+            where: cleanWhereClause({ id })
+        });
     }
 
     private toDomain(model: AnimalModel): Animal {

@@ -1,6 +1,7 @@
 import { RegisterAlimentationUseCase } from '../../../../application/use-cases/Alimentation/RegisterAlimentationUseCase.js';
 import { GetAnimalDietUseCase } from '../../../../application/use-cases/Alimentation/GetAnimalDietUseCase.js';
 import { randomUUID } from 'node:crypto';
+import { handleControllerError } from '../utils/errorHandler.js';
 export class AlimentationController {
     registerAlimentationUseCase;
     getAnimalDietUseCase;
@@ -9,9 +10,9 @@ export class AlimentationController {
         this.getAnimalDietUseCase = getAnimalDietUseCase;
     }
     async register(c) {
-        const { id } = c.req.valid('param');
-        const data = c.req.valid('json');
         try {
+            const { id } = c.req.valid('param');
+            const data = c.req.valid('json');
             const alimentationData = {
                 id: randomUUID(),
                 animalId: id,
@@ -23,17 +24,17 @@ export class AlimentationController {
             return c.json({ message: 'Alimentation registered successfully', id: alimentationData.id }, 201);
         }
         catch (error) {
-            return c.json({ error: error.message }, 400);
+            return handleControllerError(c, error, 'Error al registrar la alimentación', 400);
         }
     }
     async getDiet(c) {
-        const { id } = c.req.valid('param');
         try {
+            const { id } = c.req.valid('param');
             const diet = await this.getAnimalDietUseCase.execute(id);
             return c.json(diet);
         }
         catch (error) {
-            return c.json({ error: error.message }, 404);
+            return handleControllerError(c, error, 'Error al consultar dieta del animal', 404);
         }
     }
 }
