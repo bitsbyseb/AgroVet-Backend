@@ -16,6 +16,7 @@ import { SequelizeProductionDataRepository } from './infrastructure/database/rep
 import { SequelizeReproductionRepository } from './infrastructure/database/repositories/SequelizeReproductionRepository.js';
 import { SequelizePaddockRepository } from './infrastructure/database/repositories/SequelizePaddockRepository.js';
 import { SequelizeGrazingActivityRepository } from './infrastructure/database/repositories/SequelizeGrazingActivityRepository.js';
+import { SequelizeAlertRepository } from './infrastructure/database/repositories/SequelizeAlertRepository.js';
 import { handleControllerError } from './infrastructure/http/hono/utils/errorHandler.js';
 // Security
 import { BcryptHasher } from './infrastructure/security/BcryptHasher.js';
@@ -45,6 +46,9 @@ import { TransferAnimalOwnershipUseCase } from './application/use-cases/Animal/T
 import { RegisterAppointmentUseCase } from './application/use-cases/Appointment/RegisterAppointmentUseCase.js';
 import { ListAppointmentsUseCase } from './application/use-cases/Appointment/ListAppointmentsUseCase.js';
 import { UpdateAppointmentUseCase } from './application/use-cases/Appointment/UpdateAppointmentUseCase.js';
+import { CreateMedicalHistoryUseCase } from './application/use-cases/MedicalHistory/CreateMedicalHistoryUseCase.js';
+import { GetMedicalHistoryByAnimalUseCase } from './application/use-cases/MedicalHistory/GetMedicalHistoryByAnimalUseCase.js';
+import { UpdateMedicalHistoryUseCase } from './application/use-cases/MedicalHistory/UpdateMedicalHistoryUseCase.js';
 import { RegisterMedicalHistoryUseCase } from './application/use-cases/MedicalHistory/RegisterMedicalHistoryUseCase.js';
 import { ListMedicalHistoriesUseCase } from './application/use-cases/MedicalHistory/ListMedicalHistoriesUseCase.js';
 import { RegisterVaccinationUseCase } from './application/use-cases/Vaccination/RegisterVaccinationUseCase.js';
@@ -66,6 +70,10 @@ import { UpdatePaddockUseCase } from './application/use-cases/paddocks/UpdatePad
 import { RegisterGrazingActivityUseCase } from './application/use-cases/paddocks/RegisterGrazingActivityUseCase.js';
 import { GetGrazingActivitiesUseCase } from './application/use-cases/paddocks/GetGrazingActivitiesUseCase.js';
 import { GetGrazingHistoryUseCase } from './application/use-cases/paddocks/GetGrazingHistoryUseCase.js';
+// Use Cases - Alerts (Sprint 18)
+import { GenerateAlertsUseCase } from './application/use-cases/Alert/GenerateAlertsUseCase.js';
+import { GetAlertsUseCase } from './application/use-cases/Alert/GetAlertsUseCase.js';
+import { MarkAlertAsReadUseCase } from './application/use-cases/Alert/MarkAlertAsReadUseCase.js';
 // Controllers
 import { AuthController } from './infrastructure/http/hono/controllers/AuthController.js';
 import { OwnerController } from './infrastructure/http/hono/controllers/OwnerController.js';
@@ -80,14 +88,19 @@ import { ReproductionController } from './infrastructure/http/hono/controllers/R
 import { PaddockController } from './infrastructure/http/hono/controllers/PaddockController.js';
 import { GrazingController } from './infrastructure/http/hono/controllers/grazingController.js';
 import { GrazingHistoryController } from './infrastructure/http/hono/controllers/grazingHistoryController.js';
+// Controllers - Alerts (Sprint 18)
+import { AlertController } from './infrastructure/http/hono/controllers/AlertController.js';
 // Routers
 import { createAuthRouter } from './infrastructure/http/hono/routers/AuthRouter.js';
 import { createOwnerRouter } from './infrastructure/http/hono/routers/OwnerRouter.js';
 import { createAnimalRouter } from './infrastructure/http/hono/routers/AnimalRouter.js';
+import { createMedicalHistoryRouter } from './infrastructure/http/hono/routers/MedicalHistoryRouter.js';
 import { createAppointmentRouter } from './infrastructure/http/hono/routers/AppointmentRouter.js';
 import { createFoodRouter } from './infrastructure/http/hono/routers/FoodRouter.js';
 import { createPaddockRouter } from './infrastructure/http/hono/routers/PaddockRouter.js';
 import { createGrazingRouter } from './infrastructure/http/hono/routers/grazingRouter.js';
+// Routers - Alerts (Sprint 18)
+import { createAlertRouter } from './infrastructure/http/hono/routers/AlertRouter.js';
 import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { cors } from 'hono/cors';
@@ -110,6 +123,7 @@ const productionRepository = new SequelizeProductionDataRepository();
 const reproductionRepository = new SequelizeReproductionRepository();
 const paddockRepository = new SequelizePaddockRepository();
 const grazingActivityRepository = new SequelizeGrazingActivityRepository();
+const alertRepository = new SequelizeAlertRepository();
 const passwordHasher = new BcryptHasher();
 const tokenService = new HonoTokenService();
 // Services (Email)
@@ -139,6 +153,9 @@ const transferAnimalOwnershipUseCase = new TransferAnimalOwnershipUseCase(animal
 const registerAppointmentUseCase = new RegisterAppointmentUseCase(appointmentRepository, animalRepository);
 const listAppointmentsUseCase = new ListAppointmentsUseCase(appointmentRepository);
 const updateAppointmentUseCase = new UpdateAppointmentUseCase(appointmentRepository);
+const createMedicalHistoryUseCase = new CreateMedicalHistoryUseCase(medicalHistoryRepository, animalRepository);
+const getMedicalHistoryByAnimalUseCase = new GetMedicalHistoryByAnimalUseCase(medicalHistoryRepository, animalRepository);
+const updateMedicalHistoryUseCase = new UpdateMedicalHistoryUseCase(medicalHistoryRepository);
 const registerMedicalHistoryUseCase = new RegisterMedicalHistoryUseCase(medicalHistoryRepository, animalRepository);
 const listMedicalHistoriesUseCase = new ListMedicalHistoriesUseCase(medicalHistoryRepository);
 const registerVaccinationUseCase = new RegisterVaccinationUseCase(vaccinationRepository, animalRepository);
@@ -160,10 +177,14 @@ const updatePaddockUseCase = new UpdatePaddockUseCase(paddockRepository);
 const registerGrazingActivityUseCase = new RegisterGrazingActivityUseCase(grazingActivityRepository, paddockRepository);
 const getGrazingActivitiesUseCase = new GetGrazingActivitiesUseCase(grazingActivityRepository);
 const getGrazingHistoryUseCase = new GetGrazingHistoryUseCase(grazingActivityRepository);
+// Use Cases (Alerts - Sprint 18)
+const generateAlertsUseCase = new GenerateAlertsUseCase(alertRepository, animalRepository, vaccinationRepository, EmailService);
+const getAlertsUseCase = new GetAlertsUseCase(alertRepository);
+const markAlertAsReadUseCase = new MarkAlertAsReadUseCase(alertRepository);
 // Controllers
 const authController = new AuthController(registerUserUseCase, loginUserUseCase);
 const ownerController = new OwnerController(registerOwnerUseCase, updateOwnerProfileUseCase, getOwnerByIdUseCase, listAllOwnersUseCase, deleteOwnerUseCase, getOwnerAnimalsUseCase, getOwnerAnimalsPortalUseCase, getOwnerMedicalHistoryUseCase, getOwnerRemindersUseCase);
-const medicalHistoryController = new MedicalHistoryController(registerMedicalHistoryUseCase, listMedicalHistoriesUseCase);
+const medicalHistoryController = new MedicalHistoryController(createMedicalHistoryUseCase, getMedicalHistoryByAnimalUseCase, updateMedicalHistoryUseCase, registerMedicalHistoryUseCase, listMedicalHistoriesUseCase);
 const vaccinationController = new VaccinationController(registerVaccinationUseCase, listVaccinationsUseCase);
 const foodController = new FoodController(registerFoodUseCase, listFoodsUseCase);
 const alimentationController = new AlimentationController(registerAlimentationUseCase, getAnimalDietUseCase);
@@ -172,6 +193,8 @@ const reproductionController = new ReproductionController(registerReproductionUs
 const paddockController = new PaddockController(registerPaddockUseCase, getPaddocksUseCase, updatePaddockUseCase);
 const grazingController = new GrazingController(registerGrazingActivityUseCase, getGrazingActivitiesUseCase);
 const grazingHistoryController = new GrazingHistoryController(getGrazingHistoryUseCase);
+// Controllers (Alerts - Sprint 18)
+const alertController = new AlertController(generateAlertsUseCase, getAlertsUseCase, markAlertAsReadUseCase);
 const animalController = new AnimalController(registerAnimalUseCase, getAnimalByIdUseCase, listAllAnimalsUseCase, updateAnimalUseCase, deleteAnimalUseCase, transferAnimalOwnershipUseCase);
 const appointmentController = new AppointmentController(registerAppointmentUseCase, listAppointmentsUseCase, updateAppointmentUseCase);
 // SEEDING
@@ -201,10 +224,13 @@ await seedAdmins();
 const authRouter = createAuthRouter(authController);
 const ownerRouter = createOwnerRouter(ownerController);
 const animalRouter = createAnimalRouter(animalController, medicalHistoryController, vaccinationController, alimentationController, productionController, reproductionController);
+const medicalHistoryRouter = createMedicalHistoryRouter(medicalHistoryController);
 const appointmentRouter = createAppointmentRouter(appointmentController);
 const foodRouter = createFoodRouter(foodController);
 const paddockRouter = createPaddockRouter(paddockController);
 const grazingRouter = createGrazingRouter(grazingController, grazingHistoryController);
+// Routers (Alerts - Sprint 18)
+const alertRouter = createAlertRouter(alertController);
 const app = new OpenAPIHono();
 app.onError((err, c) => {
     if (err instanceof HTTPException) {
@@ -235,11 +261,14 @@ v1.route('/auth', authRouter);
 v1.route('/owners', ownerRouter);
 v1.route('/owner', ownerRouter); // Sprint 11 - Portal del Propietario (/owner/animals, etc.)
 v1.route('/animals', animalRouter);
+v1.route('/medical-histories', medicalHistoryRouter);
+v1.route('/medical-history', medicalHistoryRouter);
 v1.route('/appointments', appointmentRouter);
 v1.route('/foods', foodRouter);
 v1.route('/paddocks', paddockRouter);
 v1.route('/grazing', grazingRouter);
 v1.route('/grazing-activities', grazingRouter);
+v1.route('/alerts', alertRouter);
 app.route('/api/v1', v1);
 const server = serve({
     fetch: app.fetch,

@@ -3,16 +3,7 @@ import { MedicalHistory as MedicalHistoryModel } from "../models/MedicalHistory.
 import { cleanWhereClause } from "../utils/whereHelper.js";
 export class SequelizeMedicalHistoryRepository {
     async save(medicalHistory) {
-        await MedicalHistoryModel.create({
-            id: medicalHistory.id,
-            animalId: medicalHistory.animalId,
-            date: medicalHistory.date,
-            reason: medicalHistory.reason,
-            diagnosis: medicalHistory.diagnosis,
-            treatment: medicalHistory.treatment,
-            observations: medicalHistory.observations,
-            createdBy: medicalHistory.createdBy
-        });
+        await MedicalHistoryModel.create(this.toPersistence(medicalHistory));
     }
     async findById(id) {
         if (!id || id.trim() === '')
@@ -36,15 +27,9 @@ export class SequelizeMedicalHistoryRepository {
     async update(medicalHistory) {
         if (!medicalHistory.id || medicalHistory.id.trim() === '')
             return;
-        await MedicalHistoryModel.update({
-            animalId: medicalHistory.animalId,
-            date: medicalHistory.date,
-            reason: medicalHistory.reason,
-            diagnosis: medicalHistory.diagnosis,
-            treatment: medicalHistory.treatment,
-            observations: medicalHistory.observations,
-            createdBy: medicalHistory.createdBy
-        }, {
+        const persistenceData = this.toPersistence(medicalHistory);
+        const { id, ...dataToUpdate } = persistenceData;
+        await MedicalHistoryModel.update(dataToUpdate, {
             where: cleanWhereClause({ id: medicalHistory.id })
         });
     }
@@ -55,7 +40,35 @@ export class SequelizeMedicalHistoryRepository {
             where: cleanWhereClause({ id })
         });
     }
+    /**
+     * Mapper de Dominio a Persistencia (Sequelize Model Attributes)
+     */
+    toPersistence(entity) {
+        return {
+            id: entity.id,
+            animalId: entity.animalId,
+            date: entity.date,
+            reason: entity.reason,
+            diagnosis: entity.diagnosis,
+            treatment: entity.treatment,
+            observations: entity.observations,
+            createdBy: entity.createdBy,
+            evolution: entity.evolution ?? null,
+            physiologicalConstants: entity.physiologicalConstants ?? null,
+            weight: entity.weight ?? null,
+            bodyConditionScore: entity.bodyConditionScore ?? null
+        };
+    }
+    /**
+     * Mapper de Persistencia (Sequelize Model) a Entidad de Dominio
+     */
     toDomain(model) {
-        return new MedicalHistory(model.id, model.animalId, model.date, model.reason, model.diagnosis, model.treatment, model.observations, model.createdBy, model.createdAt, model.updatedAt);
+        let parsedConstants = null;
+        if (model.physiologicalConstants) {
+            parsedConstants = typeof model.physiologicalConstants === 'string'
+                ? JSON.parse(model.physiologicalConstants)
+                : model.physiologicalConstants;
+        }
+        return new MedicalHistory(model.id, model.animalId, model.date, model.reason, model.diagnosis, model.treatment, model.observations, model.createdBy, model.evolution ?? null, parsedConstants, model.weight != null ? Number(model.weight) : null, model.bodyConditionScore != null ? Number(model.bodyConditionScore) : null, model.createdAt, model.updatedAt);
     }
 }

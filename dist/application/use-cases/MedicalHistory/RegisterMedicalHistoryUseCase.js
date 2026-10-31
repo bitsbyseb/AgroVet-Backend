@@ -12,7 +12,7 @@ export class RegisterMedicalHistoryUseCase {
         if (!animal) {
             throw new Error("Animal not found");
         }
-        const medicalHistory = new MedicalHistory(randomUUID(), request.animalId, request.date, request.reason, request.diagnosis, request.treatment, request.observations, request.createdBy);
+        const medicalHistory = new MedicalHistory(randomUUID(), request.animalId, request.date, request.reason, request.diagnosis, request.treatment, request.observations, request.createdBy, request.evolution ?? null, request.physiologicalConstants ?? null, request.weight ?? null, request.bodyConditionScore ?? null);
         await this.medicalHistoryRepository.save(medicalHistory);
     }
 }

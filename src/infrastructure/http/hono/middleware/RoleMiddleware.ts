@@ -1,4 +1,4 @@
-import type { Context, Next } from 'hono';
+﻿import type { Context, Next } from 'hono';
 import { jwt } from 'hono/jwt';
 import { UserRole } from '@domain/entities/User.js';
 
@@ -9,7 +9,7 @@ export const authMiddleware = jwt({
     alg: 'HS256'
 });
 
-type Resource = 'animales' | 'historial_medico' | 'vacunas' | 'consultas_veterinarias' | 'datos_productivos' | 'alimentacion' | 'reproduccion' | 'propietarios' | 'usuarios' | 'potreros' | 'pastoreo' | 'portal_propietario' | 'recordatorios_propietario';
+type Resource = 'animales' | 'historial_medico' | 'vacunas' | 'consultas_veterinarias' | 'datos_productivos' | 'alimentacion' | 'reproduccion' | 'propietarios' | 'usuarios' | 'potreros' | 'pastoreo' | 'portal_propietario' | 'recordatorios_propietario' | 'alertas';
 
 const permissions: Record<Resource, { full: UserRole[], readOnly: UserRole[] }> = {
     animales: {
@@ -56,15 +56,20 @@ const permissions: Record<Resource, { full: UserRole[], readOnly: UserRole[] }> 
         full: [UserRole.ADMIN],
         readOnly: []
     },
-    /** Portal de propietario: solo lectura (GET) para OWNER, ADMIN y VETERINARIAN; prohíbe POST/PUT/DELETE */
+    /** Portal de propietario: solo lectura (GET) para OWNER, ADMIN y VETERINARIAN; prohÃ­be POST/PUT/DELETE */
     portal_propietario: {
         full: [],
         readOnly: [UserRole.OWNER, UserRole.ADMIN, UserRole.VETERINARIAN]
     },
-    /** Recordatorios del propietario (Sprint 16 - ASIDGA-180): Solo lectura (GET) para OWNER, ADMIN y VETERINARIAN; prohíbe POST/PUT/DELETE */
+    /** Recordatorios del propietario (Sprint 16 - ASIDGA-180): Solo lectura (GET) para OWNER, ADMIN y VETERINARIAN; prohÃ­be POST/PUT/DELETE */
     recordatorios_propietario: {
         full: [],
         readOnly: [UserRole.OWNER, UserRole.ADMIN, UserRole.VETERINARIAN]
+    },
+    /** Alertas (Sprint 18 - HU10/HU11): Full Access para veterinarian, zootechnician y administrator */
+    alertas: {
+        full: [UserRole.VETERINARIAN, UserRole.ZOOTECHNICIAN, UserRole.ADMIN],
+        readOnly: []
     }
 };
 
@@ -103,3 +108,4 @@ export const rbacMiddleware = (resource: Resource) => {
         return c.json({ message: 'Forbidden: You do not have permission to perform this action' }, 403);
     };
 };
+

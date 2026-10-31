@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { SequelizeMedicalHistoryRepository } from '@infrastructure/database/repositories/SequelizeMedicalHistoryRepository.js';
 import { MedicalHistory } from '@domain/entities/MedicalHistory.js';
 import { MedicalHistory as MedicalHistoryModel } from '@infrastructure/database/models/MedicalHistory.model.js';
@@ -84,6 +84,44 @@ describe('Repositorio Sequelize de Historial Médico (SequelizeMedicalHistoryRep
         expect(foundHistory?.diagnosis).toBe(history.diagnosis);
         expect(foundHistory?.treatment).toBe(history.treatment);
         expect(foundHistory?.createdBy).toBe(history.createdBy);
+    });
+
+    it('debería registrar y consultar un historial con campos clínicos ampliados (HU8)', async () => {
+        const id = randomUUID();
+        const history = new MedicalHistory(
+            id,
+            testAnimalId,
+            new Date('2026-10-20T10:00:00Z'),
+            'Revisión clínica completa',
+            'Sano',
+            'Plan nutricional',
+            'Sin anomalías',
+            testUserId,
+            'Paciente muestra excelente adaptación al tratamiento',
+            {
+                heartRate: 85,
+                respiratoryRate: 20,
+                temperature: 38.6,
+                capillaryRefillTime: 1.5,
+                mucosalState: 'rosadas'
+            },
+            34.5,
+            3.5
+        );
+
+        await repository.save(history);
+
+        const foundHistory = await repository.findById(id);
+
+        expect(foundHistory).not.toBeNull();
+        expect(foundHistory?.evolution).toBe('Paciente muestra excelente adaptación al tratamiento');
+        expect(foundHistory?.weight).toBe(34.5);
+        expect(foundHistory?.bodyConditionScore).toBe(3.5);
+        expect(foundHistory?.heartRate).toBe(85);
+        expect(foundHistory?.respiratoryRate).toBe(20);
+        expect(foundHistory?.temperature).toBe(38.6);
+        expect(foundHistory?.capillaryRefillTime).toBe(1.5);
+        expect(foundHistory?.mucosalState).toBe('rosadas');
     });
 
     it('debería encontrar los historiales médicos de un animal en específico', async () => {

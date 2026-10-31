@@ -43,3 +43,15 @@ __decorate([
     Attribute(DataTypes.UUID),
     NotNull
 ], MedicalHistory.prototype, "createdBy", void 0);
+__decorate([
+    Attribute(DataTypes.TEXT)
+], MedicalHistory.prototype, "evolution", void 0);
+__decorate([
+    Attribute(DataTypes.JSON)
+], MedicalHistory.prototype, "physiologicalConstants", void 0);
+__decorate([
+    Attribute(DataTypes.DECIMAL(10, 2))
+], MedicalHistory.prototype, "weight", void 0);
+__decorate([
+    Attribute(DataTypes.DECIMAL(3, 1))
+], MedicalHistory.prototype, "bodyConditionScore", void 0);

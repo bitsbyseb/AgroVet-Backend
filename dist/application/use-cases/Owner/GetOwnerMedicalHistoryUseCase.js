@@ -44,6 +44,10 @@ export class GetOwnerMedicalHistoryUseCase {
             treatment: entry.treatment,
             observations: entry.observations,
             createdBy: entry.createdBy,
+            evolution: entry.evolution ?? null,
+            physiologicalConstants: entry.physiologicalConstants ?? null,
+            weight: entry.weight ?? null,
+            bodyConditionScore: entry.bodyConditionScore ?? null,
             createdAt: entry.createdAt instanceof Date ? entry.createdAt.toISOString() : undefined,
             updatedAt: entry.updatedAt instanceof Date ? entry.updatedAt.toISOString() : undefined
         }));

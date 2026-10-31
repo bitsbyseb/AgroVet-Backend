@@ -21,7 +21,7 @@ function createMockContext(role?: string, method = 'GET') {
     return { context, jsonMock };
 }
 
-describe('Middleware de Seguridad RBAC (Sprint 16 - ASIDGA-180)', () => {
+describe('Middleware de Seguridad RBAC (Sprint 16 y Sprint 17)', () => {
     it('debería retornar 401 si falta el payload JWT', async () => {
         const { context, jsonMock } = createMockContext(undefined, 'GET');
         const next = vi.fn();
@@ -114,6 +114,51 @@ describe('Middleware de Seguridad RBAC (Sprint 16 - ASIDGA-180)', () => {
             await rbacMiddleware('recordatorios_propietario')(delContext, nextDel);
             expect(nextDel).not.toHaveBeenCalled();
             expect(delJson).toHaveBeenCalledWith(expect.anything(), 403);
+        });
+    });
+
+    describe('Recurso: historial_medico (Sprint 17 - HU8/HU9 RBAC Matrix)', () => {
+        it('debería otorgar Full Access (GET, POST, PUT, DELETE) al rol VETERINARIAN', async () => {
+            for (const method of ['GET', 'POST', 'PUT', 'DELETE']) {
+                const { context } = createMockContext(UserRole.VETERINARIAN, method);
+                const next = vi.fn();
+                await rbacMiddleware('historial_medico')(context, next);
+                expect(next).toHaveBeenCalledTimes(1);
+            }
+        });
+
+        it('debería otorgar acceso de Solo Lectura (GET) al rol ZOOTECHNICIAN y bloquear mutaciones', async () => {
+            // GET permitido
+            const { context: getContext } = createMockContext(UserRole.ZOOTECHNICIAN, 'GET');
+            const nextGet = vi.fn();
+            await rbacMiddleware('historial_medico')(getContext, nextGet);
+            expect(nextGet).toHaveBeenCalledTimes(1);
+
+            // POST / PUT / DELETE bloqueados con 403
+            for (const method of ['POST', 'PUT', 'DELETE']) {
+                const { context, jsonMock } = createMockContext(UserRole.ZOOTECHNICIAN, method);
+                const next = vi.fn();
+                await rbacMiddleware('historial_medico')(context, next);
+                expect(next).not.toHaveBeenCalled();
+                expect(jsonMock).toHaveBeenCalledWith(expect.anything(), 403);
+            }
+        });
+
+        it('debería otorgar acceso de Solo Lectura (GET) al rol ADMINISTRATOR y bloquear mutaciones', async () => {
+            // GET permitido
+            const { context: getContext } = createMockContext(UserRole.ADMIN, 'GET');
+            const nextGet = vi.fn();
+            await rbacMiddleware('historial_medico')(getContext, nextGet);
+            expect(nextGet).toHaveBeenCalledTimes(1);
+
+            // POST / PUT / DELETE bloqueados con 403
+            for (const method of ['POST', 'PUT', 'DELETE']) {
+                const { context, jsonMock } = createMockContext(UserRole.ADMIN, method);
+                const next = vi.fn();
+                await rbacMiddleware('historial_medico')(context, next);
+                expect(next).not.toHaveBeenCalled();
+                expect(jsonMock).toHaveBeenCalledWith(expect.anything(), 403);
+            }
         });
     });
 

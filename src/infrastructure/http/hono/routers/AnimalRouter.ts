@@ -1,7 +1,7 @@
 import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi';
 import { AnimalController } from '../controllers/AnimalController.js';
 import { animalSchema, updateAnimalSchema, transferAnimalSchema, animalResponseSchema, animalListResponseSchema } from '../validators/AnimalValidator.js';
-import { medicalHistorySchema, medicalHistoryResponseSchema } from '../validators/MedicalHistoryValidator.js';
+import { medicalHistorySchema, updateMedicalHistorySchema, medicalHistoryResponseSchema } from '../validators/MedicalHistoryValidator.js';
 import { vaccinationSchema, vaccinationResponseSchema } from '../validators/VaccinationValidator.js';
 import { MedicalHistoryController } from '../controllers/MedicalHistoryController.js';
 import { VaccinationController } from '../controllers/VaccinationController.js';
@@ -128,7 +128,24 @@ export function createAnimalRouter(
             body: { content: { 'application/json': { schema: medicalHistorySchema } } }
         },
         responses: {
-            201: { content: { 'application/json': { schema: z.object({ message: z.string() }) } }, description: 'Evento registrado' }
+            201: { content: { 'application/json': { schema: z.object({ message: z.string() }) } }, description: 'Evento registrado' },
+            400: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Error al registrar' }
+        },
+        tags: ['Clínica']
+    });
+
+    const putHistoryRoute = createRoute({
+        method: 'put',
+        path: '/{id}/history/{historyId}',
+        summary: 'Actualizar evento médico',
+        security: [{ Bearer: [] }],
+        request: { 
+            params: z.object({ id: z.string(), historyId: z.string() }),
+            body: { content: { 'application/json': { schema: updateMedicalHistorySchema } } }
+        },
+        responses: {
+            200: { content: { 'application/json': { schema: z.object({ message: z.string() }) } }, description: 'Evento actualizado' },
+            400: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Error al actualizar' }
         },
         tags: ['Clínica']
     });
@@ -250,6 +267,7 @@ export function createAnimalRouter(
     router.use('/:id', rbacMiddleware('animales'));
     router.use('/:id/transfer', rbacMiddleware('animales'));
     router.use('/:id/history', rbacMiddleware('historial_medico'));
+    router.use('/:id/history/*', rbacMiddleware('historial_medico'));
     router.use('/:id/vaccines', rbacMiddleware('vacunas'));
     router.use('/:id/diet', rbacMiddleware('alimentacion'));
     router.use('/:id/production', rbacMiddleware('datos_productivos'));
@@ -264,6 +282,7 @@ export function createAnimalRouter(
 
     router.openapi(getHistoryRoute, (c) => medicalHistoryController.listByAnimal(c));
     router.openapi(postHistoryRoute, (c) => medicalHistoryController.register(c));
+    router.openapi(putHistoryRoute, (c) => medicalHistoryController.update(c));
     
     router.openapi(getVaccinesRoute, (c) => vaccinationController.listByAnimal(c));
     router.openapi(postVaccineRoute, (c) => vaccinationController.register(c));

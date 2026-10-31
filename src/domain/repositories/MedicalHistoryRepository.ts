@@ -1,5 +1,9 @@
-import { MedicalHistory } from "../entities/MedicalHistory.js";
+import type { MedicalHistory } from "../entities/MedicalHistory.js";
 
+/**
+ * Puerto de Repositorio de Dominio para MedicalHistory.
+ * Define el contrato de persistencia desacoplado de la infraestructura.
+ */
 export interface MedicalHistoryRepository {
     save(medicalHistory: MedicalHistory): Promise<void>;
     findById(id: string): Promise<MedicalHistory | null>;

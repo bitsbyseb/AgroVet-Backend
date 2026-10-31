@@ -1,37 +1,103 @@
+import type { Context } from 'hono';
+import { CreateMedicalHistoryUseCase } from '@application/use-cases/MedicalHistory/CreateMedicalHistoryUseCase.js';
+import { GetMedicalHistoryByAnimalUseCase } from '@application/use-cases/MedicalHistory/GetMedicalHistoryByAnimalUseCase.js';
+import { UpdateMedicalHistoryUseCase } from '@application/use-cases/MedicalHistory/UpdateMedicalHistoryUseCase.js';
 import { RegisterMedicalHistoryUseCase } from '@application/use-cases/MedicalHistory/RegisterMedicalHistoryUseCase.js';
 import { ListMedicalHistoriesUseCase } from '@application/use-cases/MedicalHistory/ListMedicalHistoriesUseCase.js';
 import { handleControllerError } from '../utils/errorHandler.js';
 
 export class MedicalHistoryController {
     constructor(
-        private registerMedicalHistoryUseCase: RegisterMedicalHistoryUseCase,
-        private listMedicalHistoriesUseCase: ListMedicalHistoriesUseCase
+        private createMedicalHistoryUseCase: CreateMedicalHistoryUseCase,
+        private getMedicalHistoryByAnimalUseCase: GetMedicalHistoryByAnimalUseCase,
+        private updateMedicalHistoryUseCase: UpdateMedicalHistoryUseCase,
+        private registerMedicalHistoryUseCase?: RegisterMedicalHistoryUseCase,
+        private listMedicalHistoriesUseCase?: ListMedicalHistoriesUseCase
     ) { }
 
-    async listByAnimal(c: any) {
+    /**
+     * Obtiene el historial médico enriquecido de un animal.
+     */
+    async listByAnimal(c: Context) {
         try {
-            const { id } = c.req.valid('param');
-            const history = await this.listMedicalHistoriesUseCase.executeByAnimal(id);
-            return c.json(history);
+            const params = c.req.param();
+            const animalId = params.animalId || params.id;
+            if (!animalId) {
+                return c.json({ error: 'Animal ID is required' }, 400);
+            }
+
+            const history = this.getMedicalHistoryByAnimalUseCase
+                ? await this.getMedicalHistoryByAnimalUseCase.execute(animalId)
+                : await this.listMedicalHistoriesUseCase!.executeByAnimal(animalId);
+
+            return c.json(history, 200);
         } catch (error: any) {
-            return handleControllerError(c, error, 'Error al listar historias médicas', 500);
+            const status = error.message?.includes('not found') ? 404 : 500;
+            return handleControllerError(c, error, 'Error al listar historias médicas', status);
         }
     }
 
-    async register(c: any) {
+    /**
+     * Crea un nuevo registro clínico enriquecido (HU8/HU9).
+     */
+    async create(c: Context) {
         try {
-            const { id } = c.req.valid('param');
-            const data = c.req.valid('json');
-            const payload = c.get('jwtPayload');
-            await this.registerMedicalHistoryUseCase.execute({ 
-                ...data, 
-                animalId: id,
-                createdBy: payload.sub,
-                date: new Date(data.date)
+            const params = c.req.param();
+            const data = (c.req as any).valid('json');
+            const payload = c.get('jwtPayload') as { sub: string } | undefined;
+            const animalId = params.animalId || params.id || data.animalId;
+
+            if (!animalId) {
+                return c.json({ error: 'Animal ID is required' }, 400);
+            }
+
+            const createdBy = payload?.sub || data.createdBy || 'system';
+
+            const record = await this.createMedicalHistoryUseCase.execute({
+                ...data,
+                animalId,
+                createdBy,
+                date: data.date ? new Date(data.date) : new Date()
             });
-            return c.json({ message: 'Medical history entry added successfully' }, 201);
+
+            return c.json({
+                message: 'Medical history entry added successfully',
+                data: record
+            }, 201);
         } catch (error: any) {
-            return handleControllerError(c, error, 'Error al registrar historia médica', 400);
+            const status = error.message?.includes('not found') ? 404 : 400;
+            return handleControllerError(c, error, 'Error al registrar historia médica', status);
+        }
+    }
+
+    /**
+     * Método retrocompatible para registrar historial médico.
+     */
+    async register(c: Context) {
+        return this.create(c);
+    }
+
+    /**
+     * Actualiza un registro clínico con evolución, constantes o medidas (HU8/HU9).
+     */
+    async update(c: Context) {
+        try {
+            const params = c.req.param();
+            const recordId = params.historyId || params.id;
+            if (!recordId) {
+                return c.json({ error: 'Medical history ID is required' }, 400);
+            }
+
+            const data = (c.req as any).valid('json');
+            const updated = await this.updateMedicalHistoryUseCase.execute(recordId, data);
+
+            return c.json({
+                message: 'Medical history entry updated successfully',
+                data: updated
+            }, 200);
+        } catch (error: any) {
+            const status = error.message?.includes('not found') ? 404 : 400;
+            return handleControllerError(c, error, 'Error al actualizar historia médica', status);
         }
     }
 }

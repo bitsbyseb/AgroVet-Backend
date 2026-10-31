@@ -1,7 +1,7 @@
 import type { AnimalRepository } from "@domain/repositories/AnimalRepository.js";
 import type { MedicalHistoryRepository } from "@domain/repositories/MedicalHistoryRepository.js";
 import type { OwnerRepository } from "@domain/repositories/OwnerRepository.js";
-import type { MedicalHistory } from "@domain/entities/MedicalHistory.js";
+import type { MedicalHistory, PhysiologicalConstants } from "@domain/entities/MedicalHistory.js";
 
 export interface MedicalHistoryEntry {
     id: string;
@@ -12,6 +12,10 @@ export interface MedicalHistoryEntry {
     treatment: string;
     observations: string;
     createdBy: string;
+    evolution?: string | null;
+    physiologicalConstants?: PhysiologicalConstants | null;
+    weight?: number | null;
+    bodyConditionScore?: number | null;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -66,6 +70,10 @@ export class GetOwnerMedicalHistoryUseCase {
             treatment: entry.treatment,
             observations: entry.observations,
             createdBy: entry.createdBy,
+            evolution: entry.evolution ?? null,
+            physiologicalConstants: entry.physiologicalConstants ?? null,
+            weight: entry.weight ?? null,
+            bodyConditionScore: entry.bodyConditionScore ?? null,
             createdAt: entry.createdAt instanceof Date ? entry.createdAt.toISOString() : undefined,
             updatedAt: entry.updatedAt instanceof Date ? entry.updatedAt.toISOString() : undefined
         }));

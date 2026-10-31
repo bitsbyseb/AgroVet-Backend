@@ -1,4 +1,4 @@
-import { ProductionData } from "./ProductionData.model.js";
+﻿import { ProductionData } from "./ProductionData.model.js";
 import { MedicalHistory } from "./MedicalHistory.model.js";
 import { ReproductionData } from "./Reproduction.model.js";
 import { Alimentation } from "./Alimentation.model.js";
@@ -11,6 +11,7 @@ import { Owner } from "./Owner.model.js";
 import { User } from "./User.model.js";
 import { Food } from "./Food.model.js";
 import { GrazingActivity } from "./grazingActivity.model.js";
+import { Alert } from "./Alert.model.js";
 
 
 sequelize.addModels([
@@ -25,7 +26,8 @@ sequelize.addModels([
     User,
     Food,
     Paddock,
-    GrazingActivity
+    GrazingActivity,
+    Alert
 ])
 
 Owner.hasMany(Animal, {
@@ -114,3 +116,22 @@ GrazingActivity.belongsTo(Paddock, {
     as: 'paddock'
 });
 
+// ─── Alert Associations ────────────────────────────────────────────────────────
+
+Animal.hasMany(Alert, {
+    foreignKey: 'animalId',
+    as: 'alerts'
+});
+Alert.belongsTo(Animal, {
+    foreignKey: 'animalId',
+    as: 'animal'
+});
+
+User.hasMany(Alert, {
+    foreignKey: 'userId',
+    as: 'alerts'
+});
+Alert.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user'
+});

@@ -1,4 +1,4 @@
-import { MedicalHistory } from "@domain/entities/MedicalHistory.js";
+import { MedicalHistory, type PhysiologicalConstants } from "@domain/entities/MedicalHistory.js";
 import type { MedicalHistoryRepository } from "@domain/repositories/MedicalHistoryRepository.js";
 import type { AnimalRepository } from "@domain/repositories/AnimalRepository.js";
 import { randomUUID } from "node:crypto";
@@ -16,7 +16,11 @@ export class RegisterMedicalHistoryUseCase {
         diagnosis: string; 
         treatment: string; 
         observations: string; 
-        createdBy: string 
+        createdBy: string;
+        evolution?: string | null;
+        physiologicalConstants?: PhysiologicalConstants | null;
+        weight?: number | null;
+        bodyConditionScore?: number | null;
     }): Promise<void> {
         const animal = await this.animalRepository.findById(request.animalId);
         if (!animal) {
@@ -31,7 +35,11 @@ export class RegisterMedicalHistoryUseCase {
             request.diagnosis,
             request.treatment,
             request.observations,
-            request.createdBy
+            request.createdBy,
+            request.evolution ?? null,
+            request.physiologicalConstants ?? null,
+            request.weight ?? null,
+            request.bodyConditionScore ?? null
         );
 
         await this.medicalHistoryRepository.save(medicalHistory);
