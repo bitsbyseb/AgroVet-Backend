@@ -32,7 +32,7 @@ const permissions = {
     },
     reproduccion: {
         full: [UserRole.ZOOTECHNICIAN],
-        readOnly: [UserRole.ADMIN]
+        readOnly: [UserRole.ADMIN, UserRole.VETERINARIAN]
     },
     potreros: {
         full: [UserRole.ZOOTECHNICIAN, UserRole.ADMIN],
@@ -50,12 +50,12 @@ const permissions = {
         full: [UserRole.ADMIN],
         readOnly: []
     },
-    /** Portal de propietario: solo lectura (GET) para OWNER, ADMIN y VETERINARIAN; prohÃ­be POST/PUT/DELETE */
+    /** Portal de propietario: solo lectura (GET) para OWNER, ADMIN y VETERINARIAN; prohíbe POST/PUT/DELETE */
     portal_propietario: {
         full: [],
         readOnly: [UserRole.OWNER, UserRole.ADMIN, UserRole.VETERINARIAN]
     },
-    /** Recordatorios del propietario (Sprint 16 - ASIDGA-180): Solo lectura (GET) para OWNER, ADMIN y VETERINARIAN; prohÃ­be POST/PUT/DELETE */
+    /** Recordatorios del propietario (Sprint 16 - ASIDGA-180): Solo lectura (GET) para OWNER, ADMIN y VETERINARIAN; prohíbe POST/PUT/DELETE */
     recordatorios_propietario: {
         full: [],
         readOnly: [UserRole.OWNER, UserRole.ADMIN, UserRole.VETERINARIAN]

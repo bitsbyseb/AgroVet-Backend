@@ -10,7 +10,7 @@ import { ProductionController } from '../controllers/ProductionController.js';
 import { ReproductionController } from '../controllers/ReproductionController.js';
 import { alimentationSchema, alimentationResponseSchema } from '../validators/AlimentationValidator.js';
 import { productionSchema, productionResponseSchema } from '../validators/ProductionValidator.js';
-import { reproductionSchema, reproductionResponseSchema } from '../validators/ReproductionValidator.js';
+import { reproductionSchema, reproductionResponseSchema, reproductionListResponseSchema } from '../validators/ReproductionValidator.js';
 import { authMiddleware, rbacMiddleware } from '../middleware/RoleMiddleware.js';
 import { errorResponseSchema } from '../validators/LoginValidator.js';
 export function createAnimalRouter(animalController, medicalHistoryController, vaccinationController, alimentationController, productionController, reproductionController) {
@@ -217,7 +217,7 @@ export function createAnimalRouter(animalController, medicalHistoryController, v
         security: [{ Bearer: [] }],
         request: { params: z.object({ id: z.string() }) },
         responses: {
-            200: { content: { 'application/json': { schema: z.array(reproductionResponseSchema) } }, description: 'Eventos reproductivos' }
+            200: { content: { 'application/json': { schema: reproductionListResponseSchema } }, description: 'Eventos reproductivos' }
         },
         tags: ['Reproducción']
     });
@@ -231,7 +231,18 @@ export function createAnimalRouter(animalController, medicalHistoryController, v
             body: { content: { 'application/json': { schema: reproductionSchema } } }
         },
         responses: {
-            201: { content: { 'application/json': { schema: z.object({ message: z.string() }) } }, description: 'Evento registrado' }
+            201: {
+                content: {
+                    'application/json': {
+                        schema: z.object({
+                            message: z.string(),
+                            id: z.string().optional(),
+                            record: reproductionResponseSchema.optional()
+                        })
+                    }
+                },
+                description: 'Evento registrado'
+            }
         },
         tags: ['Reproducción']
     });

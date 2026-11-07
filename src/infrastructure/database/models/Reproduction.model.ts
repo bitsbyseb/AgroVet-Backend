@@ -6,6 +6,7 @@ import { ReproductiveStatus, BreedingType } from "@domain/entities/Reproduction.
 export class ReproductionData extends Model<InferAttributes<ReproductionData>, InferCreationAttributes<ReproductionData>> {
   @Attribute(DataTypes.UUID)
   @PrimaryKey
+  @NotNull
   @Unique
   declare id: string;
 
@@ -26,6 +27,21 @@ export class ReproductionData extends Model<InferAttributes<ReproductionData>, I
 
   @Attribute(DataTypes.ENUM(...Object.values(BreedingType)))
   declare breedingType: BreedingType | null;
+
+  @Attribute(DataTypes.DATE)
+  declare heatDate: Date | null;
+
+  @Attribute(DataTypes.DATE)
+  declare expectedCalvingDate: Date | null;
+
+  @Attribute(DataTypes.STRING(100))
+  declare bullId: string | null;
+
+  @Attribute(DataTypes.STRING(100))
+  declare semenBatch: string | null;
+
+  @Attribute(DataTypes.TEXT)
+  declare inseminationDetails: string | null;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;

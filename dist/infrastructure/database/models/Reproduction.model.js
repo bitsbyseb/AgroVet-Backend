@@ -12,6 +12,7 @@ let ReproductionData = class ReproductionData extends Model {
 __decorate([
     Attribute(DataTypes.UUID),
     PrimaryKey,
+    NotNull,
     Unique
 ], ReproductionData.prototype, "id", void 0);
 __decorate([
@@ -32,6 +33,21 @@ __decorate([
 __decorate([
     Attribute(DataTypes.ENUM(...Object.values(BreedingType)))
 ], ReproductionData.prototype, "breedingType", void 0);
+__decorate([
+    Attribute(DataTypes.DATE)
+], ReproductionData.prototype, "heatDate", void 0);
+__decorate([
+    Attribute(DataTypes.DATE)
+], ReproductionData.prototype, "expectedCalvingDate", void 0);
+__decorate([
+    Attribute(DataTypes.STRING(100))
+], ReproductionData.prototype, "bullId", void 0);
+__decorate([
+    Attribute(DataTypes.STRING(100))
+], ReproductionData.prototype, "semenBatch", void 0);
+__decorate([
+    Attribute(DataTypes.TEXT)
+], ReproductionData.prototype, "inseminationDetails", void 0);
 ReproductionData = __decorate([
     Table({ tableName: 'reproduction', underscored: true })
 ], ReproductionData);

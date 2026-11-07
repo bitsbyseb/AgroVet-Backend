@@ -61,8 +61,8 @@ import { GetAnimalDietUseCase } from './application/use-cases/Alimentation/GetAn
 // Use Cases - Production & Reproduction
 import { RegisterProductionUseCase } from './application/use-cases/Production/RegisterProductionUseCase.js';
 import { GetAnimalProductionUseCase } from './application/use-cases/Production/GetAnimalProductionUseCase.js';
-import { RegisterReproductionUseCase } from './application/use-cases/Reproduction/RegisterReproductionUseCase.js';
-import { GetAnimalReproductionUseCase } from './application/use-cases/Reproduction/GetAnimalReproductionUseCase.js';
+import { RegisterReproductiveEventUseCase } from './application/use-cases/Reproduction/RegisterReproductiveEventUseCase.js';
+import { GetReproductionHistoryUseCase } from './application/use-cases/Reproduction/GetReproductionHistoryUseCase.js';
 // Use Cases - Paddocks & Grazing
 import { RegisterPaddockUseCase } from './application/use-cases/paddocks/RegisterPaddockUseCase.js';
 import { GetPaddocksUseCase } from './application/use-cases/paddocks/GetPaddocksUseCase.js';
@@ -99,6 +99,7 @@ import { createAppointmentRouter } from './infrastructure/http/hono/routers/Appo
 import { createFoodRouter } from './infrastructure/http/hono/routers/FoodRouter.js';
 import { createPaddockRouter } from './infrastructure/http/hono/routers/PaddockRouter.js';
 import { createGrazingRouter } from './infrastructure/http/hono/routers/grazingRouter.js';
+import { createReproductionRouter } from './infrastructure/http/hono/routers/ReproductionRouter.js';
 // Routers - Alerts (Sprint 18)
 import { createAlertRouter } from './infrastructure/http/hono/routers/AlertRouter.js';
 import { swaggerUI } from '@hono/swagger-ui';
@@ -168,8 +169,8 @@ const getAnimalDietUseCase = new GetAnimalDietUseCase(alimentationRepository, an
 // Use Cases (Production & Reproduction)
 const registerProductionUseCase = new RegisterProductionUseCase(productionRepository, animalRepository);
 const getAnimalProductionUseCase = new GetAnimalProductionUseCase(productionRepository, animalRepository);
-const registerReproductionUseCase = new RegisterReproductionUseCase(reproductionRepository, animalRepository);
-const getAnimalReproductionUseCase = new GetAnimalReproductionUseCase(reproductionRepository, animalRepository);
+const registerReproductiveEventUseCase = new RegisterReproductiveEventUseCase(reproductionRepository, animalRepository);
+const getReproductionHistoryUseCase = new GetReproductionHistoryUseCase(reproductionRepository, animalRepository);
 // Use Cases (Paddocks & Grazing)
 const registerPaddockUseCase = new RegisterPaddockUseCase(paddockRepository);
 const getPaddocksUseCase = new GetPaddocksUseCase(paddockRepository);
@@ -189,7 +190,7 @@ const vaccinationController = new VaccinationController(registerVaccinationUseCa
 const foodController = new FoodController(registerFoodUseCase, listFoodsUseCase);
 const alimentationController = new AlimentationController(registerAlimentationUseCase, getAnimalDietUseCase);
 const productionController = new ProductionController(registerProductionUseCase, getAnimalProductionUseCase);
-const reproductionController = new ReproductionController(registerReproductionUseCase, getAnimalReproductionUseCase);
+const reproductionController = new ReproductionController(registerReproductiveEventUseCase, getReproductionHistoryUseCase);
 const paddockController = new PaddockController(registerPaddockUseCase, getPaddocksUseCase, updatePaddockUseCase);
 const grazingController = new GrazingController(registerGrazingActivityUseCase, getGrazingActivitiesUseCase);
 const grazingHistoryController = new GrazingHistoryController(getGrazingHistoryUseCase);
@@ -229,6 +230,7 @@ const appointmentRouter = createAppointmentRouter(appointmentController);
 const foodRouter = createFoodRouter(foodController);
 const paddockRouter = createPaddockRouter(paddockController);
 const grazingRouter = createGrazingRouter(grazingController, grazingHistoryController);
+const reproductionRouter = createReproductionRouter(reproductionController);
 // Routers (Alerts - Sprint 18)
 const alertRouter = createAlertRouter(alertController);
 const app = new OpenAPIHono();
@@ -269,6 +271,7 @@ v1.route('/paddocks', paddockRouter);
 v1.route('/grazing', grazingRouter);
 v1.route('/grazing-activities', grazingRouter);
 v1.route('/alerts', alertRouter);
+v1.route('/reproduction', reproductionRouter);
 app.route('/api/v1', v1);
 const server = serve({
     fetch: app.fetch,
