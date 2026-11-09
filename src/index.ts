@@ -70,6 +70,7 @@ import { GetAnimalDietUseCase } from '@application/use-cases/Alimentation/GetAni
 // Use Cases - Production & Reproduction
 import { RegisterProductionUseCase } from '@application/use-cases/Production/RegisterProductionUseCase.js';
 import { GetAnimalProductionUseCase } from '@application/use-cases/Production/GetAnimalProductionUseCase.js';
+import { GetProductionIndicatorsUseCase } from '@application/use-cases/Production/GetProductionIndicatorsUseCase.js';
 import { RegisterReproductiveEventUseCase } from '@application/use-cases/Reproduction/RegisterReproductiveEventUseCase.js';
 import { GetReproductionHistoryUseCase } from '@application/use-cases/Reproduction/GetReproductionHistoryUseCase.js';
 
@@ -114,6 +115,7 @@ import { createFoodRouter } from '@infrastructure/http/hono/routers/FoodRouter.j
 import { createPaddockRouter } from '@infrastructure/http/hono/routers/PaddockRouter.js';
 import { createGrazingRouter } from '@infrastructure/http/hono/routers/grazingRouter.js';
 import { createReproductionRouter } from '@infrastructure/http/hono/routers/ReproductionRouter.js';
+import { createProductionRouter } from '@infrastructure/http/hono/routers/ProductionRouter.js';
 
 // Routers - Alerts (Sprint 18)
 import { createAlertRouter } from '@infrastructure/http/hono/routers/AlertRouter.js';
@@ -202,6 +204,7 @@ const getAnimalDietUseCase = new GetAnimalDietUseCase(alimentationRepository, an
 // Use Cases (Production & Reproduction)
 const registerProductionUseCase = new RegisterProductionUseCase(productionRepository, animalRepository);
 const getAnimalProductionUseCase = new GetAnimalProductionUseCase(productionRepository, animalRepository);
+const getProductionIndicatorsUseCase = new GetProductionIndicatorsUseCase(productionRepository, animalRepository);
 const registerReproductiveEventUseCase = new RegisterReproductiveEventUseCase(reproductionRepository, animalRepository);
 const getReproductionHistoryUseCase = new GetReproductionHistoryUseCase(reproductionRepository, animalRepository);
 
@@ -241,7 +244,11 @@ const medicalHistoryController = new MedicalHistoryController(
 const vaccinationController = new VaccinationController(registerVaccinationUseCase, listVaccinationsUseCase);
 const foodController = new FoodController(registerFoodUseCase, listFoodsUseCase);
 const alimentationController = new AlimentationController(registerAlimentationUseCase, getAnimalDietUseCase);
-const productionController = new ProductionController(registerProductionUseCase, getAnimalProductionUseCase);
+const productionController = new ProductionController(
+    registerProductionUseCase,
+    getAnimalProductionUseCase,
+    getProductionIndicatorsUseCase
+);
 const reproductionController = new ReproductionController(registerReproductiveEventUseCase, getReproductionHistoryUseCase);
 const paddockController = new PaddockController(registerPaddockUseCase, getPaddocksUseCase, updatePaddockUseCase);
 const grazingController = new GrazingController(registerGrazingActivityUseCase, getGrazingActivitiesUseCase);
@@ -304,6 +311,7 @@ const foodRouter = createFoodRouter(foodController);
 const paddockRouter = createPaddockRouter(paddockController);
 const grazingRouter = createGrazingRouter(grazingController, grazingHistoryController);
 const reproductionRouter = createReproductionRouter(reproductionController);
+const productionRouter = createProductionRouter(productionController);
 
 // Routers (Alerts - Sprint 18)
 const alertRouter = createAlertRouter(alertController);
@@ -353,6 +361,7 @@ v1.route('/grazing', grazingRouter);
 v1.route('/grazing-activities', grazingRouter);
 v1.route('/alerts', alertRouter);
 v1.route('/reproduction', reproductionRouter);
+v1.route('/production', productionRouter);
 
 app.route('/api/v1', v1);
 

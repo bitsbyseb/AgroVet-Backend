@@ -15,6 +15,9 @@ export class RegisterProductionUseCase {
         milkProduction: number | null;
         purpose: ProductionPurpose;
         recordDate: Date;
+        productionDate?: Date | null;
+        weightGain?: number | null;
+        productQuality?: string | null;
     }): Promise<void> {
         const animal = await this.animalRepository.findById(request.animalId);
         if (!animal) throw new Error("Animal not found");
@@ -25,7 +28,10 @@ export class RegisterProductionUseCase {
             request.weight,
             request.milkProduction,
             request.purpose,
-            request.recordDate
+            request.recordDate,
+            request.productionDate ?? null,
+            request.weightGain ?? null,
+            request.productQuality ?? null
         );
 
         await this.productionRepository.save(production);

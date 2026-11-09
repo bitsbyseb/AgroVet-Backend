@@ -28,6 +28,15 @@ export class ProductionData extends Model<InferAttributes<ProductionData>, Infer
   @Default(DataTypes.NOW)
   declare recordDate: Date;
 
+  @Attribute(DataTypes.DATE)
+  declare productionDate: Date | null;
+
+  @Attribute(DataTypes.DECIMAL(10, 2))
+  declare weightGain: number | null;
+
+  @Attribute(DataTypes.STRING(255))
+  declare productQuality: string | null;
+
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }

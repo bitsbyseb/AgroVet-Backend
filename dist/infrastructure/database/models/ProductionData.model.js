@@ -33,6 +33,15 @@ __decorate([
     Attribute(DataTypes.DATE),
     Default(DataTypes.NOW)
 ], ProductionData.prototype, "recordDate", void 0);
+__decorate([
+    Attribute(DataTypes.DATE)
+], ProductionData.prototype, "productionDate", void 0);
+__decorate([
+    Attribute(DataTypes.DECIMAL(10, 2))
+], ProductionData.prototype, "weightGain", void 0);
+__decorate([
+    Attribute(DataTypes.STRING(255))
+], ProductionData.prototype, "productQuality", void 0);
 ProductionData = __decorate([
     Table({ tableName: 'production_data', underscored: true })
 ], ProductionData);

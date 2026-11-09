@@ -16,7 +16,7 @@ import { AlimentationController } from '../controllers/AlimentationController.js
 import { ProductionController } from '../controllers/ProductionController.js';
 import { ReproductionController } from '../controllers/ReproductionController.js';
 import { alimentationSchema, alimentationResponseSchema } from '../validators/AlimentationValidator.js';
-import { productionSchema, productionResponseSchema } from '../validators/ProductionValidator.js';
+import { productionSchema, productionResponseSchema, productionIndicatorsQuerySchema, productionIndicatorsResponseSchema } from '../validators/ProductionValidator.js';
 import { reproductionSchema, reproductionResponseSchema, reproductionListResponseSchema } from '../validators/ReproductionValidator.js';
 import { authMiddleware, rbacMiddleware } from '../middleware/RoleMiddleware.js';
 import { errorResponseSchema } from '../validators/LoginValidator.js';
@@ -262,6 +262,24 @@ export function createAnimalRouter(
         tags: ['Producción']
     });
 
+    // HU17 — Production Indicators Route
+    const getProductionIndicatorsRoute = createRoute({
+        method: 'get',
+        path: '/{id}/production/indicators',
+        summary: 'Consultar indicadores productivos del animal',
+        description: 'Calcula indicadores de producción por período: peso promedio, producción de leche, ganancia de peso acumulada y evolución cronológica.',
+        security: [{ Bearer: [] }],
+        request: {
+            params: z.object({ id: z.string() }),
+            query: productionIndicatorsQuerySchema
+        },
+        responses: {
+            200: { content: { 'application/json': { schema: productionIndicatorsResponseSchema } }, description: 'Indicadores de producción calculados' },
+            404: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Animal no encontrado' }
+        },
+        tags: ['Producción']
+    });
+
     // Reproduction Routes
     const getReproductionRoute = createRoute({
         method: 'get',
@@ -311,6 +329,7 @@ export function createAnimalRouter(
     router.use('/:id/vaccines', rbacMiddleware('vacunas'));
     router.use('/:id/diet', rbacMiddleware('alimentacion'));
     router.use('/:id/production', rbacMiddleware('datos_productivos'));
+    router.use('/:id/production/*', rbacMiddleware('datos_productivos'));
     router.use('/:id/reproduction', rbacMiddleware('reproduccion'));
 
     router.openapi(searchAnimalsRoute, (c) => animalController.search(c));
@@ -333,6 +352,7 @@ export function createAnimalRouter(
     
     router.openapi(getProductionRoute, (c) => productionController.getProduction(c));
     router.openapi(postProductionRoute, (c) => productionController.register(c));
+    router.openapi(getProductionIndicatorsRoute, (c) => productionController.getIndicators(c));
     
     router.openapi(getReproductionRoute, (c) => reproductionController.getReproduction(c));
     router.openapi(postReproductionRoute, (c) => reproductionController.register(c));

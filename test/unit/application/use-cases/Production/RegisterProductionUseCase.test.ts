@@ -34,6 +34,55 @@ describe('RegisterProductionUseCase', () => {
         expect(mockProductionRepo.save).toHaveBeenCalled();
     });
 
+    it('should register production with new HU16 fields', async () => {
+        const animalId = randomUUID();
+        const mockAnimal = new Animal(animalId, 'Lola', speciesType.BOVINE, animalType.RURAL, 'Holstein', Gender.FEMALE, new Date(), Status.ACTIVE, 'White', randomUUID());
+        (mockAnimalRepo.findById as any).mockResolvedValue(mockAnimal);
+
+        const productionDate = new Date('2026-11-09');
+        await useCase.execute({
+            animalId,
+            weight: 480,
+            milkProduction: 18,
+            purpose: ProductionPurpose.MILK,
+            recordDate: new Date(),
+            productionDate,
+            weightGain: 2.5,
+            productQuality: 'Alta'
+        });
+
+        expect(mockAnimalRepo.findById).toHaveBeenCalledWith(animalId);
+        expect(mockProductionRepo.save).toHaveBeenCalledWith(
+            expect.objectContaining({
+                animalId,
+                weightGain: 2.5,
+                productQuality: 'Alta',
+                productionDate
+            })
+        );
+    });
+
+    it('should register production with null optional HU16 fields', async () => {
+        const animalId = randomUUID();
+        const mockAnimal = new Animal(animalId, 'Rex', speciesType.BOVINE, animalType.RURAL, 'Angus', Gender.MALE, new Date(), Status.ACTIVE, 'Black', randomUUID());
+        (mockAnimalRepo.findById as any).mockResolvedValue(mockAnimal);
+
+        await useCase.execute({
+            animalId,
+            weight: 600,
+            milkProduction: null,
+            purpose: ProductionPurpose.MEAT,
+            recordDate: new Date(),
+            productionDate: null,
+            weightGain: null,
+            productQuality: null
+        });
+
+        expect(mockProductionRepo.save).toHaveBeenCalledWith(
+            expect.objectContaining({ weightGain: null, productQuality: null, productionDate: null })
+        );
+    });
+
     it('should throw error if animal not found', async () => {
         (mockAnimalRepo.findById as any).mockResolvedValue(null);
 

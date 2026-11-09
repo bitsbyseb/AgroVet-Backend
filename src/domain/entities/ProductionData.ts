@@ -2,7 +2,11 @@ export enum ProductionPurpose {
     MEAT = 'meat',
     MILK = 'milk',
     BREEDING = 'breeding',
-    WORK = 'work'
+    WORK = 'work',
+    EGGS = 'eggs',
+    WOOL = 'wool',
+    DUAL = 'dual',
+    OTHER = 'other'
 }
 
 export class ProductionData {
@@ -13,6 +17,9 @@ export class ProductionData {
         public milkProduction: number | null,
         public purpose: ProductionPurpose,
         public recordDate: Date,
+        public productionDate: Date | null = null,
+        public weightGain: number | null = null,
+        public productQuality: string | null = null,
         public readonly createdAt?: Date,
         public readonly updatedAt?: Date
     ) {}

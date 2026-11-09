@@ -1,13 +1,16 @@
 import { RegisterProductionUseCase } from '../../../../application/use-cases/Production/RegisterProductionUseCase.js';
 import { GetAnimalProductionUseCase } from '../../../../application/use-cases/Production/GetAnimalProductionUseCase.js';
+import { GetProductionIndicatorsUseCase } from '../../../../application/use-cases/Production/GetProductionIndicatorsUseCase.js';
 import { randomUUID } from 'node:crypto';
 import { handleControllerError } from '../utils/errorHandler.js';
 export class ProductionController {
     registerProductionUseCase;
     getAnimalProductionUseCase;
-    constructor(registerProductionUseCase, getAnimalProductionUseCase) {
+    getProductionIndicatorsUseCase;
+    constructor(registerProductionUseCase, getAnimalProductionUseCase, getProductionIndicatorsUseCase) {
         this.registerProductionUseCase = registerProductionUseCase;
         this.getAnimalProductionUseCase = getAnimalProductionUseCase;
+        this.getProductionIndicatorsUseCase = getProductionIndicatorsUseCase;
     }
     async register(c) {
         try {
@@ -17,7 +20,10 @@ export class ProductionController {
                 id: randomUUID(),
                 animalId: id,
                 ...data,
-                recordDate: data.recordDate ? new Date(data.recordDate) : new Date()
+                recordDate: data.recordDate ? new Date(data.recordDate) : new Date(),
+                productionDate: data.productionDate ? new Date(data.productionDate) : null,
+                weightGain: data.weightGain ?? null,
+                productQuality: data.productQuality ?? null
             };
             await this.registerProductionUseCase.execute(productionData);
             return c.json({ message: 'Production record registered successfully', id: productionData.id }, 201);
@@ -34,6 +40,21 @@ export class ProductionController {
         }
         catch (error) {
             return handleControllerError(c, error, 'Error al consultar producción del animal', 404);
+        }
+    }
+    async getIndicators(c) {
+        try {
+            const { id } = c.req.valid('param');
+            const query = c.req.valid('query');
+            const indicators = await this.getProductionIndicatorsUseCase.execute({
+                animalId: id,
+                from: query?.from,
+                to: query?.to
+            });
+            return c.json(indicators);
+        }
+        catch (error) {
+            return handleControllerError(c, error, 'Error al calcular indicadores de producción', 404);
         }
     }
 }

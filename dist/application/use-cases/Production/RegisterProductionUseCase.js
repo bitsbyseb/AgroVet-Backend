@@ -10,7 +10,7 @@ export class RegisterProductionUseCase {
         const animal = await this.animalRepository.findById(request.animalId);
         if (!animal)
             throw new Error("Animal not found");
-        const production = new ProductionData(request.id, request.animalId, request.weight, request.milkProduction, request.purpose, request.recordDate);
+        const production = new ProductionData(request.id, request.animalId, request.weight, request.milkProduction, request.purpose, request.recordDate, request.productionDate ?? null, request.weightGain ?? null, request.productQuality ?? null);
         await this.productionRepository.save(production);
     }
 }
