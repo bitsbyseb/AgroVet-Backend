@@ -4,6 +4,7 @@ import { ListAllAnimalsUseCase } from '@application/use-cases/Animal/ListAllAnim
 import { UpdateAnimalUseCase } from '@application/use-cases/Animal/UpdateAnimalUseCase.js';
 import { DeleteAnimalUseCase } from '@application/use-cases/Animal/DeleteAnimalUseCase.js';
 import { TransferAnimalOwnershipUseCase } from '@application/use-cases/Animal/TransferAnimalOwnershipUseCase.js';
+import { SearchAnimalsUseCase } from '@application/use-cases/Animal/SearchAnimalsUseCase.js';
 import { handleControllerError } from '../utils/errorHandler.js';
 
 export class AnimalController {
@@ -13,7 +14,8 @@ export class AnimalController {
         private listAllAnimalsUseCase: ListAllAnimalsUseCase,
         private updateAnimalUseCase: UpdateAnimalUseCase,
         private deleteAnimalUseCase: DeleteAnimalUseCase,
-        private transferAnimalOwnershipUseCase: TransferAnimalOwnershipUseCase
+        private transferAnimalOwnershipUseCase: TransferAnimalOwnershipUseCase,
+        private searchAnimalsUseCase?: SearchAnimalsUseCase
     ) { }
 
     async register(c: any) {
@@ -38,10 +40,59 @@ export class AnimalController {
 
     async list(c: any) {
         try {
+            const queryParams = (c.req.query ? c.req.query() : {}) as Record<string, string>;
+            const query = queryParams.query || queryParams.q;
+            const name = queryParams.name;
+            const identification = queryParams.identification;
+            const species = queryParams.species;
+            const ownerId = queryParams.ownerId;
+            const status = queryParams.status;
+
+            if ((query || name || identification || species || ownerId || status) && this.searchAnimalsUseCase) {
+                const animals = await this.searchAnimalsUseCase.execute({
+                    query,
+                    name,
+                    identification,
+                    species,
+                    ownerId,
+                    status
+                });
+                return c.json(animals);
+            }
+
             const animals = await this.listAllAnimalsUseCase.execute();
             return c.json(animals);
         } catch (error: any) {
             return handleControllerError(c, error, 'Error al listar animales', 500);
+        }
+    }
+
+    async search(c: any) {
+        try {
+            const queryParams = c.req.valid('query') || {};
+            const query = queryParams.query || queryParams.q;
+            const name = queryParams.name;
+            const identification = queryParams.identification;
+            const species = queryParams.species;
+            const ownerId = queryParams.ownerId;
+            const status = queryParams.status;
+
+            if (!this.searchAnimalsUseCase) {
+                const animals = await this.listAllAnimalsUseCase.execute();
+                return c.json(animals);
+            }
+
+            const animals = await this.searchAnimalsUseCase.execute({
+                query,
+                name,
+                identification,
+                species,
+                ownerId,
+                status
+            });
+            return c.json(animals);
+        } catch (error: any) {
+            return handleControllerError(c, error, 'Error al buscar animales', 500);
         }
     }
 

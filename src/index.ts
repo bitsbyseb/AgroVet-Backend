@@ -47,6 +47,7 @@ import { UpdateAnimalUseCase } from '@application/use-cases/Animal/UpdateAnimalU
 import { DeleteAnimalUseCase } from '@application/use-cases/Animal/DeleteAnimalUseCase.js';
 import { GetOwnerAnimalsUseCase } from '@application/use-cases/Animal/GetOwnerAnimalsUseCase.js';
 import { TransferAnimalOwnershipUseCase } from '@application/use-cases/Animal/TransferAnimalOwnershipUseCase.js';
+import { SearchAnimalsUseCase } from '@application/use-cases/Animal/SearchAnimalsUseCase.js';
 
 // Use Cases - Clinical
 import { RegisterAppointmentUseCase } from '@application/use-cases/Appointment/RegisterAppointmentUseCase.js';
@@ -178,6 +179,7 @@ const updateAnimalUseCase = new UpdateAnimalUseCase(animalRepository);
 const deleteAnimalUseCase = new DeleteAnimalUseCase(animalRepository);
 const getOwnerAnimalsUseCase = new GetOwnerAnimalsUseCase(animalRepository, ownerRepository);
 const transferAnimalOwnershipUseCase = new TransferAnimalOwnershipUseCase(animalRepository, ownerRepository);
+const searchAnimalsUseCase = new SearchAnimalsUseCase(animalRepository);
 
 // Use Cases (Clinical)
 const registerAppointmentUseCase = new RegisterAppointmentUseCase(appointmentRepository, animalRepository);
@@ -254,7 +256,8 @@ const animalController = new AnimalController(
     listAllAnimalsUseCase,
     updateAnimalUseCase,
     deleteAnimalUseCase,
-    transferAnimalOwnershipUseCase
+    transferAnimalOwnershipUseCase,
+    searchAnimalsUseCase
 );
 const appointmentController = new AppointmentController(registerAppointmentUseCase, listAppointmentsUseCase, updateAppointmentUseCase);
 

@@ -1,6 +1,6 @@
 import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi';
 import { AnimalController } from '../controllers/AnimalController.js';
-import { animalSchema, updateAnimalSchema, transferAnimalSchema, animalResponseSchema, animalListResponseSchema } from '../validators/AnimalValidator.js';
+import { animalSchema, updateAnimalSchema, transferAnimalSchema, animalResponseSchema, animalListResponseSchema, searchAnimalQuerySchema } from '../validators/AnimalValidator.js';
 import { medicalHistorySchema, updateMedicalHistorySchema, medicalHistoryResponseSchema } from '../validators/MedicalHistoryValidator.js';
 import { vaccinationSchema, vaccinationResponseSchema } from '../validators/VaccinationValidator.js';
 import { MedicalHistoryController } from '../controllers/MedicalHistoryController.js';
@@ -20,9 +20,29 @@ export function createAnimalRouter(animalController, medicalHistoryController, v
         method: 'get',
         path: '/',
         summary: 'Listar todos los animales',
+        description: 'Retorna la lista de animales o filtra por coincidencia de nombre o número de identificación.',
         security: [{ Bearer: [] }],
+        request: {
+            query: searchAnimalQuerySchema
+        },
         responses: {
-            200: { content: { 'application/json': { schema: animalListResponseSchema } }, description: 'Lista de animales' }
+            200: { content: { 'application/json': { schema: animalListResponseSchema } }, description: 'Lista de animales' },
+            400: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Parámetros inválidos' }
+        },
+        tags: ['Animales']
+    });
+    const searchAnimalsRoute = createRoute({
+        method: 'get',
+        path: '/search',
+        summary: 'Buscar animales por nombre o identificación',
+        description: 'Busca animales por coincidencia parcial de nombre o número de identificación.',
+        security: [{ Bearer: [] }],
+        request: {
+            query: searchAnimalQuerySchema
+        },
+        responses: {
+            200: { content: { 'application/json': { schema: animalListResponseSchema } }, description: 'Resultados de la búsqueda' },
+            400: { content: { 'application/json': { schema: errorResponseSchema } }, description: 'Parámetros inválidos' }
         },
         tags: ['Animales']
     });
@@ -248,6 +268,7 @@ export function createAnimalRouter(animalController, medicalHistoryController, v
     });
     // Implementation
     router.use('/', rbacMiddleware('animales'));
+    router.use('/search', rbacMiddleware('animales'));
     router.use('/:id', rbacMiddleware('animales'));
     router.use('/:id/transfer', rbacMiddleware('animales'));
     router.use('/:id/history', rbacMiddleware('historial_medico'));
@@ -256,6 +277,7 @@ export function createAnimalRouter(animalController, medicalHistoryController, v
     router.use('/:id/diet', rbacMiddleware('alimentacion'));
     router.use('/:id/production', rbacMiddleware('datos_productivos'));
     router.use('/:id/reproduction', rbacMiddleware('reproduccion'));
+    router.openapi(searchAnimalsRoute, (c) => animalController.search(c));
     router.openapi(listAnimalsRoute, (c) => animalController.list(c));
     router.openapi(registerAnimalRoute, (c) => animalController.register(c));
     router.openapi(getAnimalRoute, (c) => animalController.getById(c));

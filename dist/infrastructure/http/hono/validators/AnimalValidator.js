@@ -38,3 +38,13 @@ export const animalResponseSchema = z.object({
     paddockId: z.string().nullable().optional().openapi({ example: 'uuid-paddock-123' })
 }).openapi('AnimalResponse');
 export const animalListResponseSchema = z.array(animalResponseSchema).openapi('AnimalListResponse');
+// Schema para búsqueda y filtros avanzados de animales (Sprint 20 HU14 & HU15)
+export const searchAnimalQuerySchema = z.object({
+    q: z.string().optional().openapi({ example: 'Bessie', description: 'Término de búsqueda general (nombre o ID)' }),
+    query: z.string().optional().openapi({ example: 'Bessie', description: 'Término de búsqueda general (nombre o ID)' }),
+    name: z.string().optional().openapi({ example: 'Bessie', description: 'Filtro por coincidencia de nombre' }),
+    identification: z.string().optional().openapi({ example: 'uuid-animal-123', description: 'Filtro por número de identificación (ID)' }),
+    species: z.nativeEnum(speciesType).optional().or(z.string().optional()).openapi({ example: speciesType.BOVINE, description: 'Filtro por especie' }),
+    ownerId: z.string().optional().openapi({ example: 'uuid-owner-123', description: 'Filtro por ID del propietario' }),
+    status: StatusEnum.optional().or(z.string().optional()).openapi({ example: 'active', description: 'Filtro por estado (active o inactive)' })
+}).openapi('SearchAnimalQuery');

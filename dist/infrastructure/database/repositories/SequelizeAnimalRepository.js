@@ -1,4 +1,5 @@
-import { Animal, animalType, speciesType, Gender } from "../../../domain/entities/Animal.js";
+import { Op } from '@sequelize/core';
+import { Animal, animalType, speciesType, Gender, Status } from "../../../domain/entities/Animal.js";
 import { Animal as AnimalModel } from '../../database/models/Animal.model.js';
 import { cleanWhereClause, isValidUuid } from "../utils/whereHelper.js";
 export class SequelizeAnimalRepository {
@@ -34,6 +35,50 @@ export class SequelizeAnimalRepository {
     }
     async findAll() {
         const models = await AnimalModel.findAll();
+        return models.map((model) => this.toDomain(model));
+    }
+    async search(params) {
+        const criteria = typeof params === 'string' ? { query: params } : (params || {});
+        const query = criteria.query?.trim();
+        const name = criteria.name?.trim();
+        const identification = criteria.identification?.trim();
+        const species = criteria.species?.trim();
+        const ownerId = criteria.ownerId?.trim();
+        const status = criteria.status?.trim();
+        if (!query && !name && !identification && !species && !ownerId && !status) {
+            return this.findAll();
+        }
+        const andConditions = [];
+        if (query) {
+            andConditions.push({
+                [Op.or]: [
+                    { name: { [Op.like]: `%${query}%` } },
+                    { id: { [Op.like]: `%${query}%` } }
+                ]
+            });
+        }
+        if (name) {
+            andConditions.push({ name: { [Op.like]: `%${name}%` } });
+        }
+        if (identification) {
+            andConditions.push({ id: { [Op.like]: `%${identification}%` } });
+        }
+        if (species) {
+            andConditions.push({ species });
+        }
+        if (ownerId) {
+            if (isValidUuid(ownerId)) {
+                andConditions.push({ ownerId });
+            }
+            else {
+                return [];
+            }
+        }
+        if (status) {
+            andConditions.push({ status });
+        }
+        const where = andConditions.length === 1 ? andConditions[0] : { [Op.and]: andConditions };
+        const models = await AnimalModel.findAll({ where });
         return models.map((model) => this.toDomain(model));
     }
     async update(animal) {

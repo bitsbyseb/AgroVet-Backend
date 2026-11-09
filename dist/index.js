@@ -42,6 +42,7 @@ import { UpdateAnimalUseCase } from './application/use-cases/Animal/UpdateAnimal
 import { DeleteAnimalUseCase } from './application/use-cases/Animal/DeleteAnimalUseCase.js';
 import { GetOwnerAnimalsUseCase } from './application/use-cases/Animal/GetOwnerAnimalsUseCase.js';
 import { TransferAnimalOwnershipUseCase } from './application/use-cases/Animal/TransferAnimalOwnershipUseCase.js';
+import { SearchAnimalsUseCase } from './application/use-cases/Animal/SearchAnimalsUseCase.js';
 // Use Cases - Clinical
 import { RegisterAppointmentUseCase } from './application/use-cases/Appointment/RegisterAppointmentUseCase.js';
 import { ListAppointmentsUseCase } from './application/use-cases/Appointment/ListAppointmentsUseCase.js';
@@ -150,6 +151,7 @@ const updateAnimalUseCase = new UpdateAnimalUseCase(animalRepository);
 const deleteAnimalUseCase = new DeleteAnimalUseCase(animalRepository);
 const getOwnerAnimalsUseCase = new GetOwnerAnimalsUseCase(animalRepository, ownerRepository);
 const transferAnimalOwnershipUseCase = new TransferAnimalOwnershipUseCase(animalRepository, ownerRepository);
+const searchAnimalsUseCase = new SearchAnimalsUseCase(animalRepository);
 // Use Cases (Clinical)
 const registerAppointmentUseCase = new RegisterAppointmentUseCase(appointmentRepository, animalRepository);
 const listAppointmentsUseCase = new ListAppointmentsUseCase(appointmentRepository);
@@ -196,7 +198,7 @@ const grazingController = new GrazingController(registerGrazingActivityUseCase, 
 const grazingHistoryController = new GrazingHistoryController(getGrazingHistoryUseCase);
 // Controllers (Alerts - Sprint 18)
 const alertController = new AlertController(generateAlertsUseCase, getAlertsUseCase, markAlertAsReadUseCase);
-const animalController = new AnimalController(registerAnimalUseCase, getAnimalByIdUseCase, listAllAnimalsUseCase, updateAnimalUseCase, deleteAnimalUseCase, transferAnimalOwnershipUseCase);
+const animalController = new AnimalController(registerAnimalUseCase, getAnimalByIdUseCase, listAllAnimalsUseCase, updateAnimalUseCase, deleteAnimalUseCase, transferAnimalOwnershipUseCase, searchAnimalsUseCase);
 const appointmentController = new AppointmentController(registerAppointmentUseCase, listAppointmentsUseCase, updateAppointmentUseCase);
 // SEEDING
 const seedAdmins = async () => {

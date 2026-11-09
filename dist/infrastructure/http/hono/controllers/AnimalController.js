@@ -4,6 +4,7 @@ import { ListAllAnimalsUseCase } from '../../../../application/use-cases/Animal/
 import { UpdateAnimalUseCase } from '../../../../application/use-cases/Animal/UpdateAnimalUseCase.js';
 import { DeleteAnimalUseCase } from '../../../../application/use-cases/Animal/DeleteAnimalUseCase.js';
 import { TransferAnimalOwnershipUseCase } from '../../../../application/use-cases/Animal/TransferAnimalOwnershipUseCase.js';
+import { SearchAnimalsUseCase } from '../../../../application/use-cases/Animal/SearchAnimalsUseCase.js';
 import { handleControllerError } from '../utils/errorHandler.js';
 export class AnimalController {
     registerAnimalUseCase;
@@ -12,13 +13,15 @@ export class AnimalController {
     updateAnimalUseCase;
     deleteAnimalUseCase;
     transferAnimalOwnershipUseCase;
-    constructor(registerAnimalUseCase, getAnimalByIdUseCase, listAllAnimalsUseCase, updateAnimalUseCase, deleteAnimalUseCase, transferAnimalOwnershipUseCase) {
+    searchAnimalsUseCase;
+    constructor(registerAnimalUseCase, getAnimalByIdUseCase, listAllAnimalsUseCase, updateAnimalUseCase, deleteAnimalUseCase, transferAnimalOwnershipUseCase, searchAnimalsUseCase) {
         this.registerAnimalUseCase = registerAnimalUseCase;
         this.getAnimalByIdUseCase = getAnimalByIdUseCase;
         this.listAllAnimalsUseCase = listAllAnimalsUseCase;
         this.updateAnimalUseCase = updateAnimalUseCase;
         this.deleteAnimalUseCase = deleteAnimalUseCase;
         this.transferAnimalOwnershipUseCase = transferAnimalOwnershipUseCase;
+        this.searchAnimalsUseCase = searchAnimalsUseCase;
     }
     async register(c) {
         try {
@@ -42,11 +45,56 @@ export class AnimalController {
     }
     async list(c) {
         try {
+            const queryParams = (c.req.query ? c.req.query() : {});
+            const query = queryParams.query || queryParams.q;
+            const name = queryParams.name;
+            const identification = queryParams.identification;
+            const species = queryParams.species;
+            const ownerId = queryParams.ownerId;
+            const status = queryParams.status;
+            if ((query || name || identification || species || ownerId || status) && this.searchAnimalsUseCase) {
+                const animals = await this.searchAnimalsUseCase.execute({
+                    query,
+                    name,
+                    identification,
+                    species,
+                    ownerId,
+                    status
+                });
+                return c.json(animals);
+            }
             const animals = await this.listAllAnimalsUseCase.execute();
             return c.json(animals);
         }
         catch (error) {
             return handleControllerError(c, error, 'Error al listar animales', 500);
+        }
+    }
+    async search(c) {
+        try {
+            const queryParams = c.req.valid('query') || {};
+            const query = queryParams.query || queryParams.q;
+            const name = queryParams.name;
+            const identification = queryParams.identification;
+            const species = queryParams.species;
+            const ownerId = queryParams.ownerId;
+            const status = queryParams.status;
+            if (!this.searchAnimalsUseCase) {
+                const animals = await this.listAllAnimalsUseCase.execute();
+                return c.json(animals);
+            }
+            const animals = await this.searchAnimalsUseCase.execute({
+                query,
+                name,
+                identification,
+                species,
+                ownerId,
+                status
+            });
+            return c.json(animals);
+        }
+        catch (error) {
+            return handleControllerError(c, error, 'Error al buscar animales', 500);
         }
     }
     async update(c) {

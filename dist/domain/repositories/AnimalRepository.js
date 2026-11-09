@@ -1,1 +1,1 @@
-import { Animal } from "../entities/Animal.js";
+import { Animal, speciesType, Status } from "../entities/Animal.js";
