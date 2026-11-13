@@ -9,7 +9,7 @@ export const authMiddleware = jwt({
     alg: 'HS256'
 });
 
-type Resource = 'animales' | 'historial_medico' | 'vacunas' | 'consultas_veterinarias' | 'datos_productivos' | 'alimentacion' | 'reproduccion' | 'propietarios' | 'usuarios' | 'potreros' | 'pastoreo' | 'portal_propietario' | 'recordatorios_propietario' | 'alertas';
+type Resource = 'animales' | 'historial_medico' | 'vacunas' | 'consultas_veterinarias' | 'datos_productivos' | 'alimentacion' | 'reproduccion' | 'propietarios' | 'usuarios' | 'potreros' | 'pastoreo' | 'portal_propietario' | 'recordatorios_propietario' | 'alertas' | 'auditoria' | 'administracion';
 
 const permissions: Record<Resource, { full: UserRole[], readOnly: UserRole[] }> = {
     animales: {
@@ -69,6 +69,16 @@ const permissions: Record<Resource, { full: UserRole[], readOnly: UserRole[] }> 
     /** Alertas (Sprint 18 - HU10/HU11): Full Access para veterinarian, zootechnician y administrator */
     alertas: {
         full: [UserRole.VETERINARIAN, UserRole.ZOOTECHNICIAN, UserRole.ADMIN],
+        readOnly: []
+    },
+    /** Auditoría (Sprint 22 - HU18/HU19): Solo el rol administrador tiene acceso */
+    auditoria: {
+        full: [UserRole.ADMIN],
+        readOnly: []
+    },
+    /** Indicadores Administrativos (Sprint 22 - HU20): Solo el rol administrador tiene acceso */
+    administracion: {
+        full: [UserRole.ADMIN],
         readOnly: []
     }
 };

@@ -38,6 +38,15 @@ export class SequelizeUserRepository implements UserRepository {
         return this.toDomain(userModel);
     }
 
+    async findAll(): Promise<User[]> {
+        const userModels = await UserModel.findAll();
+        return userModels.map((m) => this.toDomain(m));
+    }
+
+    async count(): Promise<number> {
+        return await UserModel.count();
+    }
+
     private toDomain(userModel: UserModel): User {
         return new User({
             id: userModel.id,

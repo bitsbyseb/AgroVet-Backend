@@ -18,6 +18,7 @@ import { SequelizeReproductionRepository } from '@infrastructure/database/reposi
 import { SequelizePaddockRepository } from '@infrastructure/database/repositories/SequelizePaddockRepository.js';
 import { SequelizeGrazingActivityRepository } from '@infrastructure/database/repositories/SequelizeGrazingActivityRepository.js';
 import { SequelizeAlertRepository } from '@infrastructure/database/repositories/SequelizeAlertRepository.js';
+import { SequelizeAuditLogRepository } from '@infrastructure/database/repositories/SequelizeAuditLogRepository.js';
 import { handleControllerError } from '@infrastructure/http/hono/utils/errorHandler.js';
 
 // Security
@@ -86,6 +87,11 @@ import { GetGrazingHistoryUseCase } from '@application/use-cases/paddocks/GetGra
 import { GenerateAlertsUseCase } from '@application/use-cases/Alert/GenerateAlertsUseCase.js';
 import { GetAlertsUseCase } from '@application/use-cases/Alert/GetAlertsUseCase.js';
 import { MarkAlertAsReadUseCase } from '@application/use-cases/Alert/MarkAlertAsReadUseCase.js';
+import { RecordActivityUseCase } from '@application/use-cases/Audit/RecordActivityUseCase.js';
+import { GetAuditLogsUseCase } from '@application/use-cases/Audit/GetAuditLogsUseCase.js';
+import { GetAdminIndicatorsUseCase } from '@application/use-cases/Admin/GetAdminIndicatorsUseCase.js';
+import { AuditService } from '@infrastructure/services/AuditService.js';
+import { createAuditMiddleware } from '@infrastructure/http/hono/middleware/AuditMiddleware.js';
 
 // Controllers
 import { AuthController } from '@infrastructure/http/hono/controllers/AuthController.js';
@@ -104,6 +110,9 @@ import { GrazingHistoryController } from '@infrastructure/http/hono/controllers/
 
 // Controllers - Alerts (Sprint 18)
 import { AlertController } from '@infrastructure/http/hono/controllers/AlertController.js';
+import { AuditController } from '@infrastructure/http/hono/controllers/AuditController.js';
+import { AdminController } from '@infrastructure/http/hono/controllers/AdminController.js';
+import { AdminBackupController } from '@infrastructure/http/hono/controllers/AdminBackupController.js';
 
 // Routers
 import { createAuthRouter } from '@infrastructure/http/hono/routers/AuthRouter.js';
@@ -119,6 +128,8 @@ import { createProductionRouter } from '@infrastructure/http/hono/routers/Produc
 
 // Routers - Alerts (Sprint 18)
 import { createAlertRouter } from '@infrastructure/http/hono/routers/AlertRouter.js';
+import { createAuditRouter } from '@infrastructure/http/hono/routers/AuditRouter.js';
+import { createAdminRouter } from '@infrastructure/http/hono/routers/AdminRouter.js';
 
 import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
@@ -146,6 +157,7 @@ const reproductionRepository = new SequelizeReproductionRepository();
 const paddockRepository = new SequelizePaddockRepository();
 const grazingActivityRepository = new SequelizeGrazingActivityRepository();
 const alertRepository = new SequelizeAlertRepository();
+const auditLogRepository = new SequelizeAuditLogRepository();
 const passwordHasher = new BcryptHasher();
 const tokenService = new HonoTokenService();
 
@@ -221,8 +233,22 @@ const generateAlertsUseCase = new GenerateAlertsUseCase(alertRepository, animalR
 const getAlertsUseCase = new GetAlertsUseCase(alertRepository);
 const markAlertAsReadUseCase = new MarkAlertAsReadUseCase(alertRepository);
 
+// Use Cases - Audit (Sprint 22)
+const recordActivityUseCase = new RecordActivityUseCase(auditLogRepository);
+const getAuditLogsUseCase = new GetAuditLogsUseCase(auditLogRepository);
+const auditService = new AuditService(recordActivityUseCase);
+const auditMiddleware = createAuditMiddleware(auditService);
+
+// Use Cases - Admin (Sprint 22 - HU20)
+const getAdminIndicatorsUseCase = new GetAdminIndicatorsUseCase(
+    userRepository,
+    animalRepository,
+    ownerRepository,
+    auditLogRepository
+);
+
 // Controllers
-const authController = new AuthController(registerUserUseCase, loginUserUseCase);
+const authController = new AuthController(registerUserUseCase, loginUserUseCase, auditService);
 const ownerController = new OwnerController(
     registerOwnerUseCase,
     updateOwnerProfileUseCase,
@@ -256,6 +282,9 @@ const grazingHistoryController = new GrazingHistoryController(getGrazingHistoryU
 
 // Controllers (Alerts - Sprint 18)
 const alertController = new AlertController(generateAlertsUseCase, getAlertsUseCase, markAlertAsReadUseCase);
+const auditController = new AuditController(getAuditLogsUseCase);
+const adminController = new AdminController(getAdminIndicatorsUseCase);
+const adminBackupController = new AdminBackupController();
 
 const animalController = new AnimalController(
     registerAnimalUseCase,
@@ -315,6 +344,8 @@ const productionRouter = createProductionRouter(productionController);
 
 // Routers (Alerts - Sprint 18)
 const alertRouter = createAlertRouter(alertController);
+const auditRouter = createAuditRouter(auditController);
+const adminRouter = createAdminRouter(adminController, adminBackupController);
 
 const app = new OpenAPIHono();
 
@@ -348,6 +379,7 @@ app.get('/ui', swaggerUI({ url: '/doc' }));
 
 // Routes Registration
 const v1 = new OpenAPIHono();
+v1.use('*', auditMiddleware);
 v1.route('/auth', authRouter);
 v1.route('/owners', ownerRouter);
 v1.route('/owner', ownerRouter);              // Sprint 11 - Portal del Propietario (/owner/animals, etc.)
@@ -362,6 +394,9 @@ v1.route('/grazing-activities', grazingRouter);
 v1.route('/alerts', alertRouter);
 v1.route('/reproduction', reproductionRouter);
 v1.route('/production', productionRouter);
+v1.route('/audit', auditRouter);
+v1.route('/audit-logs', auditRouter);
+v1.route('/admin', adminRouter);
 
 app.route('/api/v1', v1);
 

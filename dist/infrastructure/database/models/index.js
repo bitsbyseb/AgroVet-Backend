@@ -12,6 +12,7 @@ import { User } from "./User.model.js";
 import { Food } from "./Food.model.js";
 import { GrazingActivity } from "./grazingActivity.model.js";
 import { Alert } from "./Alert.model.js";
+import { AuditLog } from "./AuditLog.model.js";
 sequelize.addModels([
     ReproductionData,
     ProductionData,
@@ -25,7 +26,8 @@ sequelize.addModels([
     Food,
     Paddock,
     GrazingActivity,
-    Alert
+    Alert,
+    AuditLog
 ]);
 Owner.hasMany(Animal, {
     foreignKey: 'ownerId',

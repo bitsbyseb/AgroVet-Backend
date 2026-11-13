@@ -38,6 +38,13 @@ export class SequelizeUserRepository {
             return null;
         return this.toDomain(userModel);
     }
+    async findAll() {
+        const userModels = await UserModel.findAll();
+        return userModels.map((m) => this.toDomain(m));
+    }
+    async count() {
+        return await UserModel.count();
+    }
     toDomain(userModel) {
         return new User({
             id: userModel.id,

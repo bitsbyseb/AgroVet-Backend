@@ -64,6 +64,16 @@ const permissions = {
     alertas: {
         full: [UserRole.VETERINARIAN, UserRole.ZOOTECHNICIAN, UserRole.ADMIN],
         readOnly: []
+    },
+    /** Auditoría (Sprint 22 - HU18/HU19): Solo el rol administrador tiene acceso */
+    auditoria: {
+        full: [UserRole.ADMIN],
+        readOnly: []
+    },
+    /** Indicadores Administrativos (Sprint 22 - HU20): Solo el rol administrador tiene acceso */
+    administracion: {
+        full: [UserRole.ADMIN],
+        readOnly: []
     }
 };
 export const rbacMiddleware = (resource) => {
